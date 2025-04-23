@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical, Plus, Filter, Download, Edit, Trash2, Copy, Link, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { MultiSelect, type OptionType } from "@/components/ui/multi-select"
 
 export function DisposalFees() {
   const [activeTab, setActiveTab] = useState("all")
@@ -35,12 +36,14 @@ export function DisposalFees() {
   const [showAddTierDialog, setShowAddTierDialog] = useState(false)
   const [selectedFee, setSelectedFee] = useState<any>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
 
   const componentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleAddDisposalFee = () => {
       setSelectedFee(null)
+      setSelectedMaterials([])
       setShowEditDialog(true)
     }
 
@@ -52,6 +55,22 @@ export function DisposalFees() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (selectedFee) {
+      if (selectedFee.materials && selectedFee.materials.length > 0) {
+        setSelectedMaterials(selectedFee.materials.map((m: string) => m.toLowerCase()))
+      } else if (selectedFee.material && selectedFee.material !== "All") {
+        setSelectedMaterials([selectedFee.material.toLowerCase()])
+      } else if (selectedFee.material === "All") {
+        setSelectedMaterials(materials.map((m) => m.name.toLowerCase()))
+      } else {
+        setSelectedMaterials([])
+      }
+    } else {
+      setSelectedMaterials([])
+    }
+  }, [selectedFee])
 
   const disposalFees = [
     {
@@ -153,7 +172,7 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-DEL",
@@ -170,7 +189,7 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-PU",
@@ -187,7 +206,8 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-RENT",
       linkedServices: 10,
@@ -207,7 +227,8 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-OW",
       linkedServices: 8,
@@ -227,7 +248,8 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-RELOC",
       linkedServices: 6,
@@ -243,7 +265,8 @@ export function DisposalFees() {
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
-      material: "All",
+      material: "Multiple",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-CONT",
       linkedServices: 5,
@@ -260,8 +283,13 @@ export function DisposalFees() {
     { id: 3, name: "Recycling", description: "Recyclable Materials" },
     { id: 4, name: "Yard Waste", description: "Yard Waste and Organics" },
     { id: 5, name: "Hazardous", description: "Hazardous Waste" },
-    { id: 6, name: "All", description: "All Material Types" },
   ]
+
+  const materialOptions: OptionType[] = materials.map((material) => ({
+    value: material.name.toLowerCase(),
+    label: material.name,
+    description: material.description,
+  }))
 
   const descriptionTemplates = [
     { id: 1, text: "Standard disposal fee for [material] waste" },
@@ -764,294 +792,215 @@ export function DisposalFees() {
 
   const renderEditDialog = () => (
     <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{selectedFee ? "Edit Disposal Fee" : "Add Disposal Fee"}</DialogTitle>
-          <DialogDescription>
-            {selectedFee
-              ? "Update the details for this disposal fee"
-              : "Create a new disposal fee with tiered pricing and free tonnage"}
-          </DialogDescription>
+          <DialogTitle>{selectedFee ? "Edit Disposal Fee" : "Create Disposal Fee"}</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="basic">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            <TabsTrigger value="tiers">Tiers</TabsTrigger>
-            <TabsTrigger value="associations">Associations</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-2">
+          <div className="space-y-2">
+            <Label htmlFor="fee-name">Name</Label>
+            <Input id="fee-name" defaultValue={selectedFee?.name || ""} placeholder="Enter fee name" />
+          </div>
 
-          <TabsContent value="basic" className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="fee-gl-code">General Ledger Account</Label>
+            <Select defaultValue={selectedFee?.glCode || ""}>
+              <SelectTrigger id="fee-gl-code">
+                <SelectValue placeholder="Select general ledger account" />
+              </SelectTrigger>
+              <SelectContent>
+                {glCodes.map((code) => (
+                  <SelectItem key={code.id} value={code.code}>
+                    {code.code} - {code.description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fee-business-line">Business Line</Label>
+            <Select defaultValue={selectedFee?.businessLine?.toLowerCase() || "all"}>
+              <SelectTrigger id="fee-business-line">
+                <SelectValue placeholder="Select business line" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="residential">Residential</SelectItem>
+                <SelectItem value="commercial">Commercial</SelectItem>
+                <SelectItem value="roll-off">Roll-off</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Material Types</Label>
+            <MultiSelect
+              options={materialOptions}
+              selected={selectedMaterials}
+              onChange={setSelectedMaterials}
+              placeholder="Select material types"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fee-default-rate">Default Rate</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-2.5">$</span>
+              <Input
+                id="fee-default-rate"
+                defaultValue={selectedFee?.defaultRate?.replace("$", "") || ""}
+                className="pl-7"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fee-min-charge">Minimum Charge</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-2.5">$</span>
+              <Input
+                id="fee-min-charge"
+                defaultValue={selectedFee?.minCharge?.replace("$", "") || ""}
+                className="pl-7"
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fee-type">Fee Type</Label>
+            <Select defaultValue={selectedFee?.type?.toLowerCase().replace(/\s+/g, "-") || "per-ton"}>
+              <SelectTrigger id="fee-type">
+                <SelectValue placeholder="Select fee type" />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceMeasures.map((measure) => (
+                  <SelectItem key={measure.id} value={measure.name.toLowerCase().replace(/\s+/g, "-")}>
+                    {measure.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fee-pricing-period">Pricing Period</Label>
+            <Select defaultValue="per-unit">
+              <SelectTrigger id="fee-pricing-period">
+                <SelectValue placeholder="Select pricing period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="per-unit">Per Unit</SelectItem>
+                <SelectItem value="once">Once</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="quarterly">Quarterly</SelectItem>
+                <SelectItem value="annually">Annually</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="col-span-2">
+            <div className="text-sm font-medium mb-2">Grace Period</div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="fee-name">Fee Name</Label>
-                <Input id="fee-name" defaultValue={selectedFee?.name || ""} placeholder="Enter fee name" />
+                <Label htmlFor="grace-period-length" className="text-xs text-muted-foreground">
+                  Grace period length
+                </Label>
+                <Input id="grace-period-length" defaultValue="0" />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="fee-status">Status</Label>
-                <Select defaultValue={selectedFee?.status?.toLowerCase() || "active"}>
-                  <SelectTrigger id="fee-status">
-                    <SelectValue placeholder="Select status" />
+                <Label htmlFor="grace-period-duration" className="text-xs text-muted-foreground">
+                  Duration
+                </Label>
+                <Select defaultValue="days">
+                  <SelectTrigger id="grace-period-duration">
+                    <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2 col-span-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="fee-description">Description</Label>
-                  <Select
-                    onValueChange={(value) => {
-                      const template = descriptionTemplates.find((t) => t.id.toString() === value)
-                      if (template) {
-                        const descriptionEl = document.getElementById("fee-description") as HTMLTextAreaElement
-                        if (descriptionEl) {
-                          descriptionEl.value = template.text
-                        }
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {descriptionTemplates.map((template) => (
-                        <SelectItem key={template.id} value={template.id.toString()}>
-                          Template {template.id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Textarea
-                  id="fee-description"
-                  defaultValue={selectedFee?.description || ""}
-                  placeholder="Enter fee description"
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use [material] and [business] placeholders to be replaced with selected materials and business line
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-business-line">Business Line</Label>
-                <Select defaultValue={selectedFee?.businessLine?.toLowerCase() || "all"}>
-                  <SelectTrigger id="fee-business-line">
-                    <SelectValue placeholder="Select business line" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="residential">Residential</SelectItem>
-                    <SelectItem value="commercial">Commercial</SelectItem>
-                    <SelectItem value="roll-off">Roll-off</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-material">Materials</Label>
-                <Select defaultValue={selectedFee?.material?.toLowerCase() || ""}>
-                  <SelectTrigger id="fee-material">
-                    <SelectValue placeholder="Select material" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {materials.map((material) => (
-                      <SelectItem key={material.id} value={material.name.toLowerCase()}>
-                        {material.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-type">Fee Type</Label>
-                <Select defaultValue={selectedFee?.type?.toLowerCase().replace(/\s+/g, "-") || "per-ton"}>
-                  <SelectTrigger id="fee-type">
-                    <SelectValue placeholder="Select fee type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {serviceMeasures.map((measure) => (
-                      <SelectItem key={measure.id} value={measure.name.toLowerCase().replace(/\s+/g, "-")}>
-                        {measure.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-gl-code">GL Code</Label>
-                <Select defaultValue={selectedFee?.glCode || ""}>
-                  <SelectTrigger id="fee-gl-code">
-                    <SelectValue placeholder="Select GL code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {glCodes.map((code) => (
-                      <SelectItem key={code.id} value={code.code}>
-                        {code.code} - {code.description}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="weeks">Weeks</SelectItem>
+                    <SelectItem value="months">Months</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="pricing" className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fee-default-rate">Default Rate</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5">$</span>
-                  <Input
-                    id="fee-default-rate"
-                    defaultValue={selectedFee?.defaultRate?.replace("$", "") || ""}
-                    className="pl-7"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-min-charge">Minimum Charge</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5">$</span>
-                  <Input
-                    id="fee-min-charge"
-                    defaultValue={selectedFee?.minCharge?.replace("$", "") || ""}
-                    className="pl-7"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
-                <div className="relative">
-                  <Input id="fee-free-tonnage" defaultValue={selectedFee?.freeTonnage || "0"} placeholder="0.00" />
-                  <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  For tonnage less than or equal to this value, the customer is not charged.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="fee-use-tiers">Use Tiered Pricing</Label>
-                  <Switch id="fee-use-tiers" defaultChecked={selectedFee?.tiers?.length > 1} />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Enable tiered pricing to charge different rates based on tonnage ranges.
-                </p>
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
+            <div className="relative">
+              <Input id="fee-free-tonnage" defaultValue={selectedFee?.freeTonnage || "0"} placeholder="0.00" />
+              <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="tiers" className="space-y-4 py-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Pricing Tiers</h3>
-                <Button size="sm" onClick={() => setShowAddTierDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Tier
-                </Button>
-              </div>
-
-              {selectedFee ? (
-                renderTierTable(selectedFee.tiers)
-              ) : (
-                <div className="border rounded-md p-8 text-center">
-                  <p className="text-muted-foreground mb-4">
-                    No tiers defined yet. Add your first tier to get started.
-                  </p>
-                  <Button size="sm" onClick={() => setShowAddTierDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add First Tier
-                  </Button>
-                </div>
-              )}
-
-              <div className="bg-muted/20 p-4 rounded-md">
-                <h4 className="font-medium mb-2">How Tiered Pricing Works</h4>
-                <p className="text-sm text-muted-foreground">
-                  Tiered pricing allows you to charge different rates based on tonnage ranges. For example:
-                </p>
-                <ul className="text-sm text-muted-foreground list-disc pl-5 mt-2 space-y-1">
-                  <li>From 0-2 tons: $65.00/ton</li>
-                  <li>From 2-5 tons: $55.00/ton</li>
-                  <li>Over 5 tons: $45.00/ton</li>
-                </ul>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Each tier applies to the tonnage that falls within its range, after free tonnage is subtracted.
-                </p>
-              </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="fee-use-tiers">Use Tiered Pricing</Label>
+              <Switch id="fee-use-tiers" defaultChecked={selectedFee?.tiers?.length > 1} />
             </div>
-          </TabsContent>
+            <p className="text-xs text-muted-foreground">
+              Enable tiered pricing to charge different rates based on tonnage ranges.
+            </p>
+          </div>
 
-          <TabsContent value="associations" className="space-y-4 py-4">
-            <div className="grid grid-cols-1 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Associated Fees & Taxes</h3>
-                <div className="border rounded-md p-4">
-                  {linkedFees.map((fee) => (
-                    <div key={fee.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                      <div className="flex items-center gap-2">
-                        <Checkbox id={`fee-${fee.id}`} />
-                        <div>
-                          <Label htmlFor={`fee-${fee.id}`} className="font-medium">
-                            {fee.name}
-                          </Label>
-                          <p className="text-xs text-muted-foreground">{fee.type}</p>
-                        </div>
-                      </div>
-                      <div className="font-medium">{fee.amount}</div>
-                    </div>
+          <div className="col-span-2 space-y-2">
+            <Label htmlFor="fee-description">Description</Label>
+            <Textarea
+              id="fee-description"
+              defaultValue={selectedFee?.description || ""}
+              placeholder="Enter fee description"
+              rows={3}
+            />
+            <div className="flex items-center justify-end">
+              <Select
+                onValueChange={(value) => {
+                  const template = descriptionTemplates.find((t) => t.id.toString() === value)
+                  if (template) {
+                    const descriptionEl = document.getElementById("fee-description") as HTMLTextAreaElement
+                    if (descriptionEl) {
+                      descriptionEl.value = template.text
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Use template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {descriptionTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id.toString()}>
+                      Template {template.id}
+                    </SelectItem>
                   ))}
-                </div>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Fee or Tax
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Pricing Zones</h3>
-                <div className="border rounded-md p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    {pricingZones.map((zone) => (
-                      <div key={zone.id} className="flex items-center space-x-2">
-                        <Checkbox id={`edit-zone-${zone.id}`} defaultChecked={zone.id === 1} />
-                        <label
-                          htmlFor={`edit-zone-${zone.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {zone.name} - {zone.description}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
 
-        <DialogFooter>
+          <div className="space-y-2">
+            <Label htmlFor="fee-status">Status</Label>
+            <Select defaultValue={selectedFee?.status?.toLowerCase() || "active"}>
+              <SelectTrigger id="fee-status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <DialogFooter className="mt-6">
           <Button variant="outline" onClick={() => setShowEditDialog(false)}>
             Cancel
           </Button>
-          <Button onClick={() => setShowEditDialog(false)}>
-            {selectedFee ? "Save Changes" : "Create Disposal Fee"}
-          </Button>
+          <Button onClick={() => setShowEditDialog(false)}>{selectedFee ? "Save Changes" : "Create"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
