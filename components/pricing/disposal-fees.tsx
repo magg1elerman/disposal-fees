@@ -3,7 +3,20 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MoreVertical, Plus, Edit, Trash2, Copy, Link, ChevronDown, LayoutGrid, List } from "lucide-react"
+import {
+  MoreVertical,
+  Plus,
+  Edit,
+  Trash2,
+  Copy,
+  Link,
+  ChevronDown,
+  LayoutGrid,
+  List,
+  LinkIcon,
+  Settings,
+  AlertCircle,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -29,6 +42,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DisposalFeesTable } from "./disposal-fees-table"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
+// Interface for autolinked services
+interface AutolinkedService {
+  id: string
+  name: string
+  businessLine: string
+  material?: string
+  price: string
+  status: string
+  address: string
+  city: string
+  state: string
+  accountName: string
+  accountNumber: string
+  containerName: string
+}
 
 export function DisposalFees() {
   const [activeTab, setActiveTab] = useState("all")
@@ -37,10 +69,19 @@ export function DisposalFees() {
   const [showAddTierDialog, setShowAddTierDialog] = useState(false)
   const [selectedFee, setSelectedFee] = useState<any>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showAutolinkSettingsDialog, setShowAutolinkSettingsDialog] = useState(false)
 
   const [useTieredPricing, setUseTieredPricing] = useState(false)
   const [currentTiers, setCurrentTiers] = useState<any[]>([])
   const [newTier, setNewTier] = useState({ from: 0, to: null, rate: 0 })
+
+  // Autolinking states
+  const [autolinkEnabled, setAutolinkEnabled] = useState(true)
+  const [autolinkByMaterial, setAutolinkByMaterial] = useState(true)
+  const [autolinkByLocation, setAutolinkByLocation] = useState(false)
+  const [services, setServices] = useState<ServiceData[]>([])
+  const [autolinkedServices, setAutolinkedServices] = useState<AutolinkedService[]>([])
+  const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   const componentRef = useRef<HTMLDivElement>(null)
 
@@ -59,6 +100,32 @@ export function DisposalFees() {
     }
   }, [])
 
+  // Fetch services data for autolinking
+  useEffect(() => {
+    const loadServices = async () => {
+      setIsLoadingServices(true)
+      try {
+        const data = await fetchServiceData()
+        setServices(data)
+      } catch (error) {
+        console.error("Error loading services:", error)
+      } finally {
+        setIsLoadingServices(false)
+      }
+    }
+
+    loadServices()
+  }, [])
+
+  // Update autolinked services when selected fee changes
+  useEffect(() => {
+    if (selectedFee && autolinkEnabled && services.length > 0) {
+      findAutolinkedServices(selectedFee)
+    } else {
+      setAutolinkedServices([])
+    }
+  }, [selectedFee, autolinkEnabled, autolinkByMaterial, autolinkByLocation, services])
+
   useEffect(() => {
     if (selectedFee) {
       setCurrentTiers(selectedFee.tiers || [])
@@ -68,6 +135,63 @@ export function DisposalFees() {
       setUseTieredPricing(false)
     }
   }, [selectedFee])
+
+  // Function to find services that can be autolinked to the selected fee
+  const findAutolinkedServices = (fee: any) => {
+    if (!fee || !services.length) return
+
+    // Map business line names to match service data
+    const businessLineMap: Record<string, string> = {
+      Residential: "Residential",
+      Commercial: "Commercial",
+      "Roll-off": "Roll Off",
+      All: "", // Special case, will match any
+    }
+
+    // Filter services based on business line and optionally material
+    const matchedServices = services.filter((service) => {
+      // Skip already linked services
+      const isAlreadyLinked = fee.linkedServices > 0 && Math.random() < 0.7 // Simulate already linked services
+      if (isAlreadyLinked) return false
+
+      // Match by business line
+      const businessLineMatches =
+        fee.businessLine === "All" || service["Service name"]?.includes(businessLineMap[fee.businessLine] || "")
+
+      // Match by material if enabled
+      let materialMatches = true
+      if (autolinkByMaterial && fee.material && fee.material !== "Multiple") {
+        materialMatches = service["Service name"]?.includes(fee.material)
+      }
+
+      // Match by location if enabled
+      let locationMatches = true
+      if (autolinkByLocation) {
+        // This is a simplified example - in a real app, you'd have location data to compare
+        locationMatches = service.City === "Metro" || service.ST === "CA"
+      }
+
+      return businessLineMatches && materialMatches && locationMatches
+    })
+
+    // Convert to autolinked service format
+    const linked = matchedServices.slice(0, 5).map((service) => ({
+      id: service["Account #"] || Math.random().toString(36).substring(2, 10),
+      name: service["Service name"] || "Unknown Service",
+      businessLine: fee.businessLine,
+      material: fee.material,
+      price: service.Price || "$0.00",
+      status: service.Status || "Active",
+      address: service["Service address"] || "",
+      city: service.City || "",
+      state: service.ST || "",
+      accountName: service["Account name"] || "",
+      accountNumber: service["Account #"] || "",
+      containerName: service["Container name"] || "",
+    }))
+
+    setAutolinkedServices(linked)
+  }
 
   const disposalFees = [
     {
@@ -338,6 +462,18 @@ export function DisposalFees() {
   const handleEditFee = (fee: any) => {
     setSelectedFee(fee)
     setShowEditDialog(true)
+  }
+
+  const handleLinkService = (service: AutolinkedService) => {
+    // In a real app, this would update the database
+    // For now, we'll just remove it from the autolinked services list
+    setAutolinkedServices((prev) => prev.filter((s) => s.id !== service.id))
+  }
+
+  const handleLinkAllServices = () => {
+    // In a real app, this would update the database with all autolinked services
+    // For now, we'll just clear the autolinked services list
+    setAutolinkedServices([])
   }
 
   const renderTierTable = (tiers: any[]) => (
@@ -612,10 +748,24 @@ export function DisposalFees() {
                     <CardTitle>Linked Services</CardTitle>
                     <CardDescription>Services using this disposal fee</CardDescription>
                   </div>
-                  <Button size="sm">
-                    <Link className="h-4 w-4 mr-2" />
-                    Link Service
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="outline" size="icon" onClick={() => setShowAutolinkSettingsDialog(true)}>
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Autolinking Settings</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <Button size="sm">
+                      <Link className="h-4 w-4 mr-2" />
+                      Link Service
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -653,6 +803,81 @@ export function DisposalFees() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Autolinked Services Card */}
+            {autolinkEnabled && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Autolinked Services</CardTitle>
+                      <CardDescription>Services that can be automatically linked to this fee</CardDescription>
+                    </div>
+                    {autolinkedServices.length > 0 && (
+                      <Button size="sm" onClick={handleLinkAllServices}>
+                        <LinkIcon className="h-4 w-4 mr-2" />
+                        Link All
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingServices ? (
+                    <div className="flex justify-center items-center py-8">
+                      <p>Loading services...</p>
+                    </div>
+                  ) : autolinkedServices.length > 0 ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Service Name</TableHead>
+                          <TableHead>Account</TableHead>
+                          <TableHead>Container</TableHead>
+                          <TableHead className="w-[100px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {autolinkedServices.map((service) => (
+                          <TableRow key={service.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{service.name}</div>
+                                <div className="text-xs text-muted-foreground">{service.address}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div>{service.accountName}</div>
+                                <div className="text-xs text-muted-foreground">{service.accountNumber}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{service.containerName}</TableCell>
+                            <TableCell>
+                              <Button variant="outline" size="sm" onClick={() => handleLinkService(service)}>
+                                <LinkIcon className="h-4 w-4 mr-1" />
+                                Link
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <p className="text-muted-foreground mb-4">No autolinked services found for this disposal fee.</p>
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Autolinking is enabled</AlertTitle>
+                        <AlertDescription>
+                          Services with matching business line{autolinkByMaterial ? " and material type" : ""} will be
+                          automatically linked to this fee.
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -799,6 +1024,43 @@ export function DisposalFees() {
                                 selectedFee.tiers[selectedFee.tiers.length - 1].rate
                               ).toFixed(2)}
                     </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Autolinking Settings Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Autolinking</CardTitle>
+                <CardDescription>Configure automatic service linking</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="font-medium">Enable Autolinking</div>
+                    <div className="text-xs text-muted-foreground">Automatically link services to this fee</div>
+                  </div>
+                  <Switch checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
+                </div>
+
+                <div className={`space-y-2 ${!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="font-medium">Match by Material Type</div>
+                      <div className="text-xs text-muted-foreground">
+                        Only link services with matching material type
+                      </div>
+                    </div>
+                    <Switch checked={autolinkByMaterial} onCheckedChange={setAutolinkByMaterial} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <div className="font-medium">Match by Location</div>
+                      <div className="text-xs text-muted-foreground">Only link services in the same location</div>
+                    </div>
+                    <Switch checked={autolinkByLocation} onCheckedChange={setAutolinkByLocation} />
                   </div>
                 </div>
               </CardContent>
@@ -1080,6 +1342,19 @@ export function DisposalFees() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Autolinking settings in edit dialog */}
+          <div className="col-span-2 space-y-2 border-t pt-4 mt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="fee-autolink">Enable Autolinking</Label>
+                <p className="text-xs text-muted-foreground">
+                  Automatically link services with matching business line to this fee
+                </p>
+              </div>
+              <Switch id="fee-autolink" checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
+            </div>
+          </div>
         </div>
 
         <DialogFooter className="mt-6">
@@ -1087,6 +1362,73 @@ export function DisposalFees() {
             Cancel
           </Button>
           <Button onClick={() => setShowEditDialog(false)}>{selectedFee ? "Save Changes" : "Create"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+
+  const renderAutolinkSettingsDialog = () => (
+    <Dialog open={showAutolinkSettingsDialog} onOpenChange={setShowAutolinkSettingsDialog}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Autolinking Settings</DialogTitle>
+          <DialogDescription>Configure how services are automatically linked to fees</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="settings-autolink-enabled">Enable Autolinking</Label>
+              <p className="text-xs text-muted-foreground">Automatically link services to fees</p>
+            </div>
+            <Switch id="settings-autolink-enabled" checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
+          </div>
+
+          <div className={!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="settings-autolink-material">Match by Material Type</Label>
+                  <p className="text-xs text-muted-foreground">Only link services with matching material type</p>
+                </div>
+                <Switch
+                  id="settings-autolink-material"
+                  checked={autolinkByMaterial}
+                  onCheckedChange={setAutolinkByMaterial}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="settings-autolink-location">Match by Location</Label>
+                  <p className="text-xs text-muted-foreground">Only link services in the same location</p>
+                </div>
+                <Switch
+                  id="settings-autolink-location"
+                  checked={autolinkByLocation}
+                  onCheckedChange={setAutolinkByLocation}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-muted/20 rounded-md">
+              <h4 className="font-medium mb-2">How Autolinking Works</h4>
+              <p className="text-sm text-muted-foreground">
+                Autolinking automatically finds services that match the business line of this fee. When enabled, the
+                system will suggest services that can be linked to this fee based on your matching criteria.
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                You can review suggested services and link them individually or all at once.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowAutolinkSettingsDialog(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => setShowAutolinkSettingsDialog(false)}>Save Settings</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1169,6 +1511,7 @@ export function DisposalFees() {
       {activeView === "list" ? renderListView() : renderDetailView()}
       {renderEditDialog()}
       {renderAddTierDialog()}
+      {renderAutolinkSettingsDialog()}
     </>
   )
 }
