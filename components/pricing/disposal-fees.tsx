@@ -50,6 +50,10 @@ export function DisposalFees() {
   const [selectedFee, setSelectedFee] = useState<any>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
 
+  const [useTieredPricing, setUseTieredPricing] = useState(false)
+  const [currentTiers, setCurrentTiers] = useState<any[]>([])
+  const [newTier, setNewTier] = useState({ from: 0, to: null, rate: 0 })
+
   const componentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -66,6 +70,16 @@ export function DisposalFees() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (selectedFee) {
+      setCurrentTiers(selectedFee.tiers || [])
+      setUseTieredPricing(selectedFee.tiers?.length > 1)
+    } else {
+      setCurrentTiers([])
+      setUseTieredPricing(false)
+    }
+  }, [selectedFee])
 
   const disposalFees = [
     {
@@ -359,7 +373,14 @@ export function DisposalFees() {
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive"
+                  onClick={() => {
+                    setCurrentTiers(currentTiers.filter((t) => t.id !== tier.id))
+                  }}
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -961,14 +982,75 @@ export function DisposalFees() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="col-span-2 space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="fee-use-tiers">Use Tiered Pricing</Label>
-              <Switch id="fee-use-tiers" defaultChecked={selectedFee?.tiers?.length > 1} />
+              <Switch id="fee-use-tiers" checked={useTieredPricing} onCheckedChange={setUseTieredPricing} />
             </div>
             <p className="text-xs text-muted-foreground">
               Enable tiered pricing to charge different rates based on tonnage ranges.
             </p>
+          </div>
+
+          <div
+            id="tiered-pricing-section"
+            className={`col-span-2 space-y-4 border rounded-md p-4 mt-2 ${!useTieredPricing ? "opacity-50 pointer-events-none" : ""}`}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Tiered Pricing</h3>
+              <Button size="sm" variant="outline" onClick={() => setShowAddTierDialog(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Tier
+              </Button>
+            </div>
+
+            {currentTiers.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>From (tons)</TableHead>
+                    <TableHead>To (tons)</TableHead>
+                    <TableHead>Rate</TableHead>
+                    <TableHead className="w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {currentTiers.map((tier, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{tier.from}</TableCell>
+                      <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
+                      <TableCell>${tier.rate.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => {
+                              setCurrentTiers(currentTiers.filter((t) => t.id !== tier.id))
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-4 text-sm text-muted-foreground">
+                No tiers defined. Click "Add Tier" to create your first pricing tier.
+              </div>
+            )}
+
+            <div className="text-xs text-muted-foreground">
+              <p>Tiered pricing allows you to set different rates based on quantity ranges.</p>
+              <p>For example: $65/ton for 0-2 tons, $55/ton for 2-5 tons, and $45/ton for over 5 tons.</p>
+            </div>
           </div>
 
           <div className="col-span-2 space-y-2">
@@ -1041,12 +1123,25 @@ export function DisposalFees() {
         <div className="grid grid-cols-2 gap-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="tier-from">From (tons)</Label>
-            <Input id="tier-from" placeholder="0.00" />
+            <Input
+              id="tier-from"
+              placeholder="0.00"
+              value={newTier.from}
+              onChange={(e) => setNewTier({ ...newTier, from: Number.parseFloat(e.target.value) || 0 })}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="tier-to">To (tons)</Label>
-            <Input id="tier-to" placeholder="0.00" />
+            <Input
+              id="tier-to"
+              placeholder="0.00"
+              value={newTier.to === null ? "" : newTier.to}
+              onChange={(e) => {
+                const value = e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
+                setNewTier({ ...newTier, to: value })
+              }}
+            />
             <p className="text-xs text-muted-foreground">Leave empty for unlimited</p>
           </div>
 
@@ -1054,7 +1149,13 @@ export function DisposalFees() {
             <Label htmlFor="tier-rate">Rate per Ton</Label>
             <div className="relative">
               <span className="absolute left-3 top-2.5">$</span>
-              <Input id="tier-rate" className="pl-7" placeholder="0.00" />
+              <Input
+                id="tier-rate"
+                className="pl-7"
+                placeholder="0.00"
+                value={newTier.rate}
+                onChange={(e) => setNewTier({ ...newTier, rate: Number.parseFloat(e.target.value) || 0 })}
+              />
             </div>
           </div>
         </div>
@@ -1063,7 +1164,21 @@ export function DisposalFees() {
           <Button variant="outline" onClick={() => setShowAddTierDialog(false)}>
             Cancel
           </Button>
-          <Button onClick={() => setShowAddTierDialog(false)}>Add Tier</Button>
+          <Button
+            onClick={() => {
+              // Add the new tier with a generated ID
+              const newTierWithId = {
+                ...newTier,
+                id: currentTiers.length > 0 ? Math.max(...currentTiers.map((t) => t.id)) + 1 : 1,
+              }
+
+              setCurrentTiers([...currentTiers, newTierWithId])
+              setNewTier({ from: 0, to: null, rate: 0 }) // Reset for next time
+              setShowAddTierDialog(false)
+            }}
+          >
+            Add Tier
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
