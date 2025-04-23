@@ -3,19 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  MoreVertical,
-  Plus,
-  Filter,
-  Download,
-  Edit,
-  Trash2,
-  Copy,
-  Link,
-  ChevronDown,
-  LayoutGrid,
-  List,
-} from "lucide-react"
+import { MoreVertical, Plus, Edit, Trash2, Copy, Link, ChevronDown, LayoutGrid, List } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -422,14 +410,6 @@ export function DisposalFees() {
               <List className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
         </div>
       </div>
 
