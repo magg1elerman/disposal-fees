@@ -48,6 +48,7 @@ export function DisposalFees() {
       status: "Active",
       locations: 5,
       material: "MSW",
+      materials: ["MSW"],
       freeTonnage: 0.5,
       glCode: "4100-DISP",
       linkedServices: 3,
@@ -136,6 +137,7 @@ export function DisposalFees() {
       status: "Active",
       locations: 8,
       material: "All",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-DEL",
       linkedServices: 12,
@@ -152,6 +154,7 @@ export function DisposalFees() {
       status: "Active",
       locations: 8,
       material: "All",
+      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
       freeTonnage: 0,
       glCode: "4200-ROLL-PU",
       linkedServices: 12,
@@ -241,6 +244,16 @@ export function DisposalFees() {
     { id: 4, name: "Yard Waste", description: "Yard Waste and Organics" },
     { id: 5, name: "Hazardous", description: "Hazardous Waste" },
     { id: 6, name: "All", description: "All Material Types" },
+  ]
+
+  const descriptionTemplates = [
+    { id: 1, text: "Standard disposal fee for [material] waste" },
+    { id: 2, text: "Processing fee for [material] materials" },
+    { id: 3, text: "[material] disposal fee for [business] customers" },
+    { id: 4, text: "Regulatory compliance fee for [material] disposal" },
+    { id: 5, text: "Environmental fee for [material] processing" },
+    { id: 6, text: "Handling fee for [material] materials" },
+    { id: 7, text: "Transportation and disposal fee for [material]" },
   ]
 
   const pricingZones = [
@@ -401,7 +414,15 @@ export function DisposalFees() {
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-medium">{fee.name}</h3>
                     <Badge variant="outline">{fee.businessLine}</Badge>
-                    <Badge variant="outline">{fee.material}</Badge>
+                    {fee.materials ? (
+                      fee.materials.map((material, idx) => (
+                        <Badge key={idx} variant="outline">
+                          {material}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="outline">{fee.material}</Badge>
+                    )}
                     <Badge variant="success" className="bg-green-100 text-green-800">
                       {fee.status}
                     </Badge>
@@ -508,8 +529,18 @@ export function DisposalFees() {
                     <p>{selectedFee.businessLine}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium mb-1">Material</h3>
-                    <p>{selectedFee.material}</p>
+                    <h3 className="text-sm font-medium mb-1">Materials</h3>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedFee.materials ? (
+                        selectedFee.materials.map((material, idx) => (
+                          <Badge key={idx} variant="outline">
+                            {material}
+                          </Badge>
+                        ))
+                      ) : (
+                        <p>{selectedFee.material}</p>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium mb-1">Fee Type</h3>
@@ -800,13 +831,40 @@ export function DisposalFees() {
               </div>
 
               <div className="space-y-2 col-span-2">
-                <Label htmlFor="fee-description">Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="fee-description">Description</Label>
+                  <Select
+                    onValueChange={(value) => {
+                      const template = descriptionTemplates.find((t) => t.id.toString() === value)
+                      if (template) {
+                        const descriptionEl = document.getElementById("fee-description") as HTMLTextAreaElement
+                        if (descriptionEl) {
+                          descriptionEl.value = template.text
+                        }
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {descriptionTemplates.map((template) => (
+                        <SelectItem key={template.id} value={template.id.toString()}>
+                          Template {template.id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Textarea
                   id="fee-description"
                   defaultValue={selectedFee?.description || ""}
                   placeholder="Enter fee description"
                   rows={3}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use [material] and [business] placeholders to be replaced with selected materials and business line
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -825,19 +883,26 @@ export function DisposalFees() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fee-material">Material</Label>
-                <Select defaultValue={selectedFee?.material?.toLowerCase() || ""}>
-                  <SelectTrigger id="fee-material">
-                    <SelectValue placeholder="Select material" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {materials.map((material) => (
-                      <SelectItem key={material.id} value={material.name.toLowerCase()}>
+                <Label htmlFor="fee-material">Materials</Label>
+                <div className="border rounded-md p-3 space-y-2">
+                  {materials.map((material) => (
+                    <div key={material.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`material-${material.id}`}
+                        defaultChecked={
+                          selectedFee?.materials?.includes(material.name) || selectedFee?.material === material.name
+                        }
+                      />
+                      <label
+                        htmlFor={`material-${material.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
                         {material.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Select all materials this fee applies to</p>
               </div>
 
               <div className="space-y-2">
