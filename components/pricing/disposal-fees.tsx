@@ -124,6 +124,114 @@ export function DisposalFees() {
       linkedServices: 0,
       tiers: [{ id: 1, from: 0, to: null, rate: 25.0 }],
     },
+    // New Roll-off specific fees
+    {
+      id: 6,
+      name: "Roll-off Delivery Fee",
+      description: "Fee for delivering roll-off containers to customer locations",
+      type: "Per Container",
+      defaultRate: "$85.00",
+      minCharge: "$85.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-DEL",
+      linkedServices: 12,
+      tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
+    },
+    {
+      id: 7,
+      name: "Roll-off Pickup Fee",
+      description: "Fee for picking up roll-off containers from customer locations",
+      type: "Per Container",
+      defaultRate: "$85.00",
+      minCharge: "$85.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-PU",
+      linkedServices: 12,
+      tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
+    },
+    {
+      id: 8,
+      name: "Roll-off Daily Rental",
+      description: "Daily rental fee for roll-off containers",
+      type: "Per Day",
+      defaultRate: "$15.00",
+      minCharge: "$15.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-RENT",
+      linkedServices: 10,
+      tiers: [
+        { id: 1, from: 1, to: 7, rate: 15.0 },
+        { id: 2, from: 8, to: 14, rate: 12.0 },
+        { id: 3, from: 15, to: null, rate: 10.0 },
+      ],
+    },
+    {
+      id: 9,
+      name: "Roll-off Overweight Fee",
+      description: "Fee for roll-off containers exceeding weight limits",
+      type: "Per Ton",
+      defaultRate: "$95.00",
+      minCharge: "$50.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-OW",
+      linkedServices: 8,
+      tiers: [
+        { id: 1, from: 0, to: 1, rate: 95.0 },
+        { id: 2, from: 1, to: 3, rate: 120.0 },
+        { id: 3, from: 3, to: null, rate: 150.0 },
+      ],
+    },
+    {
+      id: 10,
+      name: "Roll-off Relocation Fee",
+      description: "Fee for relocating roll-off containers at customer request",
+      type: "Per Move",
+      defaultRate: "$75.00",
+      minCharge: "$75.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-RELOC",
+      linkedServices: 6,
+      tiers: [{ id: 1, from: 0, to: null, rate: 75.0 }],
+    },
+    {
+      id: 11,
+      name: "Roll-off Contamination Fee",
+      description: "Fee for contaminated materials in roll-off containers",
+      type: "Per Incident",
+      defaultRate: "$150.00",
+      minCharge: "$150.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 8,
+      material: "All",
+      freeTonnage: 0,
+      glCode: "4200-ROLL-CONT",
+      linkedServices: 5,
+      tiers: [
+        { id: 1, from: 0, to: 1, rate: 150.0 },
+        { id: 2, from: 1, to: null, rate: 250.0 },
+      ],
+    },
   ]
 
   const materials = [
@@ -132,6 +240,7 @@ export function DisposalFees() {
     { id: 3, name: "Recycling", description: "Recyclable Materials" },
     { id: 4, name: "Yard Waste", description: "Yard Waste and Organics" },
     { id: 5, name: "Hazardous", description: "Hazardous Waste" },
+    { id: 6, name: "All", description: "All Material Types" },
   ]
 
   const pricingZones = [
@@ -144,6 +253,10 @@ export function DisposalFees() {
     { id: 1, name: "Per Ton", description: "Charged per ton of material" },
     { id: 2, name: "Per Cubic Yard", description: "Charged per cubic yard of material" },
     { id: 3, name: "Per Item", description: "Charged per item" },
+    { id: 4, name: "Per Container", description: "Charged per container" },
+    { id: 5, name: "Per Day", description: "Charged per day" },
+    { id: 6, name: "Per Move", description: "Charged per move or relocation" },
+    { id: 7, name: "Per Incident", description: "Charged per incident" },
   ]
 
   const glCodes = [
@@ -152,12 +265,20 @@ export function DisposalFees() {
     { id: 3, code: "4100-DISP-REC", description: "Recycling Revenue" },
     { id: 4, code: "4100-DISP-YW", description: "Yard Waste Revenue" },
     { id: 5, code: "4100-DISP-HZ", description: "Hazardous Waste Revenue" },
+    { id: 6, code: "4200-ROLL-DEL", description: "Roll-off Delivery Revenue" },
+    { id: 7, code: "4200-ROLL-PU", description: "Roll-off Pickup Revenue" },
+    { id: 8, code: "4200-ROLL-RENT", description: "Roll-off Rental Revenue" },
+    { id: 9, code: "4200-ROLL-OW", description: "Roll-off Overweight Revenue" },
+    { id: 10, code: "4200-ROLL-RELOC", description: "Roll-off Relocation Revenue" },
+    { id: 11, code: "4200-ROLL-CONT", description: "Roll-off Contamination Revenue" },
   ]
 
   const linkedFees = [
     { id: 1, name: "Environmental Fee", type: "Fee", amount: "$5.00" },
     { id: 2, name: "Fuel Surcharge", type: "Fee", amount: "3%" },
     { id: 3, name: "State Disposal Tax", type: "Tax", amount: "$2.50" },
+    { id: 4, name: "County Waste Fee", type: "Fee", amount: "$1.75" },
+    { id: 5, name: "Regulatory Compliance Fee", type: "Fee", amount: "$3.50" },
   ]
 
   const handleViewFee = (fee: any) => {
@@ -546,34 +667,86 @@ export function DisposalFees() {
               <CardContent className="space-y-4">
                 <div className="p-3 border rounded-md bg-muted/20">
                   <h4 className="font-medium mb-2">Example Scenario:</h4>
-                  <p className="text-sm mb-2">Customer disposes of 6 tons of {selectedFee.material}</p>
+                  <p className="text-sm mb-2">
+                    {selectedFee.businessLine === "Roll-off"
+                      ? `Customer uses a ${selectedFee.name.includes("Rental") ? "roll-off container for 10 days" : "roll-off service"}`
+                      : `Customer disposes of 6 tons of ${selectedFee.material}`}
+                  </p>
 
                   <h4 className="font-medium mb-2">Calculation:</h4>
                   <div className="space-y-1 text-sm">
-                    <p>Free tonnage: {selectedFee.freeTonnage} tons</p>
-                    <p>
-                      Chargeable tonnage: 6 - {selectedFee.freeTonnage} = {6 - selectedFee.freeTonnage} tons
-                    </p>
+                    {selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Rental") ? (
+                      <>
+                        <p>Rental period: 10 days</p>
+                        <p>
+                          Tier 1 (1-7 days): 7 days × ${selectedFee.tiers[0].rate.toFixed(2)}/day = $
+                          {(7 * selectedFee.tiers[0].rate).toFixed(2)}
+                        </p>
+                        <p>
+                          Tier 2 (8-14 days): 3 days × $
+                          {selectedFee.tiers[1]?.rate.toFixed(2) || selectedFee.tiers[0].rate.toFixed(2)}/day = $
+                          {(3 * (selectedFee.tiers[1]?.rate || selectedFee.tiers[0].rate)).toFixed(2)}
+                        </p>
+                      </>
+                    ) : selectedFee.businessLine === "Roll-off" ? (
+                      <>
+                        <p>Base fee: {selectedFee.defaultRate}</p>
+                        {selectedFee.name.includes("Overweight") && (
+                          <>
+                            <p>Overweight amount: 2 tons</p>
+                            <p>
+                              Tier 2 rate: $
+                              {selectedFee.tiers[1]?.rate.toFixed(2) || selectedFee.tiers[0].rate.toFixed(2)}/ton
+                            </p>
+                            <p>
+                              Overweight charge: 2 tons × $
+                              {selectedFee.tiers[1]?.rate.toFixed(2) || selectedFee.tiers[0].rate.toFixed(2)} = $
+                              {(2 * (selectedFee.tiers[1]?.rate || selectedFee.tiers[0].rate)).toFixed(2)}
+                            </p>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p>Free tonnage: {selectedFee.freeTonnage} tons</p>
+                        <p>
+                          Chargeable tonnage: 6 - {selectedFee.freeTonnage} = {6 - selectedFee.freeTonnage} tons
+                        </p>
 
-                    {selectedFee.tiers.map((tier, index) => {
-                      if (
-                        tier.from <= 6 - selectedFee.freeTonnage &&
-                        (tier.to === null || tier.to > 6 - selectedFee.freeTonnage)
-                      ) {
-                        return (
-                          <p key={index} className="font-medium">
-                            Rate: ${tier.rate.toFixed(2)}/ton (Tier {index + 1})
-                          </p>
-                        )
-                      }
-                      return null
-                    })}
+                        {selectedFee.tiers.map((tier, index) => {
+                          if (
+                            tier.from <= 6 - selectedFee.freeTonnage &&
+                            (tier.to === null || tier.to > 6 - selectedFee.freeTonnage)
+                          ) {
+                            return (
+                              <p key={index} className="font-medium">
+                                Rate: ${tier.rate.toFixed(2)}/ton (Tier {index + 1})
+                              </p>
+                            )
+                          }
+                          return null
+                        })}
+                      </>
+                    )}
 
                     <p className="mt-2 font-bold">
                       Total charge: $
-                      {((6 - selectedFee.freeTonnage) * selectedFee.tiers[selectedFee.tiers.length - 1].rate).toFixed(
-                        2,
-                      )}
+                      {selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Rental")
+                        ? (
+                            7 * selectedFee.tiers[0].rate +
+                            3 * (selectedFee.tiers[1]?.rate || selectedFee.tiers[0].rate)
+                          ).toFixed(2)
+                        : selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Overweight")
+                          ? (
+                              Number.parseFloat(selectedFee.defaultRate.replace("$", "")) +
+                              2 * (selectedFee.tiers[1]?.rate || selectedFee.tiers[0].rate)
+                            ).toFixed(2)
+                          : selectedFee.businessLine === "Roll-off"
+                            ? selectedFee.defaultRate.replace("$", "")
+                            : (
+                                (6 - selectedFee.freeTonnage) *
+                                selectedFee.tiers[selectedFee.tiers.length - 1].rate
+                              ).toFixed(2)}
                     </p>
                   </div>
                 </div>
