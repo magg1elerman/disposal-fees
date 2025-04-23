@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { MoreVertical, Plus, Filter, Download, Edit, Trash2, Copy, Link, ChevronDown, Search } from "lucide-react"
+import { MoreVertical, Plus, Filter, Download, Edit, Trash2, Copy, Link, ChevronDown } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -35,6 +35,23 @@ export function DisposalFees() {
   const [showAddTierDialog, setShowAddTierDialog] = useState(false)
   const [selectedFee, setSelectedFee] = useState<any>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
+
+  const componentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleAddDisposalFee = () => {
+      setSelectedFee(null)
+      setShowEditDialog(true)
+    }
+
+    const currentRef = componentRef.current
+    if (currentRef) {
+      currentRef.addEventListener("add-disposal-fee", handleAddDisposalFee)
+      return () => {
+        currentRef.removeEventListener("add-disposal-fee", handleAddDisposalFee)
+      }
+    }
+  }, [])
 
   const disposalFees = [
     {
@@ -337,7 +354,7 @@ export function DisposalFees() {
   )
 
   const renderListView = () => (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={componentRef} data-disposal-fees>
       <div className="flex justify-between items-center">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -357,50 +374,6 @@ export function DisposalFees() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button size="sm" onClick={() => setShowEditDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Disposal Fee
-          </Button>
-        </div>
-      </div>
-
-      <div className="p-4 border rounded-md bg-background">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm font-medium">Quick Filter</div>
-          <div className="flex gap-2">
-            <div className="w-[200px]">
-              <Select defaultValue="all">
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Business Line" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Business Lines</SelectItem>
-                  <SelectItem value="residential">Residential</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="roll-off">Roll-off</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[200px]">
-              <Select defaultValue="all">
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Material" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Materials</SelectItem>
-                  {materials.map((material) => (
-                    <SelectItem key={material.id} value={material.name.toLowerCase()}>
-                      {material.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative w-[200px]">
-              <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search fees..." className="h-8 text-xs pl-8" />
-            </div>
-          </div>
         </div>
       </div>
 

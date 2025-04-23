@@ -162,7 +162,7 @@ export function PricingSidebar({ activeView, onViewChange, collapsed = false }: 
             <SidebarItem label="General" view="general" indent />
             <SidebarItem label="Late" view="late-fees" indent />
             <SidebarItem label="Rental" view="rental" indent />
-            <SidebarItem label="Disposal" view="disposal" indent />
+            <SidebarItem label="Disposal" view="disposal" indent favorited />
           </div>
         )}
       </div>

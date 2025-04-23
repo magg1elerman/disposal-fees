@@ -12,7 +12,7 @@ import { Services } from "@/components/pricing/services"
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
 export function PricingLayout() {
-  const [activeView, setActiveView] = useState<ActiveView>("services")
+  const [activeView, setActiveView] = useState<ActiveView>("disposal")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const toggleSidebar = () => {
@@ -59,10 +59,28 @@ export function PricingLayout() {
               {activeView === "taxes" && "Taxes"}
             </h1>
           </div>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add New
-          </Button>
+          <div className="flex gap-2">
+            {activeView === "disposal" && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  // This will be handled by the DisposalFees component
+                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                  if (disposalFeesComponent) {
+                    const event = new CustomEvent("add-disposal-fee")
+                    disposalFeesComponent.dispatchEvent(event)
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Disposal Fee
+              </Button>
+            )}
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add New
+            </Button>
+          </div>
         </div>
         <div className="p-4">{renderView()}</div>
       </div>
