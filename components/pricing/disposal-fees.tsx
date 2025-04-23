@@ -3,7 +3,19 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MoreVertical, Plus, Filter, Download, Edit, Trash2, Copy, Link, ChevronDown } from "lucide-react"
+import {
+  MoreVertical,
+  Plus,
+  Filter,
+  Download,
+  Edit,
+  Trash2,
+  Copy,
+  Link,
+  ChevronDown,
+  LayoutGrid,
+  List,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -28,22 +40,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MultiSelect, type OptionType } from "@/components/ui/multi-select"
+import { DisposalFeesTable } from "./disposal-fees-table"
 
 export function DisposalFees() {
   const [activeTab, setActiveTab] = useState("all")
   const [activeView, setActiveView] = useState("list")
+  const [viewMode, setViewMode] = useState<"card" | "table">("card")
   const [showAddTierDialog, setShowAddTierDialog] = useState(false)
   const [selectedFee, setSelectedFee] = useState<any>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
 
   const componentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleAddDisposalFee = () => {
       setSelectedFee(null)
-      setSelectedMaterials([])
       setShowEditDialog(true)
     }
 
@@ -55,22 +66,6 @@ export function DisposalFees() {
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (selectedFee) {
-      if (selectedFee.materials && selectedFee.materials.length > 0) {
-        setSelectedMaterials(selectedFee.materials.map((m: string) => m.toLowerCase()))
-      } else if (selectedFee.material && selectedFee.material !== "All") {
-        setSelectedMaterials([selectedFee.material.toLowerCase()])
-      } else if (selectedFee.material === "All") {
-        setSelectedMaterials(materials.map((m) => m.name.toLowerCase()))
-      } else {
-        setSelectedMaterials([])
-      }
-    } else {
-      setSelectedMaterials([])
-    }
-  }, [selectedFee])
 
   const disposalFees = [
     {
@@ -285,12 +280,6 @@ export function DisposalFees() {
     { id: 5, name: "Hazardous", description: "Hazardous Waste" },
   ]
 
-  const materialOptions: OptionType[] = materials.map((material) => ({
-    value: material.name.toLowerCase(),
-    label: material.name,
-    description: material.description,
-  }))
-
   const descriptionTemplates = [
     { id: 1, text: "Standard disposal fee for [material] waste" },
     { id: 2, text: "Processing fee for [material] materials" },
@@ -394,6 +383,24 @@ export function DisposalFees() {
         </Tabs>
 
         <div className="flex gap-2">
+          <div className="border rounded-md overflow-hidden">
+            <Button
+              variant={viewMode === "card" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-none"
+              onClick={() => setViewMode("card")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-none"
+              onClick={() => setViewMode("table")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
           <Button variant="outline" size="sm">
             <Filter className="h-4 w-4 mr-2" />
             Filter
@@ -405,74 +412,85 @@ export function DisposalFees() {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {disposalFees
-          .filter((fee) => activeTab === "all" || fee.businessLine.toLowerCase() === activeTab)
-          .map((fee) => (
-            <div key={fee.id} className="border rounded-md overflow-hidden">
-              <div className="p-4 bg-muted/10">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-medium">{fee.name}</h3>
-                    <Badge variant="outline">{fee.businessLine}</Badge>
-                    {fee.materials ? (
-                      fee.materials.map((material, idx) => (
-                        <Badge key={idx} variant="outline">
-                          {material}
-                        </Badge>
-                      ))
-                    ) : (
-                      <Badge variant="outline">{fee.material}</Badge>
-                    )}
-                    <Badge variant="success" className="bg-green-100 text-green-800">
-                      {fee.status}
-                    </Badge>
+      {viewMode === "table" ? (
+        <DisposalFeesTable
+          data={disposalFees}
+          onViewFee={handleViewFee}
+          onEditFee={handleEditFee}
+          activeTab={activeTab}
+          onEditFee={handleEditFee}
+          activeTab={activeTab}
+        />
+      ) : (
+        <div className="space-y-4">
+          {disposalFees
+            .filter((fee) => activeTab === "all" || fee.businessLine.toLowerCase() === activeTab)
+            .map((fee) => (
+              <div key={fee.id} className="border rounded-md overflow-hidden">
+                <div className="p-4 bg-muted/10">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-medium">{fee.name}</h3>
+                      <Badge variant="outline">{fee.businessLine}</Badge>
+                      {fee.materials ? (
+                        fee.materials.map((material, idx) => (
+                          <Badge key={idx} variant="outline">
+                            {material}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge variant="outline">{fee.material}</Badge>
+                      )}
+                      <Badge variant="success" className="bg-green-100 text-green-800">
+                        {fee.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-xl font-bold mr-2">{fee.defaultRate}</span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleViewFee(fee)}>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditFee(fee)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <span className="text-xl font-bold mr-2">{fee.defaultRate}</span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewFee(fee)}>View Details</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditFee(fee)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
+                  <div>
+                    <div className="text-sm font-medium">{fee.type}</div>
+                    <div className="text-xs text-muted-foreground">Fee Type</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">{fee.minCharge}</div>
+                    <div className="text-xs text-muted-foreground">Minimum Charge</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">{fee.freeTonnage} tons</div>
+                    <div className="text-xs text-muted-foreground">Free Tonnage</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">{fee.tiers.length}</div>
+                    <div className="text-xs text-muted-foreground">Pricing Tiers</div>
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-                <div>
-                  <div className="text-sm font-medium">{fee.type}</div>
-                  <div className="text-xs text-muted-foreground">Fee Type</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{fee.minCharge}</div>
-                  <div className="text-xs text-muted-foreground">Minimum Charge</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{fee.freeTonnage} tons</div>
-                  <div className="text-xs text-muted-foreground">Free Tonnage</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{fee.tiers.length}</div>
-                  <div className="text-xs text-muted-foreground">Pricing Tiers</div>
+                <div className="px-4 pb-4">
+                  <Button variant="outline" size="sm" onClick={() => handleViewFee(fee)}>
+                    View Details
+                  </Button>
                 </div>
               </div>
-              <div className="px-4 pb-4">
-                <Button variant="outline" size="sm" onClick={() => handleViewFee(fee)}>
-                  View Details
-                </Button>
-              </div>
-            </div>
-          ))}
-      </div>
+            ))}
+        </div>
+      )}
     </div>
   )
 
@@ -835,13 +853,19 @@ export function DisposalFees() {
           </div>
 
           <div className="space-y-2">
-            <Label>Material Types</Label>
-            <MultiSelect
-              options={materialOptions}
-              selected={selectedMaterials}
-              onChange={setSelectedMaterials}
-              placeholder="Select material types"
-            />
+            <Label htmlFor="fee-material">Material Type</Label>
+            <Select defaultValue={selectedFee?.material?.toLowerCase() || ""}>
+              <SelectTrigger id="fee-material">
+                <SelectValue placeholder="Select material type" />
+              </SelectTrigger>
+              <SelectContent>
+                {materials.map((material) => (
+                  <SelectItem key={material.id} value={material.name.toLowerCase()}>
+                    {material.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

@@ -76,10 +76,6 @@ export function PricingLayout() {
                 Add Disposal Fee
               </Button>
             )}
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New
-            </Button>
           </div>
         </div>
         <div className="p-4">{renderView()}</div>
