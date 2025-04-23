@@ -531,7 +531,7 @@ export function DisposalFees() {
                   <div>
                     <h3 className="text-sm font-medium mb-1">Materials</h3>
                     <div className="flex flex-wrap gap-1">
-                      {selectedFee.materials ? (
+                      {selectedFee.materials && selectedFee.materials.length > 0 ? (
                         selectedFee.materials.map((material, idx) => (
                           <Badge key={idx} variant="outline">
                             {material}
@@ -884,25 +884,18 @@ export function DisposalFees() {
 
               <div className="space-y-2">
                 <Label htmlFor="fee-material">Materials</Label>
-                <div className="border rounded-md p-3 space-y-2">
-                  {materials.map((material) => (
-                    <div key={material.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`material-${material.id}`}
-                        defaultChecked={
-                          selectedFee?.materials?.includes(material.name) || selectedFee?.material === material.name
-                        }
-                      />
-                      <label
-                        htmlFor={`material-${material.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
+                <Select defaultValue={selectedFee?.material?.toLowerCase() || ""}>
+                  <SelectTrigger id="fee-material">
+                    <SelectValue placeholder="Select material" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {materials.map((material) => (
+                      <SelectItem key={material.id} value={material.name.toLowerCase()}>
                         {material.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground">Select all materials this fee applies to</p>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
