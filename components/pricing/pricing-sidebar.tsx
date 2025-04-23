@@ -142,7 +142,7 @@ export function PricingSidebar({ activeView, onViewChange, collapsed = false }: 
 
         {expandedSections.services && (
           <div>
-            <SidebarItem label="Services" view="services" indent favorited />
+            <SidebarItem label="Services" view="services" indent />
             <SidebarItem label="Service groups" view="service-groups" indent />
           </div>
         )}
