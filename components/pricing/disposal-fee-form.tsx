@@ -14,22 +14,37 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { MaterialChip } from "./material-chip"
+import { cn } from "@/lib/utils"
 
 // Types
+interface Material {
+  id: number
+  name: string
+  color: string
+}
+
+interface MaterialTypes {
+  general: Material[]
+  hazardous: Material[]
+  specialized: Material[]
+}
+
 interface MaterialPricing {
   materialType: string
-  tiers: { id: number; from: number; to: number | null; rate: number }[]
+  measure: string
   defaultRate: string
   minCharge: string
   freeTonnage: number
   freeTonnageUnits?: string
+  tiers: { id: number; from: number; to: number | null; rate: number }[]
 }
 
 interface DisposalFee {
   id?: number
   name: string
   description: string
-  type: string
+  measure: string
   defaultRate: string
   minCharge: string
   businessLine: string
@@ -51,14 +66,21 @@ interface DisposalFeeFormProps {
 }
 
 // Mock data
-const materials = [
-  { id: 1, name: "MSW", description: "Municipal Solid Waste" },
-  { id: 2, name: "C&D", description: "Construction & Demolition" },
-  { id: 3, name: "Recycling", description: "Recyclable Materials" },
-  { id: 4, name: "Yard Waste", description: "Yard Waste and Organics" },
-  { id: 5, name: "Hazardous", description: "Hazardous Waste" },
+const materials: Material[] = [
+  { id: 1, name: "MSW", color: "bg-blue-200 text-black" },
+  { id: 2, name: "Recycling", color: "bg-green-200 text-black" },
+  { id: 3, name: "C&D", color: "bg-cyan-100 text-black" },
+  { id: 4, name: "Mattress", color: "bg-purple-200 text-black" },
+  { id: 5, name: "Mate88", color: "bg-purple-300 text-black" },
+  { id: 6, name: "Mat34", color: "bg-pink-200 text-black" },
+  { id: 7, name: "No Sort Recycle", color: "bg-rose-200 text-black" },
+  { id: 8, name: "Appliance", color: "bg-orange-200 text-black" },
+  { id: 9, name: "Tire", color: "bg-yellow-200 text-black" },
+  { id: 10, name: "Brush", color: "bg-indigo-100 text-black" },
+  { id: 11, name: "Shingles", color: "bg-gray-500 text-white" },
+  { id: 12, name: "Friable Asbestos", color: "bg-yellow-100 text-black" },
+  { id: 13, name: "Non-Friable Asbestos", color: "bg-yellow-200 text-black" },
 ]
-
 const serviceMeasures = [
   { id: 1, name: "Per Ton", description: "Charged per ton of material" },
   { id: 2, name: "Per Cubic Yard", description: "Charged per cubic yard of material" },
@@ -66,7 +88,6 @@ const serviceMeasures = [
   { id: 4, name: "Per Container", description: "Charged per container" },
   { id: 5, name: "Per Day", description: "Charged per day" },
   { id: 6, name: "Per Move", description: "Charged per move or relocation" },
-  { id: 7, name: "Per Incident", description: "Charged per incident" },
 ]
 
 const glCodes = [
@@ -97,7 +118,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
     initialFee || {
       name: "",
       description: "",
-      type: "Per Ton",
+      measure: "Per Ton",
       defaultRate: "",
       minCharge: "",
       businessLine: "All",
@@ -121,6 +142,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         defaultRate: string
         minCharge: string
         freeTonnage: number
+        measure: string
         tiers: { id: number; from: number; to: number | null; rate: number }[]
       }
     >
@@ -149,26 +171,37 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       if (initialFee.materialPricing && initialFee.materialPricing.length > 0) {
         setUseMaterialPricing(true)
         initialFee.materialPricing.forEach((mp) => {
-          pricing[mp.materialType] = {
-            defaultRate: mp.defaultRate,
-            minCharge: mp.minCharge,
-            freeTonnage: mp.freeTonnage,
-            tiers: mp.tiers,
+          if (mp.materialType) {
+            pricing[mp.materialType] = {
+              defaultRate: mp.defaultRate,
+              minCharge: mp.minCharge,
+              freeTonnage: mp.freeTonnage,
+              measure: mp.measure || formData.measure,
+              tiers: mp.tiers,
+            }
           }
         })
       } else {
         // If no material-specific pricing, use the default for all selected materials
         const selectedMats = initialFee.materials || [initialFee.material]
         selectedMats.forEach((mat) => {
-          pricing[mat] = {
-            defaultRate: initialFee.defaultRate.replace("$", ""),
-            minCharge: initialFee.minCharge.replace("$", ""),
-            freeTonnage: initialFee.freeTonnage,
-            tiers: [...initialFee.tiers],
+          if (mat) {
+            pricing[mat] = {
+              defaultRate: initialFee.defaultRate.replace("$", ""),
+              minCharge: initialFee.minCharge.replace("$", ""),
+              freeTonnage: initialFee.freeTonnage,
+              measure: initialFee.measure,
+              tiers: [...initialFee.tiers],
+            }
           }
         })
       }
       setMaterialPricing(pricing)
+
+      // Set the measure value
+      if (initialFee.measure) {
+        handleChange("measure", initialFee.measure)
+      }
     }
   }, [initialFee])
 
@@ -217,6 +250,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
             defaultRate: formData.defaultRate.replace("$", ""),
             minCharge: formData.minCharge.replace("$", ""),
             freeTonnage: formData.freeTonnage,
+            measure: formData.measure,
             tiers: [...formData.tiers],
           },
         })
@@ -333,6 +367,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
           defaultRate: `$${materialPricing[material].defaultRate}`,
           minCharge: `$${materialPricing[material].minCharge}`,
           freeTonnage: materialPricing[material].freeTonnage,
+          measure: materialPricing[material].measure,
           tiers: materialPricing[material].tiers,
         }))
       }
@@ -492,6 +527,27 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   )}
                 </div>
               </div>
+
+              <div className="space-y-4 mt-6">
+                <h3 className="text-sm font-medium">Pricing Zones</h3>
+                <div className="border rounded-md p-4 bg-slate-50">
+                  <div className="space-y-3">
+                    {[
+                      { id: 1, name: "Zone A", description: "Metropolitan Area" },
+                      { id: 2, name: "Zone B", description: "Suburban Area" },
+                      { id: 3, name: "Zone C", description: "Rural Area" },
+                    ].map((zone) => (
+                      <div key={zone.id} className="flex items-center space-x-2 py-2 border-b border-slate-200">
+                        <Checkbox id={`zone-${zone.id}`} />
+                        <div>
+                          <Label htmlFor={`zone-${zone.id}`}>{zone.name}</Label>
+                          <p className="text-xs text-muted-foreground">{zone.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={onCancel}>
@@ -564,25 +620,44 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   )}
 
                   <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {materials.map((material) => (
-                        <div key={material.id} className="flex items-center space-x-2 py-1.5">
-                          <Checkbox
-                            id={`material-${material.id}`}
-                            checked={selectedMaterials.includes(material.name)}
-                            onCheckedChange={(checked) => handleMaterialChange(material.name, checked === true)}
-                          />
-                          <div>
-                            <label
-                              htmlFor={`material-${material.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    <div className="space-y-4">
+                      <Select
+                        onValueChange={(value) => {
+                          if (!selectedMaterials.includes(value)) {
+                            handleMaterialChange(value, true)
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a material type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {materials.map((material) => (
+                            <SelectItem
+                              key={material.id}
+                              value={material.name}
+                              disabled={selectedMaterials.includes(material.name)}
                             >
                               {material.name}
-                            </label>
-                            <p className="text-xs text-muted-foreground mt-1">{material.description}</p>
-                          </div>
-                        </div>
-                      ))}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMaterials.map((materialName) => {
+                          const material = materials.find(m => m.name === materialName)
+                          if (!material) return null
+                          return (
+                            <MaterialChip
+                              key={material.id}
+                              name={material.name}
+                              color={material.color}
+                              onRemove={() => handleMaterialChange(material.name, false)}
+                            />
+                          )
+                        })}
+                      </div>
                     </div>
                   </div>
                   {isFieldInvalid("materials") && (
@@ -597,392 +672,430 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   <div className="space-y-4 border-t pt-4 mt-4">
                     <div className="border rounded-md p-4 bg-slate-50">
                       <Tabs defaultValue={selectedMaterials[0]} className="w-full">
-                        <TabsList
-                          className="grid"
-                          style={{ gridTemplateColumns: `repeat(${Math.min(selectedMaterials.length, 4)}, 1fr)` }}
-                        >
-                          {selectedMaterials.map((material) => (
-                            <TabsTrigger key={material} value={material}>
-                              {material}
-                            </TabsTrigger>
-                          ))}
+                        <TabsList className="flex flex-wrap gap-2">
+                          {selectedMaterials.map((materialName) => {
+                            const material = materials.find(m => m.name === materialName)
+                            if (!material) return null
+                            return (
+                              <TabsTrigger
+                                key={materialName}
+                                value={materialName}
+                                className={cn(
+                                  "data-[state=active]:shadow-sm",
+                                  "data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-600 data-[state=inactive]:border-gray-200",
+                                  "data-[state=active]:bg-white",
+                                  material.color
+                                )}
+                              >
+                                {materialName}
+                              </TabsTrigger>
+                            )
+                          })}
                         </TabsList>
 
-                        {selectedMaterials.map((material) => (
-                          <TabsContent key={material} value={material} className="space-y-4 pt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor={`${material}-default-rate`}>Default Rate</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-2.5">$</span>
-                                  <Input
-                                    id={`${material}-default-rate`}
-                                    value={materialPricing[material]?.defaultRate || ""}
-                                    onChange={(e) =>
-                                      handleMaterialPricingChange(material, "defaultRate", e.target.value)
-                                    }
-                                    className="pl-7 h-10"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor={`${material}-free-tonnage`}>Free Tonnage</Label>
-                                <div className="relative">
-                                  <Input
-                                    id={`${material}-free-tonnage`}
-                                    type="number"
-                                    min="0"
-                                    step="0.1"
-                                    value={materialPricing[material]?.freeTonnage || 0}
-                                    onChange={(e) =>
-                                      handleMaterialPricingChange(
-                                        material,
-                                        "freeTonnage",
-                                        Number.parseFloat(e.target.value) || 0,
-                                      )
-                                    }
-                                    placeholder="0.00"
-                                    className="h-10"
-                                  />
-                                  <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <Label htmlFor={`${material}-use-tiers`}>Use Tiered Pricing</Label>
-                                <Switch
-                                  id={`${material}-use-tiers`}
-                                  checked={materialPricing[material]?.tiers?.length > 1}
-                                  onCheckedChange={(checked) => {
-                                    if (
-                                      checked &&
-                                      (!materialPricing[material]?.tiers ||
-                                        materialPricing[material]?.tiers.length <= 1)
-                                    ) {
-                                      // Add a second tier if enabling tiered pricing
-                                      handleMaterialPricingChange(material, "tiers", [
-                                        {
-                                          id: 1,
-                                          from: 0,
-                                          to: 2,
-                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
-                                        },
-                                        {
-                                          id: 2,
-                                          from: 2,
-                                          to: null,
-                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0") * 0.9,
-                                        },
-                                      ])
-                                    } else if (!checked && materialPricing[material]?.tiers?.length > 1) {
-                                      // Remove all but first tier if disabling
-                                      handleMaterialPricingChange(material, "tiers", [
-                                        materialPricing[material]?.tiers[0] || {
-                                          id: 1,
-                                          from: 0,
-                                          to: null,
-                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
-                                        },
-                                      ])
-                                    }
-                                  }}
-                                />
-                              </div>
-
-                              {materialPricing[material]?.tiers?.length > 1 && (
-                                <div className="border rounded-md p-4 mt-2">
-                                  <div className="flex items-center justify-between mb-4">
-                                    <h4 className="text-sm font-medium">{material} Pricing Tiers</h4>
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => addMaterialTier(material)}
-                                    >
-                                      <Plus className="h-4 w-4 mr-2" />
-                                      Add Tier
-                                    </Button>
+                        {selectedMaterials.map((materialName) => {
+                          const material = materials.find(m => m.name === materialName)
+                          if (!material) return null
+                          return (
+                            <TabsContent key={materialName} value={materialName} className="space-y-4 pt-4">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2 order-first">
+                                  <Label htmlFor={`${materialName}-default-rate`}>Default Rate</Label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-2.5">$</span>
+                                    <Input
+                                      id={`${materialName}-default-rate`}
+                                      value={materialPricing[materialName]?.defaultRate || ""}
+                                      onChange={(e) =>
+                                        handleMaterialPricingChange(materialName, "defaultRate", e.target.value)
+                                      }
+                                      className="pl-7 h-10"
+                                      placeholder="0.00"
+                                    />
                                   </div>
+                                </div>
 
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow>
-                                        <TableHead>From (tons)</TableHead>
-                                        <TableHead>To (tons)</TableHead>
-                                        <TableHead>Rate</TableHead>
-                                        <TableHead className="w-[100px]">Actions</TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {materialPricing[material]?.tiers?.map((tier, index) => (
-                                        <TableRow key={tier.id}>
-                                          <TableCell>
-                                            <Input
-                                              type="number"
-                                              min="0"
-                                              step="0.1"
-                                              value={tier.from}
-                                              onChange={(e) =>
-                                                handleMaterialTierChange(
-                                                  material,
-                                                  index,
-                                                  "from",
-                                                  Number.parseFloat(e.target.value) || 0,
-                                                )
-                                              }
-                                              className="w-20 h-10"
-                                            />
-                                          </TableCell>
-                                          <TableCell>
-                                            <Input
-                                              type="number"
-                                              min="0"
-                                              step="0.1"
-                                              value={tier.to === null ? "" : tier.to}
-                                              onChange={(e) => {
-                                                const value =
-                                                  e.target.value.trim() === ""
-                                                    ? null
-                                                    : Number.parseFloat(e.target.value) || 0
-                                                handleMaterialTierChange(material, index, "to", value)
-                                              }}
-                                              className="w-20 h-10"
-                                              placeholder="∞"
-                                            />
-                                          </TableCell>
-                                          <TableCell>
-                                            <div className="relative">
-                                              <span className="absolute left-3 top-2.5">$</span>
+                                <div className="space-y-2">
+                                  <Label htmlFor={`${materialName}-measure`}>Measure</Label>
+                                  <Select
+                                    value={materialPricing[materialName]?.measure || formData.measure}
+                                    onValueChange={(value) => handleMaterialPricingChange(materialName, "measure", value)}
+                                  >
+                                    <SelectTrigger id={`${materialName}-measure`} className="h-10">
+                                      <SelectValue placeholder="Select measure" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {serviceMeasures.map((measure) => (
+                                        <SelectItem key={measure.id} value={measure.name}>
+                                          {measure.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor={`${materialName}-free-tonnage`}>Free Tonnage</Label>
+                                  <div className="relative">
+                                    <Input
+                                      id={`${materialName}-free-tonnage`}
+                                      type="number"
+                                      min="0"
+                                      step="0.1"
+                                      value={materialPricing[materialName]?.freeTonnage || 0}
+                                      onChange={(e) =>
+                                        handleMaterialPricingChange(
+                                          materialName,
+                                          "freeTonnage",
+                                          Number.parseFloat(e.target.value) || 0,
+                                        )
+                                      }
+                                      placeholder="0.00"
+                                      className="h-10"
+                                    />
+                                    <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <Label htmlFor={`${materialName}-use-tiers`}>Use Tiered Pricing</Label>
+                                  <Switch
+                                    id={`${materialName}-use-tiers`}
+                                    checked={materialPricing[materialName]?.tiers?.length > 1}
+                                    onCheckedChange={(checked) => {
+                                      if (
+                                        checked &&
+                                        (!materialPricing[materialName]?.tiers ||
+                                          materialPricing[materialName]?.tiers.length <= 1)
+                                      ) {
+                                        // Add a second tier if enabling tiered pricing
+                                        handleMaterialPricingChange(materialName, "tiers", [
+                                          {
+                                            id: 1,
+                                            from: 0,
+                                            to: 2,
+                                            rate: Number.parseFloat(materialPricing[materialName]?.defaultRate || "0"),
+                                          },
+                                          {
+                                            id: 2,
+                                            from: 2,
+                                            to: null,
+                                            rate: Number.parseFloat(materialPricing[materialName]?.defaultRate || "0") * 0.9,
+                                          },
+                                        ])
+                                      } else if (!checked && materialPricing[materialName]?.tiers?.length > 1) {
+                                        // Remove all but first tier if disabling
+                                        handleMaterialPricingChange(materialName, "tiers", [
+                                          materialPricing[materialName]?.tiers[0] || {
+                                            id: 1,
+                                            from: 0,
+                                            to: null,
+                                            rate: Number.parseFloat(materialPricing[materialName]?.defaultRate || "0"),
+                                          },
+                                        ])
+                                      }
+                                    }}
+                                  />
+                                </div>
+
+                                {materialPricing[materialName]?.tiers?.length > 1 && (
+                                  <div className="border rounded-md p-4 mt-2">
+                                    <div className="flex items-center justify-between mb-4">
+                                      <h4 className="text-sm font-medium">{materialName} Pricing Tiers</h4>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => addMaterialTier(materialName)}
+                                      >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add Tier
+                                      </Button>
+                                    </div>
+
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead>From (tons)</TableHead>
+                                          <TableHead>To (tons)</TableHead>
+                                          <TableHead>Rate</TableHead>
+                                          <TableHead className="w-[100px]">Actions</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {materialPricing[materialName]?.tiers?.map((tier, index) => (
+                                          <TableRow key={tier.id}>
+                                            <TableCell>
                                               <Input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
-                                                value={tier.rate}
+                                                step="0.1"
+                                                value={tier.from}
                                                 onChange={(e) =>
                                                   handleMaterialTierChange(
-                                                    material,
+                                                    materialName,
                                                     index,
-                                                    "rate",
+                                                    "from",
                                                     Number.parseFloat(e.target.value) || 0,
                                                   )
                                                 }
-                                                className="w-24 pl-7 h-10"
+                                                className="w-20 h-10"
                                               />
-                                            </div>
-                                          </TableCell>
-                                          <TableCell>
-                                            <Button
-                                              type="button"
-                                              variant="ghost"
-                                              size="icon"
-                                              className="h-8 w-8 text-destructive"
-                                              onClick={() => removeMaterialTier(material, tier.id)}
-                                              disabled={materialPricing[material]?.tiers?.length <= 1}
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                </div>
-                              )}
-                            </div>
-                          </TabsContent>
-                        ))}
+                                            </TableCell>
+                                            <TableCell>
+                                              <Input
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={tier.to === null ? "" : tier.to}
+                                                onChange={(e) => {
+                                                  const value =
+                                                    e.target.value.trim() === ""
+                                                      ? null
+                                                      : Number.parseFloat(e.target.value) || 0
+                                                  handleMaterialTierChange(materialName, index, "to", value)
+                                                }}
+                                                className="w-20 h-10"
+                                                placeholder="∞"
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <div className="relative">
+                                                <span className="absolute left-3 top-2.5">$</span>
+                                                <Input
+                                                  type="number"
+                                                  min="0"
+                                                  step="0.01"
+                                                  value={tier.rate}
+                                                  onChange={(e) =>
+                                                    handleMaterialTierChange(
+                                                      materialName,
+                                                      index,
+                                                      "rate",
+                                                      Number.parseFloat(e.target.value) || 0,
+                                                    )
+                                                  }
+                                                  className="w-24 pl-7 h-10"
+                                                />
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-destructive"
+                                                onClick={() => removeMaterialTier(materialName, tier.id)}
+                                                disabled={materialPricing[materialName]?.tiers?.length <= 1}
+                                              >
+                                                <Trash2 className="h-4 w-4" />
+                                              </Button>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                )}
+                              </div>
+                            </TabsContent>
+                          )
+                        })}
                       </Tabs>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="fee-type">Fee Type</Label>
-                  <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
-                    <SelectTrigger id="fee-type" className="h-10">
-                      <SelectValue placeholder="Select fee type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {serviceMeasures.map((measure) => (
-                        <SelectItem key={measure.id} value={measure.name}>
-                          {measure.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="min-h-[20px]">
-                    <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+              {!useMaterialPricing && (
+                <>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="fee-default-rate">Default Rate</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5">$</span>
+                        <Input
+                          id="fee-default-rate"
+                          value={formData.defaultRate}
+                          onChange={(e) => handleChange("defaultRate", e.target.value)}
+                          onBlur={() => handleBlur("defaultRate")}
+                          className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="min-h-[20px]">
+                        {isFieldInvalid("defaultRate") && (
+                          <p className="text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="measures">Measure</Label>
+                      <Select 
+                        value={formData.measure || "Per Ton"} 
+                        onValueChange={(value) => handleChange("measure", value)}
+                      >
+                        <SelectTrigger id="measures" className="h-10">
+                          <SelectValue placeholder="Select measure" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {serviceMeasures.map((measure) => (
+                            <SelectItem key={measure.id} value={measure.name}>
+                              {measure.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="min-h-[20px]">
+                        <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <div className="space-y-2 mt-4">
+                    <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
+                    <div className="relative">
+                      <Input
+                        id="fee-free-tonnage"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={formData.freeTonnage}
+                        onChange={(e) => handleChange("freeTonnage", Number.parseFloat(e.target.value) || 0)}
+                        placeholder="0.00"
+                        className="h-10"
+                      />
+                      <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                    </div>
+                    <div className="min-h-[20px]">
+                      <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="fee-default-rate">Default Rate</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5">$</span>
-                    <Input
-                      id="fee-default-rate"
-                      value={formData.defaultRate}
-                      onChange={(e) => handleChange("defaultRate", e.target.value)}
-                      onBlur={() => handleBlur("defaultRate")}
-                      className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="min-h-[20px]">
-                    {isFieldInvalid("defaultRate") && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
-                      </p>
+                  <Separator />
+
+                  {/* Tiered pricing section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium">Tiered Pricing</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Enable tiered pricing to charge different rates based on quantity
+                        </p>
+                      </div>
+                      <Switch
+                        checked={useTieredPricing}
+                        onCheckedChange={(checked) => {
+                          setUseTieredPricing(checked)
+                          if (!checked) {
+                            // Reset to single tier
+                            handleChange("tiers", [
+                              { id: 1, from: 0, to: null, rate: Number.parseFloat(formData.defaultRate) || 0 },
+                            ])
+                          } else if (formData.tiers.length <= 1) {
+                            // Add a second tier
+                            handleChange("tiers", [
+                              { id: 1, from: 0, to: 2, rate: Number.parseFloat(formData.defaultRate) || 0 },
+                              { id: 2, from: 2, to: null, rate: (Number.parseFloat(formData.defaultRate) || 0) * 0.9 },
+                            ])
+                          }
+                        }}
+                      />
+                    </div>
+
+                    {useTieredPricing && (
+                      <div className="border rounded-md p-4 bg-slate-50">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-sm font-medium">Pricing Tiers</h4>
+                          <Button type="button" size="sm" variant="outline" onClick={addTier}>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Tier
+                          </Button>
+                        </div>
+
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>From ({formData.measure.includes("Ton") ? "tons" : "units"})</TableHead>
+                              <TableHead>To ({formData.measure.includes("Ton") ? "tons" : "units"})</TableHead>
+                              <TableHead>Rate</TableHead>
+                              <TableHead className="w-[100px]">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {formData.tiers.map((tier, index) => (
+                              <TableRow key={tier.id}>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value={tier.from}
+                                    onChange={(e) =>
+                                      handleTierChange(index, "from", Number.parseFloat(e.target.value) || 0)
+                                    }
+                                    className="w-20 h-10"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.1"
+                                    value={tier.to === null ? "" : tier.to}
+                                    onChange={(e) => {
+                                      const value =
+                                        e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
+                                      handleTierChange(index, "to", value)
+                                    }}
+                                    className="w-20 h-10"
+                                    placeholder="∞"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-2.5">$</span>
+                                    <Input
+                                      type="number"
+                                      min="0"
+                                      step="0.01"
+                                      value={tier.rate}
+                                      onChange={(e) =>
+                                        handleTierChange(index, "rate", Number.parseFloat(e.target.value) || 0)
+                                      }
+                                      className="w-24 pl-7 h-10"
+                                    />
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-destructive"
+                                    onClick={() => removeTier(tier.id)}
+                                    disabled={formData.tiers.length <= 1}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        <div className="mt-4 text-xs text-muted-foreground">
+                          <p>Tiered pricing allows you to set different rates based on quantity ranges.</p>
+                          <p>For example: $65/ton for 0-2 tons, $55/ton for 2-5 tons, and $45/ton for over 5 tons.</p>
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
-                  <div className="relative">
-                    <Input
-                      id="fee-free-tonnage"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={formData.freeTonnage}
-                      onChange={(e) => handleChange("freeTonnage", Number.parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
-                      className="h-10"
-                    />
-                    <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                  </div>
-                  <div className="min-h-[20px]">
-                    <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Tiered pricing section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium">Tiered Pricing</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Enable tiered pricing to charge different rates based on quantity
-                    </p>
-                  </div>
-                  <Switch
-                    checked={useTieredPricing}
-                    onCheckedChange={(checked) => {
-                      setUseTieredPricing(checked)
-                      if (!checked) {
-                        // Reset to single tier
-                        handleChange("tiers", [
-                          { id: 1, from: 0, to: null, rate: Number.parseFloat(formData.defaultRate) || 0 },
-                        ])
-                      } else if (formData.tiers.length <= 1) {
-                        // Add a second tier
-                        handleChange("tiers", [
-                          { id: 1, from: 0, to: 2, rate: Number.parseFloat(formData.defaultRate) || 0 },
-                          { id: 2, from: 2, to: null, rate: (Number.parseFloat(formData.defaultRate) || 0) * 0.9 },
-                        ])
-                      }
-                    }}
-                  />
-                </div>
-
-                {useTieredPricing && (
-                  <div className="border rounded-md p-4 bg-slate-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-medium">Pricing Tiers</h4>
-                      <Button type="button" size="sm" variant="outline" onClick={addTier}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Tier
-                      </Button>
-                    </div>
-
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>From ({formData.type.includes("Ton") ? "tons" : "units"})</TableHead>
-                          <TableHead>To ({formData.type.includes("Ton") ? "tons" : "units"})</TableHead>
-                          <TableHead>Rate</TableHead>
-                          <TableHead className="w-[100px]">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {formData.tiers.map((tier, index) => (
-                          <TableRow key={tier.id}>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.1"
-                                value={tier.from}
-                                onChange={(e) =>
-                                  handleTierChange(index, "from", Number.parseFloat(e.target.value) || 0)
-                                }
-                                className="w-20 h-10"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.1"
-                                value={tier.to === null ? "" : tier.to}
-                                onChange={(e) => {
-                                  const value =
-                                    e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
-                                  handleTierChange(index, "to", value)
-                                }}
-                                className="w-20 h-10"
-                                placeholder="∞"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div className="relative">
-                                <span className="absolute left-3 top-2.5">$</span>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={tier.rate}
-                                  onChange={(e) =>
-                                    handleTierChange(index, "rate", Number.parseFloat(e.target.value) || 0)
-                                  }
-                                  className="w-24 pl-7 h-10"
-                                />
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-destructive"
-                                onClick={() => removeTier(tier.id)}
-                                disabled={formData.tiers.length <= 1}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-
-                    <div className="mt-4 text-xs text-muted-foreground">
-                      <p>Tiered pricing allows you to set different rates based on quantity ranges.</p>
-                      <p>For example: $65/ton for 0-2 tons, $55/ton for 2-5 tons, and $45/ton for over 5 tons.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </>
+              )}
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={() => setActiveTab("basic")}>
@@ -1053,39 +1166,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </div>
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Pricing Zones</h3>
-                <div className="border rounded-md p-4 bg-slate-50">
-                  <div className="space-y-3">
-                    {[
-                      { id: 1, name: "Zone A", description: "Metropolitan Area" },
-                      { id: 2, name: "Zone B", description: "Suburban Area" },
-                      { id: 3, name: "Zone C", description: "Rural Area" },
-                    ].map((zone) => (
-                      <div key={zone.id} className="flex items-center space-x-2 py-2 border-b border-slate-200">
-                        <Checkbox id={`zone-${zone.id}`} defaultChecked={zone.id === 1} />
-                        <div>
-                          <label
-                            htmlFor={`zone-${zone.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            {zone.name}
-                          </label>
-                          <p className="text-xs text-muted-foreground mt-1">{zone.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </CardContent>
-            <CardFooter className="flex justify-between border-t pt-4">
-              <Button variant="outline" onClick={() => setActiveTab("pricing")}>
-                Previous: Pricing & Materials
-              </Button>
-              <Button onClick={handleSubmit}>{initialFee ? "Save Changes" : "Create Disposal Fee"}</Button>
-            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>

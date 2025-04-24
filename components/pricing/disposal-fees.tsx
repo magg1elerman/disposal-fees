@@ -73,7 +73,7 @@ export type DisposalFee = {
   id: number
   name: string
   description: string
-  type: string
+  measure: string
   defaultRate: string
   minCharge: string
   businessLine: string
@@ -209,7 +209,7 @@ export function DisposalFees() {
       id: 1,
       name: "MSW Disposal Fee",
       description: "Municipal Solid Waste disposal fee for all business lines",
-      type: "Per Ton",
+      measure: "Per Ton",
       defaultRate: "$65.00",
       minCharge: "$25.00",
       businessLine: "All",
@@ -230,7 +230,7 @@ export function DisposalFees() {
       id: 2,
       name: "C&D Disposal Fee",
       description: "Construction & Demolition disposal fee for commercial customers",
-      type: "Per Ton",
+      measure: "Per Ton",
       defaultRate: "$75.00",
       minCharge: "$30.00",
       businessLine: "Commercial",
@@ -265,7 +265,7 @@ export function DisposalFees() {
       id: 4,
       name: "Yard Waste Disposal",
       description: "Yard waste disposal fee for residential customers",
-      type: "Per Cubic Yard",
+      measure: "Per Cubic Yard",
       defaultRate: "$15.00",
       minCharge: "$10.00",
       businessLine: "Residential",
@@ -281,7 +281,7 @@ export function DisposalFees() {
       id: 5,
       name: "Hazardous Waste Surcharge",
       description: "Hazardous waste surcharge for all business lines",
-      type: "Per Item",
+      measure: "Per Item",
       defaultRate: "$25.00",
       minCharge: "$25.00",
       businessLine: "All",
@@ -298,7 +298,7 @@ export function DisposalFees() {
       id: 6,
       name: "Roll-off Delivery Fee",
       description: "Fee for delivering roll-off containers to customer locations",
-      type: "Per Container",
+      measure: "Per Container",
       defaultRate: "$85.00",
       minCharge: "$85.00",
       businessLine: "Roll-off",
@@ -315,7 +315,7 @@ export function DisposalFees() {
       id: 7,
       name: "Roll-off Pickup Fee",
       description: "Fee for picking up roll-off containers from customer locations",
-      type: "Per Container",
+      measure: "Per Container",
       defaultRate: "$85.00",
       minCharge: "$85.00",
       businessLine: "Roll-off",
@@ -332,7 +332,7 @@ export function DisposalFees() {
       id: 8,
       name: "Roll-off Daily Rental",
       description: "Daily rental fee for roll-off containers",
-      type: "Per Day",
+      type: "Per Ton",
       defaultRate: "$15.00",
       minCharge: "$15.00",
       businessLine: "Roll-off",
@@ -353,7 +353,7 @@ export function DisposalFees() {
       id: 9,
       name: "Roll-off Overweight Fee",
       description: "Fee for roll-off containers exceeding weight limits",
-      type: "Per Ton",
+      measure: "Per Ton",
       defaultRate: "$95.00",
       minCharge: "$50.00",
       businessLine: "Roll-off",
@@ -374,7 +374,7 @@ export function DisposalFees() {
       id: 10,
       name: "Roll-off Relocation Fee",
       description: "Fee for relocating roll-off containers at customer request",
-      type: "Per Move",
+      measure: "Per Move",
       defaultRate: "$75.00",
       minCharge: "$75.00",
       businessLine: "Roll-off",
@@ -391,7 +391,7 @@ export function DisposalFees() {
       id: 11,
       name: "Roll-off Contamination Fee",
       description: "Fee for contaminated materials in roll-off containers",
-      type: "Per Incident",
+      type: "Per Ton",
       defaultRate: "$150.00",
       minCharge: "$150.00",
       businessLine: "Roll-off",
@@ -583,8 +583,8 @@ export function DisposalFees() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white">
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.type}</div>
-                    <div className="text-xs text-muted-foreground">Fee Type</div>
+                    <div className="text-sm font-medium">{fee.measure}</div>
+                    <div className="text-xs text-muted-foreground">Measure</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.minCharge}</div>
@@ -672,8 +672,8 @@ export function DisposalFees() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-xs font-medium text-muted-foreground">Fee Type</h3>
-                    <p className="mt-1 font-medium">{selectedFee.type}</p>
+                    <h3 className="text-xs font-medium text-muted-foreground">Measure</h3>
+                    <p className="mt-1 font-medium">{selectedFee.measure}</p>
                   </div>
                   <div>
                     <h3 className="text-xs font-medium text-muted-foreground">Default Rate</h3>

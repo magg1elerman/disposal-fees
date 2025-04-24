@@ -35,7 +35,7 @@ export type DisposalFee = {
   id: number
   name: string
   description: string
-  type: string
+  measure: string
   defaultRate: string
   minCharge: string
   businessLine: string
@@ -125,9 +125,9 @@ export function DisposalFeesTable({ data, onViewFee, onEditFee, activeTab }: Dis
       cell: ({ row }) => <div>{row.getValue("businessLine")}</div>,
     },
     {
-      accessorKey: "type",
-      header: "Fee Type",
-      cell: ({ row }) => <div>{row.getValue("type")}</div>,
+      accessorKey: "measure",
+      header: "Measure",
+      cell: ({ row }) => <div>{row.getValue("measure")}</div>,
     },
     {
       accessorKey: "defaultRate",
