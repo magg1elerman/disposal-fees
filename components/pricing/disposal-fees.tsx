@@ -84,7 +84,6 @@ export type DisposalFee = {
   freeTonnage: number
   glCode: string
   linkedServices: number
-  tiers: { id: number; from: number; to: number | null; rate: number }[]
   materialPricing?: MaterialPricing[] // Add this field
 }
 
