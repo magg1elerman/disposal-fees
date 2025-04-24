@@ -693,54 +693,55 @@ export function DisposalFees() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-2 space-y-3">
             <Card className="shadow-md border-slate-300 overflow-hidden">
               <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>{selectedFee.name} Details</CardTitle>
                 <CardDescription>{selectedFee.description}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 p-6">
+
+              <CardContent className="p-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Status</h3>
-                    <Badge variant="success" className="bg-green-100 text-green-800">
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Status</h3>
+                    <Badge variant="success" className="mt-1 bg-green-100 text-green-800">
                       {selectedFee.status}
                     </Badge>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">General Ledger</h3>
-                    <p>{selectedFee.glCode}</p>
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">General Ledger</h3>
+                    <p className="mt-1 font-medium">{selectedFee.glCode}</p>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Business Line</h3>
-                    <p>{selectedFee.businessLine}</p>
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Business Line</h3>
+                    <p className="mt-1 font-medium">{selectedFee.businessLine}</p>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Materials</h3>
-                    <div className="flex flex-wrap gap-1">
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Materials</h3>
+                    <div className="mt-1 flex flex-wrap gap-1">
                       {selectedFee.materials && selectedFee.materials.length > 0 ? (
                         selectedFee.materials.map((material, idx) => (
-                          <Badge key={idx} variant="outline" className="bg-white">
+                          <Badge key={idx} variant="outline">
                             {material}
                           </Badge>
                         ))
                       ) : (
-                        <p>{selectedFee.material}</p>
+                        <p className="font-medium">{selectedFee.material}</p>
                       )}
                     </div>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Fee Type</h3>
-                    <p>{selectedFee.type}</p>
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Fee Type</h3>
+                    <p className="mt-1 font-medium">{selectedFee.type}</p>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Default Rate</h3>
-                    <p className="font-bold">{selectedFee.defaultRate}</p>
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Default Rate</h3>
+                    <p className="mt-1 font-bold">{selectedFee.defaultRate}</p>
                   </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Free Tonnage</h3>
-                    <p>{selectedFee.freeTonnage} tons</p>
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground">Free Tonnage</h3>
+                    <p className="mt-1 font-medium">{selectedFee.freeTonnage} tons</p>
                   </div>
                 </div>
               </CardContent>
