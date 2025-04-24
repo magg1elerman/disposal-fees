@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   MoreVertical,
   Plus,
@@ -517,18 +516,52 @@ export function DisposalFees() {
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
-      <div className="flex justify-between items-center p-4 mb-6">
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white">
-            <TabsTrigger value="all">All business lines</TabsTrigger>
-            <TabsTrigger value="residential">Residential</TabsTrigger>
-            <TabsTrigger value="commercial">Commercial</TabsTrigger>
-            <TabsTrigger value="roll-off">Roll-off</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="flex justify-between items-center mb-6">
+        <div className="border-b border-slate-200 w-full">
+          <div className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                activeTab === "all" ? "text-blue-600 border-b-2 border-blue-600" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              All business lines
+            </button>
+            <button
+              onClick={() => setActiveTab("residential")}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                activeTab === "residential"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              Residential
+            </button>
+            <button
+              onClick={() => setActiveTab("commercial")}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                activeTab === "commercial"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              Commercial
+            </button>
+            <button
+              onClick={() => setActiveTab("roll-off")}
+              className={`pb-2 text-sm font-medium transition-colors ${
+                activeTab === "roll-off"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              Roll-off
+            </button>
+          </div>
+        </div>
 
-        <div className="flex gap-2">
-          <div className="border rounded-md overflow-hidden shadow-sm">
+        <div className="flex gap-2 ml-auto">
+          <div className="flex border rounded-md overflow-hidden shadow-sm">
             <Button
               variant={viewMode === "card" ? "default" : "ghost"}
               size="sm"
@@ -664,7 +697,7 @@ export function DisposalFees() {
           <div className="md:col-span-2 space-y-6">
             <Card className="shadow-md border-slate-300 overflow-hidden">
               <CardHeader className="bg-slate-100 border-b border-slate-300">
-                <CardTitle>Disposal Fee Details</CardTitle>
+                <CardTitle>{selectedFee.name} Details</CardTitle>
                 <CardDescription>Basic information about this disposal fee</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
@@ -712,10 +745,6 @@ export function DisposalFees() {
                   <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Default Rate</h3>
                     <p className="font-bold">{selectedFee.defaultRate}</p>
-                  </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Minimum Charge</h3>
-                    <p>{selectedFee.minCharge}</p>
                   </div>
                   <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Free Tonnage</h3>
@@ -1179,19 +1208,6 @@ export function DisposalFees() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fee-min-charge">Minimum Charge</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5">$</span>
-              <Input
-                id="fee-min-charge"
-                defaultValue={selectedFee?.minCharge?.replace("$", "") || ""}
-                className="pl-7"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="fee-type">Fee Type</Label>
             <Select defaultValue={selectedFee?.type?.toLowerCase().replace(/\s+/g, "-") || "per-ton"}>
               <SelectTrigger id="fee-type">
@@ -1203,22 +1219,6 @@ export function DisposalFees() {
                     {measure.name}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-pricing-period">Pricing Period</Label>
-            <Select defaultValue="per-unit">
-              <SelectTrigger id="fee-pricing-period">
-                <SelectValue placeholder="Select pricing period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="per-unit">Per Unit</SelectItem>
-                <SelectItem value="once">Once</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="annually">Annually</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1337,30 +1337,6 @@ export function DisposalFees() {
               placeholder="Enter fee description"
               rows={3}
             />
-            <div className="flex items-center justify-end">
-              <Select
-                onValueChange={(value) => {
-                  const template = descriptionTemplates.find((t) => t.id.toString() === value)
-                  if (template) {
-                    const descriptionEl = document.getElementById("fee-description") as HTMLTextAreaElement
-                    if (descriptionEl) {
-                      descriptionEl.value = template.text
-                    }
-                  }
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Use template" />
-                </SelectTrigger>
-                <SelectContent>
-                  {descriptionTemplates.map((template) => (
-                    <SelectItem key={template.id} value={template.id.toString()}>
-                      Template {template.id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           <div className="space-y-2">
