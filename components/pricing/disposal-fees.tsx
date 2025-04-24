@@ -1,5 +1,13 @@
 "use client"
 
+import { Label } from "@/components/ui/label"
+
+import { DialogDescription } from "@/components/ui/dialog"
+
+import { Switch } from "@/components/ui/switch"
+
+import { Checkbox } from "@/components/ui/checkbox"
+
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,29 +18,16 @@ import {
   Copy,
   Link,
   ChevronDown,
-  LayoutGrid,
-  List,
   LinkIcon,
   Settings,
   AlertCircle,
+  LayoutGrid,
+  List,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +40,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DisposalFeeForm } from "./disposal-fee-form"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -96,14 +92,9 @@ export function DisposalFees() {
   const [activeTab, setActiveTab] = useState("all")
   const [activeView, setActiveView] = useState("list")
   const [viewMode, setViewMode] = useState<"card" | "table">("card")
-  const [showAddTierDialog, setShowAddTierDialog] = useState(false)
-  const [selectedFee, setSelectedFee] = useState<any>(null)
+  const [selectedFee, setSelectedFee] = useState<DisposalFee | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAutolinkSettingsDialog, setShowAutolinkSettingsDialog] = useState(false)
-
-  const [useTieredPricing, setUseTieredPricing] = useState(false)
-  const [currentTiers, setCurrentTiers] = useState<any[]>([])
-  const [newTier, setNewTier] = useState({ from: 0, to: null, rate: 0 })
 
   // Autolinking states
   const [autolinkEnabled, setAutolinkEnabled] = useState(true)
@@ -114,20 +105,6 @@ export function DisposalFees() {
   const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   const componentRef = useRef<HTMLDivElement>(null)
-
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
-  const [materialPricing, setMaterialPricing] = useState<
-    Record<
-      string,
-      {
-        defaultRate: string
-        minCharge: string
-        freeTonnage: number
-        tiers: { id: number; from: number; to: number | null; rate: number }[]
-      }
-    >
-  >({})
-  const [useMaterialPricing, setUseMaterialPricing] = useState(false)
 
   useEffect(() => {
     const handleAddDisposalFee = () => {
@@ -169,52 +146,6 @@ export function DisposalFees() {
       setAutolinkedServices([])
     }
   }, [selectedFee, autolinkEnabled, autolinkByMaterial, autolinkByLocation, services])
-
-  useEffect(() => {
-    if (selectedFee) {
-      setCurrentTiers(selectedFee.tiers || [])
-      setUseTieredPricing(selectedFee.tiers?.length > 1)
-
-      // Set selected materials
-      if (selectedFee.materials && selectedFee.materials.length > 0) {
-        setSelectedMaterials(selectedFee.materials)
-      } else if (selectedFee.material) {
-        setSelectedMaterials([selectedFee.material])
-      } else {
-        setSelectedMaterials([])
-      }
-
-      // Set material-specific pricing
-      const pricing: Record<string, any> = {}
-      if (selectedFee.materialPricing && selectedFee.materialPricing.length > 0) {
-        selectedFee.materialPricing.forEach((mp) => {
-          pricing[mp.materialType] = {
-            defaultRate: mp.defaultRate,
-            minCharge: mp.minCharge,
-            freeTonnage: mp.freeTonnage,
-            tiers: mp.tiers,
-          }
-        })
-      } else {
-        // If no material-specific pricing, use the default for all selected materials
-        const selectedMats = selectedFee.materials || [selectedFee.material]
-        selectedMats.forEach((mat) => {
-          pricing[mat] = {
-            defaultRate: selectedFee.defaultRate.replace("$", ""),
-            minCharge: selectedFee.minCharge.replace("$", ""),
-            freeTonnage: selectedFee.freeTonnage,
-            tiers: [...selectedFee.tiers],
-          }
-        })
-      }
-      setMaterialPricing(pricing)
-    } else {
-      setCurrentTiers([])
-      setUseTieredPricing(false)
-      setSelectedMaterials([])
-      setMaterialPricing({})
-    }
-  }, [selectedFee])
 
   // Function to find services that can be autolinked to the selected fee
   const findAutolinkedServices = (fee: any) => {
@@ -478,54 +409,6 @@ export function DisposalFees() {
     },
   ]
 
-  const materials = [
-    { id: 1, name: "MSW", description: "Municipal Solid Waste" },
-    { id: 2, name: "C&D", description: "Construction & Demolition" },
-    { id: 3, name: "Recycling", description: "Recyclable Materials" },
-    { id: 4, name: "Yard Waste", description: "Yard Waste and Organics" },
-    { id: 5, name: "Hazardous", description: "Hazardous Waste" },
-  ]
-
-  const descriptionTemplates = [
-    { id: 1, text: "Standard disposal fee for [material] waste" },
-    { id: 2, text: "Processing fee for [material] materials" },
-    { id: 3, text: "[material] disposal fee for [business] customers" },
-    { id: 4, text: "Regulatory compliance fee for [material] disposal" },
-    { id: 5, text: "Environmental fee for [material] processing" },
-    { id: 6, text: "Handling fee for [material] materials" },
-    { id: 7, text: "Transportation and disposal fee for [material]" },
-  ]
-
-  const pricingZones = [
-    { id: 1, name: "Zone A", description: "Metropolitan Area" },
-    { id: 2, name: "Zone B", description: "Suburban Area" },
-    { id: 3, name: "Zone C", description: "Rural Area" },
-  ]
-
-  const serviceMeasures = [
-    { id: 1, name: "Per Ton", description: "Charged per ton of material" },
-    { id: 2, name: "Per Cubic Yard", description: "Charged per cubic yard of material" },
-    { id: 3, name: "Per Item", description: "Charged per item" },
-    { id: 4, name: "Per Container", description: "Charged per container" },
-    { id: 5, name: "Per Day", description: "Charged per day" },
-    { id: 6, name: "Per Move", description: "Charged per move or relocation" },
-    { id: 7, name: "Per Incident", description: "Charged per incident" },
-  ]
-
-  const glCodes = [
-    { id: 1, code: "4100-DISP", description: "Disposal Revenue" },
-    { id: 2, code: "4100-DISP-CD", description: "C&D Disposal Revenue" },
-    { id: 3, code: "4100-DISP-REC", description: "Recycling Revenue" },
-    { id: 4, code: "4100-DISP-YW", description: "Yard Waste Revenue" },
-    { id: 5, code: "4100-DISP-HZ", description: "Hazardous Waste Revenue" },
-    { id: 6, code: "4200-ROLL-DEL", description: "Roll-off Delivery Revenue" },
-    { id: 7, code: "4200-ROLL-PU", description: "Roll-off Pickup Revenue" },
-    { id: 8, code: "4200-ROLL-RENT", description: "Roll-off Rental Revenue" },
-    { id: 9, code: "4200-ROLL-OW", description: "Roll-off Overweight Revenue" },
-    { id: 10, code: "4200-ROLL-RELOC", description: "Roll-off Relocation Revenue" },
-    { id: 11, code: "4200-ROLL-CONT", description: "Roll-off Contamination Revenue" },
-  ]
-
   const linkedFees = [
     { id: 1, name: "Environmental Fee", type: "Fee", amount: "$5.00" },
     { id: 2, name: "Fuel Surcharge", type: "Fee", amount: "3%" },
@@ -534,12 +417,12 @@ export function DisposalFees() {
     { id: 5, name: "Regulatory Compliance Fee", type: "Fee", amount: "$3.50" },
   ]
 
-  const handleViewFee = (fee: any) => {
+  const handleViewFee = (fee: DisposalFee) => {
     setSelectedFee(fee)
     setActiveView("detail")
   }
 
-  const handleEditFee = (fee: any) => {
+  const handleEditFee = (fee: DisposalFee) => {
     setSelectedFee(fee)
     setShowEditDialog(true)
   }
@@ -556,44 +439,22 @@ export function DisposalFees() {
     setAutolinkedServices([])
   }
 
-  const renderTierTable = (tiers: any[]) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>From (tons)</TableHead>
-          <TableHead>To (tons)</TableHead>
-          <TableHead>Rate</TableHead>
-          <TableHead className="w-[100px]">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tiers.map((tier) => (
-          <TableRow key={tier.id}>
-            <TableCell>{tier.from}</TableCell>
-            <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
-            <TableCell>${tier.rate.toFixed(2)}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive"
-                  onClick={() => {
-                    setCurrentTiers(currentTiers.filter((t) => t.id !== tier.id))
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
+  const handleSaveFee = (fee: DisposalFee) => {
+    // In a real app, this would update the database
+    console.log("Saving fee:", fee)
+    setShowEditDialog(false)
+
+    // If editing an existing fee, update it in the list
+    if (selectedFee?.id) {
+      // This is just for demo purposes
+      alert(`Fee "${fee.name}" updated successfully!`)
+    } else {
+      // This is just for demo purposes
+      alert(`Fee "${fee.name}" created successfully!`)
+    }
+
+    setActiveView("list")
+  }
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
@@ -669,13 +530,11 @@ export function DisposalFees() {
           onViewFee={handleViewFee}
           onEditFee={handleEditFee}
           activeTab={activeTab}
-          onEditFee={handleEditFee}
-          activeTab={activeTab}
         />
       ) : (
         <div className="space-y-4">
           {disposalFees
-            .filter((fee) => activeTab === "all" || fee.businessLine.toLowerCase() === activeTab)
+            .filter((fee) => activeTab === "all" || fee.businessLine.toLowerCase() === activeTab.toLowerCase())
             .map((fee) => (
               <div
                 key={fee.id}
@@ -841,7 +700,37 @@ export function DisposalFees() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-4">{renderTierTable(selectedFee.tiers)}</CardContent>
+              <CardContent className="p-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>From (tons)</TableHead>
+                      <TableHead>To (tons)</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead className="w-[100px]">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedFee.tiers.map((tier) => (
+                      <TableRow key={tier.id}>
+                        <TableCell>{tier.from}</TableCell>
+                        <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
+                        <TableCell>${tier.rate.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
               <CardFooter className="text-sm text-muted-foreground bg-slate-50 border-t">
                 <p>
                   Tiered pricing allows for different rates based on tonnage. For example, the first 2 tons might be
@@ -1036,7 +925,11 @@ export function DisposalFees() {
               </CardHeader>
               <CardContent className="p-4">
                 <div className="space-y-3">
-                  {pricingZones.map((zone) => (
+                  {[
+                    { id: 1, name: "Zone A", description: "Metropolitan Area" },
+                    { id: 2, name: "Zone B", description: "Suburban Area" },
+                    { id: 3, name: "Zone C", description: "Rural Area" },
+                  ].map((zone) => (
                     <div key={zone.id} className="flex items-center space-x-2 py-2 border-b border-slate-200">
                       <Checkbox id={`zone-${zone.id}`} defaultChecked={zone.id === 1} />
                       <div>
@@ -1255,532 +1148,6 @@ export function DisposalFees() {
     )
   }
 
-  const renderEditDialog = () => (
-    <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{selectedFee ? "Edit Disposal Fee" : "Create Disposal Fee"}</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-2">
-          <div className="space-y-2">
-            <Label htmlFor="fee-name">Name</Label>
-            <Input id="fee-name" defaultValue={selectedFee?.name || ""} placeholder="Enter fee name" />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-gl-code">General Ledger Account</Label>
-            <Select defaultValue={selectedFee?.glCode || ""}>
-              <SelectTrigger id="fee-gl-code">
-                <SelectValue placeholder="Select general ledger account" />
-              </SelectTrigger>
-              <SelectContent>
-                {glCodes.map((code) => (
-                  <SelectItem key={code.id} value={code.code}>
-                    {code.code} - {code.description}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-business-line">Business Line</Label>
-            <Select defaultValue={selectedFee?.businessLine?.toLowerCase() || "all"}>
-              <SelectTrigger id="fee-business-line">
-                <SelectValue placeholder="Select business line" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="residential">Residential</SelectItem>
-                <SelectItem value="commercial">Commercial</SelectItem>
-                <SelectItem value="roll-off">Roll-off</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="col-span-2 space-y-4 border rounded-md p-4 mt-2">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium">Material Types</h3>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="use-material-pricing"
-                  checked={useMaterialPricing}
-                  onCheckedChange={setUseMaterialPricing}
-                />
-                <Label htmlFor="use-material-pricing">Enable per-material pricing</Label>
-              </div>
-            </div>
-
-            <div className="border rounded-md p-2 max-h-[200px] overflow-y-auto mb-4">
-              {materials.map((material) => (
-                <div key={material.id} className="flex items-center space-x-2 py-1.5">
-                  <Checkbox
-                    id={`material-${material.id}`}
-                    checked={selectedMaterials.includes(material.name)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedMaterials([...selectedMaterials, material.name])
-                      } else {
-                        setSelectedMaterials(selectedMaterials.filter((m) => m !== material.name))
-                      }
-                    }}
-                  />
-                  <label
-                    htmlFor={`material-${material.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {material.name}
-                  </label>
-                  <span className="text-xs text-muted-foreground">({material.description})</span>
-                </div>
-              ))}
-            </div>
-
-            <p className="text-xs text-muted-foreground">
-              Select multiple materials and enable per-material pricing to configure different pricing structures for
-              each material type.
-            </p>
-
-            {selectedMaterials.length > 1 && useMaterialPricing && (
-              <div className="space-y-6 mt-4 pt-4 border-t">
-                <h4 className="text-sm font-medium">Material-Specific Pricing</h4>
-                <Tabs defaultValue={selectedMaterials[0]} className="w-full">
-                  <TabsList
-                    className="grid"
-                    style={{ gridTemplateColumns: `repeat(${Math.min(selectedMaterials.length, 4)}, 1fr)` }}
-                  >
-                    {selectedMaterials.map((material) => (
-                      <TabsTrigger key={material} value={material}>
-                        {material}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-
-                  {selectedMaterials.map((material) => (
-                    <TabsContent key={material} value={material} className="space-y-4 pt-4">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor={`${material}-default-rate`}>Default Rate</Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
-                            <Input
-                              id={`${material}-default-rate`}
-                              value={materialPricing[material]?.defaultRate || ""}
-                              className="pl-7"
-                              placeholder="0.00"
-                              onChange={(e) => {
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    defaultRate: e.target.value,
-                                  },
-                                })
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor={`${material}-min-charge`}>Minimum Charge</Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
-                            <Input
-                              id={`${material}-min-charge`}
-                              value={materialPricing[material]?.minCharge || ""}
-                              className="pl-7"
-                              placeholder="0.00"
-                              onChange={(e) => {
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    minCharge: e.target.value,
-                                  },
-                                })
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor={`${material}-free-tonnage`}>Free Tonnage</Label>
-                          <div className="relative">
-                            <Input
-                              id={`${material}-free-tonnage`}
-                              value={materialPricing[material]?.freeTonnage || 0}
-                              placeholder="0.00"
-                              onChange={(e) => {
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    freeTonnage: Number.parseFloat(e.target.value) || 0,
-                                  },
-                                })
-                              }}
-                            />
-                            <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor={`${material}-use-tiers`}>Use Tiered Pricing</Label>
-                          <Switch
-                            id={`${material}-use-tiers`}
-                            checked={materialPricing[material]?.tiers?.length > 1}
-                            onCheckedChange={(checked) => {
-                              if (
-                                checked &&
-                                (!materialPricing[material]?.tiers || materialPricing[material]?.tiers.length <= 1)
-                              ) {
-                                // Add a second tier if enabling tiered pricing
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    tiers: [
-                                      {
-                                        id: 1,
-                                        from: 0,
-                                        to: 2,
-                                        rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
-                                      },
-                                      {
-                                        id: 2,
-                                        from: 2,
-                                        to: null,
-                                        rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0") * 0.9,
-                                      },
-                                    ],
-                                  },
-                                })
-                              } else if (!checked && materialPricing[material]?.tiers?.length > 1) {
-                                // Remove all but first tier if disabling
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    tiers: [
-                                      materialPricing[material]?.tiers[0] || {
-                                        id: 1,
-                                        from: 0,
-                                        to: null,
-                                        rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
-                                      },
-                                    ],
-                                  },
-                                })
-                              }
-                            }}
-                          />
-                        </div>
-
-                        {materialPricing[material]?.tiers?.length > 1 && (
-                          <div className="border rounded-md p-4 mt-2">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-sm font-medium">{material} Pricing Tiers</h4>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  const newTier = {
-                                    id: Math.max(...materialPricing[material].tiers.map((t) => t.id)) + 1,
-                                    from:
-                                      materialPricing[material].tiers[materialPricing[material].tiers.length - 1].to ||
-                                      0,
-                                    to: null,
-                                    rate: Number.parseFloat(materialPricing[material].defaultRate || "0") * 0.8,
-                                  }
-
-                                  setMaterialPricing({
-                                    ...materialPricing,
-                                    [material]: {
-                                      ...materialPricing[material],
-                                      tiers: [...materialPricing[material].tiers, newTier],
-                                    },
-                                  })
-                                }}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Tier
-                              </Button>
-                            </div>
-
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>From (tons)</TableHead>
-                                  <TableHead>To (tons)</TableHead>
-                                  <TableHead>Rate</TableHead>
-                                  <TableHead className="w-[100px]">Actions</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {materialPricing[material].tiers.map((tier, index) => (
-                                  <TableRow key={tier.id}>
-                                    <TableCell>
-                                      <Input
-                                        value={tier.from}
-                                        onChange={(e) => {
-                                          const updatedTiers = [...materialPricing[material].tiers]
-                                          updatedTiers[index] = {
-                                            ...tier,
-                                            from: Number.parseFloat(e.target.value) || 0,
-                                          }
-                                          setMaterialPricing({
-                                            ...materialPricing,
-                                            [material]: {
-                                              ...materialPricing[material],
-                                              tiers: updatedTiers,
-                                            },
-                                          })
-                                        }}
-                                        className="w-20"
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Input
-                                        value={tier.to === null ? "" : tier.to}
-                                        onChange={(e) => {
-                                          const value =
-                                            e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
-                                          const updatedTiers = [...materialPricing[material].tiers]
-                                          updatedTiers[index] = {
-                                            ...tier,
-                                            to: value,
-                                          }
-                                          setMaterialPricing({
-                                            ...materialPricing,
-                                            [material]: {
-                                              ...materialPricing[material],
-                                              tiers: updatedTiers,
-                                            },
-                                          })
-                                        }}
-                                        className="w-20"
-                                        placeholder="∞"
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="relative">
-                                        <span className="absolute left-3 top-2.5">$</span>
-                                        <Input
-                                          value={tier.rate}
-                                          onChange={(e) => {
-                                            const updatedTiers = [...materialPricing[material].tiers]
-                                            updatedTiers[index] = {
-                                              ...tier,
-                                              rate: Number.parseFloat(e.target.value) || 0,
-                                            }
-                                            setMaterialPricing({
-                                              ...materialPricing,
-                                              [material]: {
-                                                ...materialPricing[material],
-                                                tiers: updatedTiers,
-                                              },
-                                            })
-                                          }}
-                                          className="w-24 pl-7"
-                                        />
-                                      </div>
-                                    </TableCell>
-                                    <TableCell>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-destructive"
-                                        onClick={() => {
-                                          if (materialPricing[material].tiers.length > 1) {
-                                            const updatedTiers = materialPricing[material].tiers.filter(
-                                              (t) => t.id !== tier.id,
-                                            )
-                                            setMaterialPricing({
-                                              ...materialPricing,
-                                              [material]: {
-                                                ...materialPricing[material],
-                                                tiers: updatedTiers,
-                                              },
-                                            })
-                                          }
-                                        }}
-                                        disabled={materialPricing[material].tiers.length <= 1}
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </div>
-                        )}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-default-rate">Default Rate</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5">$</span>
-              <Input
-                id="fee-default-rate"
-                defaultValue={selectedFee?.defaultRate?.replace("$", "") || ""}
-                className="pl-7"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-type">Fee Type</Label>
-            <Select defaultValue={selectedFee?.type?.toLowerCase().replace(/\s+/g, "-") || "per-ton"}>
-              <SelectTrigger id="fee-type">
-                <SelectValue placeholder="Select fee type" />
-              </SelectTrigger>
-              <SelectContent>
-                {serviceMeasures.map((measure) => (
-                  <SelectItem key={measure.id} value={measure.name.toLowerCase().replace(/\s+/g, "-")}>
-                    {measure.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
-            <div className="relative">
-              <Input id="fee-free-tonnage" defaultValue={selectedFee?.freeTonnage || "0"} placeholder="0.00" />
-              <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-            </div>
-          </div>
-
-          <div className="col-span-2 space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="fee-use-tiers">Use Tiered Pricing</Label>
-              <Switch id="fee-use-tiers" checked={useTieredPricing} onCheckedChange={setUseTieredPricing} />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Enable tiered pricing to charge different rates based on tonnage ranges.
-            </p>
-          </div>
-
-          {useTieredPricing && (
-            <div id="tiered-pricing-section" className="col-span-2 space-y-4 border rounded-md p-4 mt-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Tiered Pricing</h3>
-                <Button size="sm" variant="outline" onClick={() => setShowAddTierDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Tier
-                </Button>
-              </div>
-
-              {currentTiers.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>From (tons)</TableHead>
-                      <TableHead>To (tons)</TableHead>
-                      <TableHead>Rate</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {currentTiers.map((tier, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{tier.from}</TableCell>
-                        <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
-                        <TableCell>${tier.rate.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive"
-                              onClick={() => {
-                                setCurrentTiers(currentTiers.filter((t) => t.id !== tier.id))
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <div className="text-center py-4 text-sm text-muted-foreground">
-                  No tiers defined. Click "Add Tier" to create your first pricing tier.
-                </div>
-              )}
-
-              <div className="text-xs text-muted-foreground">
-                <p>Tiered pricing allows you to set different rates based on quantity ranges.</p>
-                <p>For example: $65/ton for 0-2 tons, $55/ton for 2-5 tons, and $45/ton for over 5 tons.</p>
-              </div>
-            </div>
-          )}
-
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="fee-description">Description</Label>
-            <Textarea
-              id="fee-description"
-              defaultValue={selectedFee?.description || ""}
-              placeholder="Enter fee description"
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fee-status">Status</Label>
-            <Select defaultValue={selectedFee?.status?.toLowerCase() || "active"}>
-              <SelectTrigger id="fee-status">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Autolinking settings in edit dialog */}
-          <div className="col-span-2 space-y-2 border-t pt-4 mt-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="fee-autolink">Enable Autolinking</Label>
-                <p className="text-xs text-muted-foreground">
-                  Automatically link services with matching business line to this fee
-                </p>
-              </div>
-              <Switch id="fee-autolink" checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="mt-6">
-          <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-            Cancel
-          </Button>
-          <Button onClick={() => setShowEditDialog(false)}>{selectedFee ? "Save Changes" : "Create"}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-
   const renderAutolinkSettingsDialog = () => (
     <Dialog open={showAutolinkSettingsDialog} onOpenChange={setShowAutolinkSettingsDialog}>
       <DialogContent className="bg-gradient-to-b from-blue-50/30 to-white">
@@ -1850,83 +1217,21 @@ export function DisposalFees() {
     </Dialog>
   )
 
-  const renderAddTierDialog = () => (
-    <Dialog open={showAddTierDialog} onOpenChange={setShowAddTierDialog}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Pricing Tier</DialogTitle>
-          <DialogDescription>Define a new pricing tier for this disposal fee</DialogDescription>
-        </DialogHeader>
-
-        <div className="grid grid-cols-2 gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="tier-from">From (tons)</Label>
-            <Input
-              id="tier-from"
-              placeholder="0.00"
-              value={newTier.from}
-              onChange={(e) => setNewTier({ ...newTier, from: Number.parseFloat(e.target.value) || 0 })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="tier-to">To (tons)</Label>
-            <Input
-              id="tier-to"
-              placeholder="0.00"
-              value={newTier.to === null ? "" : newTier.to}
-              onChange={(e) => {
-                const value = e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
-                setNewTier({ ...newTier, to: value })
-              }}
-            />
-            <p className="text-xs text-muted-foreground">Leave empty for unlimited</p>
-          </div>
-
-          <div className="space-y-2 col-span-2">
-            <Label htmlFor="tier-rate">Rate per Ton</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5">$</span>
-              <Input
-                id="tier-rate"
-                className="pl-7"
-                placeholder="0.00"
-                value={newTier.rate}
-                onChange={(e) => setNewTier({ ...newTier, rate: Number.parseFloat(e.target.value) || 0 })}
-              />
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setShowAddTierDialog(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              // Add the new tier with a generated ID
-              const newTierWithId = {
-                ...newTier,
-                id: currentTiers.length > 0 ? Math.max(...currentTiers.map((t) => t.id)) + 1 : 1,
-              }
-
-              setCurrentTiers([...currentTiers, newTierWithId])
-              setNewTier({ from: 0, to: null, rate: 0 }) // Reset for next time
-              setShowAddTierDialog(false)
-            }}
-          >
-            Add Tier
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-
   return (
     <>
       {activeView === "list" ? renderListView() : renderDetailView()}
-      {renderEditDialog()}
-      {renderAddTierDialog()}
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeForm
+            initialFee={selectedFee || undefined}
+            onSave={handleSaveFee}
+            onCancel={() => setShowEditDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
       {renderAutolinkSettingsDialog()}
     </>
   )
