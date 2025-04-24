@@ -36,6 +36,8 @@ interface MaterialPricing {
   defaultRate: string
   minCharge: string
   freeTonnage: number
+  overageCharge: string
+  overageThreshold: number
   freeTonnageUnits?: string
 }
 
@@ -46,14 +48,11 @@ interface DisposalFee {
   measure: string
   defaultRate: string
   minCharge: string
-  businessLine: string
-  status: string
-  locations?: number
-  material?: string
-  materials?: string[]
+  overageCharge: string
+  overageThreshold: number
   freeTonnage: number
   glCode: string
-  linkedServices?: number
+  materials?: string[]
   materialPricing?: MaterialPricing[]
 }
 
@@ -119,6 +118,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       measure: "Per Ton",
       defaultRate: "",
       minCharge: "",
+      overageCharge: "",
+      overageThreshold: 0,
       freeTonnage: 0,
       glCode: "",
       materials: [],
@@ -126,7 +127,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
   )
 
   // UI state
-  const [activeTab, setActiveTab] = useState("basic")
   const [useMaterialPricing, setUseMaterialPricing] = useState(false)
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
   const [materialPricing, setMaterialPricing] = useState<
@@ -137,6 +137,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         minCharge: string
         freeTonnage: number
         measure: string
+        overageThreshold: number
+        overageCharge: string
       }
     >
   >({})
@@ -167,6 +169,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               minCharge: mp.minCharge,
               freeTonnage: mp.freeTonnage,
               measure: mp.measure || formData.measure,
+              overageThreshold: mp.overageThreshold,
+              overageCharge: mp.overageCharge,
             }
           }
         })
@@ -180,6 +184,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               minCharge: initialFee.minCharge.replace("$", ""),
               freeTonnage: initialFee.freeTonnage,
               measure: initialFee.measure,
+              overageThreshold: initialFee.overageThreshold,
+              overageCharge: initialFee.overageCharge,
             }
           }
         })
@@ -239,6 +245,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
             minCharge: formData.minCharge.replace("$", ""),
             freeTonnage: formData.freeTonnage,
             measure: formData.measure,
+            overageThreshold: formData.overageThreshold,
+            overageCharge: formData.overageCharge,
           },
         })
       }
@@ -278,6 +286,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
           minCharge: `$${materialPricing[material].minCharge}`,
           freeTonnage: materialPricing[material].freeTonnage,
           measure: materialPricing[material].measure,
+          overageThreshold: materialPricing[material].overageThreshold,
+          overageCharge: materialPricing[material].overageCharge,
         }))
       }
 
@@ -310,266 +320,302 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         <h2 className="text-2xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee"}</h2>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full p-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="basic">Basic Info</TabsTrigger>
-          <TabsTrigger value="pricing">Pricing & Materials</TabsTrigger>
-        </TabsList>
-
-        {/* Basic Info Tab */}
-        <TabsContent value="basic" className="space-y-4 p-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>Enter the basic details for this disposal fee</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="fee-name">Fee Name</Label>
-                  <Input
-                    id="fee-name"
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    onBlur={() => handleBlur("name")}
-                    placeholder="e.g., MSW Disposal Fee"
-                    className={`h-10 ${isFieldInvalid("name") ? "border-red-500" : ""}`}
-                  />
-                  <div className="min-h-[20px]">
-                    {isFieldInvalid("name") && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {errors.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="fee-gl-code">GL Code</Label>
-                  <Select
-                    value={formData.glCode}
-                    onValueChange={(value) => handleChange("glCode", value)}
-                    onOpenChange={() => handleBlur("glCode")}
-                  >
-                    <SelectTrigger
-                      id="fee-gl-code"
-                      className={`h-10 ${isFieldInvalid("glCode") ? "border-red-500" : ""}`}
-                    >
-                      <SelectValue placeholder="Select GL code" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {glCodes.map((code) => (
-                        <SelectItem key={code.id} value={code.code}>
-                          {code.code} - {code.description}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="min-h-[20px]">
-                    {isFieldInvalid("glCode") && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {errors.glCode}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="fee-description">Description</Label>
-                  <Textarea
-                    id="fee-description"
-                    value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
-                    placeholder="Enter a description for this disposal fee"
-                    rows={3}
-                  />
-                  {showDescriptionSuggestions && (
-                    <div className="mt-2 border rounded-md p-2 bg-slate-50">
-                      <p className="text-xs text-muted-foreground mb-2">Select a template:</p>
-                      <div className="space-y-1">
-                        {descriptionTemplates.map((template) => (
-                          <Button
-                            key={template.id}
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start text-left text-xs h-auto py-1"
-                            onClick={() => applyDescriptionTemplate(template.text)}
-                          >
-                            {template.text}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
+      <div className="p-6 space-y-8">
+        {/* Basic Information Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>Enter the basic details for this disposal fee</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="fee-name">Fee Name</Label>
+                <Input
+                  id="fee-name"
+                  value={formData.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  onBlur={() => handleBlur("name")}
+                  placeholder="e.g., MSW Disposal Fee"
+                  className={`h-10 ${isFieldInvalid("name") ? "border-red-500" : ""}`}
+                />
+                <div className="min-h-[20px]">
+                  {isFieldInvalid("name") && (
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.name}
+                    </p>
                   )}
                 </div>
               </div>
-            </CardContent>
-            <CardFooter className="flex justify-between border-t pt-4">
-              <Button variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button onClick={() => setActiveTab("pricing")}>Next: Pricing & Materials</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
 
-        {/* Pricing & Materials Tab */}
-        <TabsContent value="pricing" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Materials & Pricing</CardTitle>
-              <CardDescription>Select materials and define the pricing structure</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Materials Selection Section */}
-              <div className="space-y-4 border rounded-md p-4">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-1">Materials</Label>
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="material-specific-pricing" className="text-sm">
-                        Material-Specific Pricing
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
-                            <HelpCircle className="h-4 w-4" />
-                            <span className="sr-only">Material-specific pricing info</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="flex flex-col gap-2">
-                            <h4 className="font-medium">Multiple materials selected</h4>
-                            <p className="text-sm text-muted-foreground">
-                              You can enable material-specific pricing to set different rates for each material.
-                            </p>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <Switch
-                        id="material-specific-pricing"
-                        checked={useMaterialPricing}
-                        onCheckedChange={(checked) => {
-                          if (checked && selectedMaterials.length <= 1) {
-                            // Show error if trying to enable with only one material
-                            setErrors({
-                              ...errors,
-                              materialPricing: "Select multiple materials to enable material-specific pricing",
-                            })
-                            return
-                          }
-                          setErrors({
-                            ...errors,
-                            materialPricing: "",
-                          })
-                          setUseMaterialPricing(checked)
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {errors.materialPricing && (
+              <div className="space-y-2">
+                <Label htmlFor="fee-gl-code">GL Code</Label>
+                <Select
+                  value={formData.glCode}
+                  onValueChange={(value) => handleChange("glCode", value)}
+                  onOpenChange={() => handleBlur("glCode")}
+                >
+                  <SelectTrigger
+                    id="fee-gl-code"
+                    className={`h-10 ${isFieldInvalid("glCode") ? "border-red-500" : ""}`}
+                  >
+                    <SelectValue placeholder="Select GL code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {glCodes.map((code) => (
+                      <SelectItem key={code.id} value={code.code}>
+                        {code.code} - {code.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="min-h-[20px]">
+                  {isFieldInvalid("glCode") && (
                     <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.materialPricing}
+                      <AlertCircle className="h-3 w-3" /> {errors.glCode}
                     </p>
                   )}
+                </div>
+              </div>
 
-                  <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
-                    <div className="space-y-4">
-                      <Select
-                        onValueChange={(value) => {
-                          if (!selectedMaterials.includes(value)) {
-                            handleMaterialChange(value, true)
-                          }
-                        }}
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="fee-description">Description</Label>
+                <Textarea
+                  id="fee-description"
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  placeholder="Enter a description for this disposal fee"
+                  rows={3}
+                />
+                {showDescriptionSuggestions && (
+                  <div className="mt-2 border rounded-md p-2 bg-slate-50">
+                    <p className="text-xs text-muted-foreground mb-2">Select a template:</p>
+                    <div className="space-y-1">
+                      {descriptionTemplates.map((template) => (
+                        <Button
+                          key={template.id}
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-left text-xs h-auto py-1"
+                          onClick={() => applyDescriptionTemplate(template.text)}
+                        >
+                          {template.text}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Separator className="my-4" />
+
+        {/* Materials & Pricing Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Materials & Pricing</CardTitle>
+            <CardDescription>Select materials and define the pricing structure</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Materials Selection Section */}
+            <div className="space-y-4 border rounded-md p-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-1">Materials</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="material-specific-pricing" className="text-sm">
+                      Material-Specific Pricing
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
+                          <HelpCircle className="h-4 w-4" />
+                          <span className="sr-only">Material-specific pricing info</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="flex flex-col gap-2">
+                          <h4 className="font-medium">Multiple materials selected</h4>
+                          <p className="text-sm text-muted-foreground">
+                            You can enable material-specific pricing to set different rates for each material.
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <Switch
+                      id="material-specific-pricing"
+                      checked={useMaterialPricing}
+                      onCheckedChange={(checked) => {
+                        if (checked && selectedMaterials.length <= 1) {
+                          setErrors({
+                            ...errors,
+                            materialPricing: "Select multiple materials to enable material-specific pricing",
+                          })
+                          return
+                        }
+                        setErrors({
+                          ...errors,
+                          materialPricing: "",
+                        })
+                        setUseMaterialPricing(checked)
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {errors.materialPricing && (
+                  <p className="text-xs text-red-500 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {errors.materialPricing}
+                  </p>
+                )}
+
+                <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
+                  <div className="space-y-4">
+                    <Select
+                      onValueChange={(value) => {
+                        if (!selectedMaterials.includes(value)) {
+                          handleMaterialChange(value, true)
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a material type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {materials.map((material) => (
+                          <SelectItem
+                            key={material.id}
+                            value={material.name}
+                            disabled={selectedMaterials.includes(material.name)}
+                          >
+                            {material.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <div className="flex flex-wrap gap-2">
+                      {selectedMaterials.map((materialName) => {
+                        const material = materials.find(m => m.name === materialName)
+                        if (!material) return null
+                        return (
+                          <MaterialChip
+                            key={material.id}
+                            name={material.name}
+                            color={material.color}
+                            onRemove={() => handleMaterialChange(material.name, false)}
+                          />
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+                {isFieldInvalid("materials") && (
+                  <p className="text-xs text-red-500 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {errors.materials}
+                  </p>
+                )}
+              </div>
+
+              {!useMaterialPricing && (
+                <>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="fee-default-rate">Default Rate</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5">$</span>
+                        <Input
+                          id="fee-default-rate"
+                          value={formData.defaultRate}
+                          onChange={(e) => handleChange("defaultRate", e.target.value)}
+                          onBlur={() => handleBlur("defaultRate")}
+                          className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="min-h-[20px]">
+                        {isFieldInvalid("defaultRate") && (
+                          <p className="text-xs text-red-500 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="measures">Measure</Label>
+                      <Select 
+                        value={formData.measure || "Per Ton"} 
+                        onValueChange={(value) => handleChange("measure", value)}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a material type" />
+                        <SelectTrigger id="measures" className="h-10">
+                          <SelectValue placeholder="Select measure" />
                         </SelectTrigger>
                         <SelectContent>
-                          {materials.map((material) => (
-                            <SelectItem
-                              key={material.id}
-                              value={material.name}
-                              disabled={selectedMaterials.includes(material.name)}
-                            >
-                              {material.name}
+                          {serviceMeasures.map((measure) => (
+                            <SelectItem key={measure.id} value={measure.name}>
+                              {measure.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-
-                      <div className="flex flex-wrap gap-2">
-                        {selectedMaterials.map((materialName) => {
-                          const material = materials.find(m => m.name === materialName)
-                          if (!material) return null
-                          return (
-                            <MaterialChip
-                              key={material.id}
-                              name={material.name}
-                              color={material.color}
-                              onRemove={() => handleMaterialChange(material.name, false)}
-                            />
-                          )
-                        })}
+                      <div className="min-h-[20px]">
+                        <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
                       </div>
                     </div>
                   </div>
-                  {isFieldInvalid("materials") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.materials}
-                    </p>
-                  )}
-                </div>
-
-                {!useMaterialPricing && (
-                  <>
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="fee-default-rate">Default Rate</Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-2.5">$</span>
-                          <Input
-                            id="fee-default-rate"
-                            value={formData.defaultRate}
-                            onChange={(e) => handleChange("defaultRate", e.target.value)}
-                            onBlur={() => handleBlur("defaultRate")}
-                            className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
-                            placeholder="0.00"
-                          />
-                        </div>
-                        <div className="min-h-[20px]">
-                          {isFieldInvalid("defaultRate") && (
-                            <p className="text-xs text-red-500 flex items-center gap-1">
-                              <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
-                            </p>
-                          )}
-                        </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
+                      <div className="relative">
+                        <Input
+                          id="fee-overage-threshold"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={formData.overageThreshold}
+                          onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+                          className="h-10"
+                        />
+                        <span className="absolute right-3 top-2.5 text-muted-foreground">
+                          {formData.measure === "Per Ton" ? "tons" : 
+                           formData.measure === "Per Cubic Yard" ? "yards" :
+                           formData.measure === "Per Item" ? "items" :
+                           formData.measure === "Per Container" ? "containers" :
+                           formData.measure === "Per Day" ? "days" :
+                           formData.measure === "Per Move" ? "moves" : "units"}
+                        </span>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="measures">Measure</Label>
-                        <Select 
-                          value={formData.measure || "Per Ton"} 
-                          onValueChange={(value) => handleChange("measure", value)}
-                        >
-                          <SelectTrigger id="measures" className="h-10">
-                            <SelectValue placeholder="Select measure" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {serviceMeasures.map((measure) => (
-                              <SelectItem key={measure.id} value={measure.name}>
-                                {measure.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <div className="min-h-[20px]">
-                          <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
-                        </div>
+                      <div className="min-h-[20px]">
+                        <p className="text-xs text-muted-foreground">
+                          Amount before overage charges apply ({formData.measure.toLowerCase()})
+                        </p>
                       </div>
                     </div>
-                    <div className="space-y-2 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fee-overage-charge">Overage Charge</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5">$</span>
+                        <Input
+                          id="fee-overage-charge"
+                          value={formData.overageCharge}
+                          onChange={(e) => handleChange("overageCharge", e.target.value)}
+                          className="pl-7 h-10"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="min-h-[20px]">
+                        <p className="text-xs text-muted-foreground">
+                          Additional charge per unit over threshold
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  {formData.measure === "Per Ton" && (
+                    <div className="space-y-2">
                       <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
                       <div className="relative">
                         <Input
@@ -588,19 +634,184 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                         <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
                       </div>
                     </div>
-                  </>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between border-t pt-4">
-              <Button variant="outline" onClick={() => setActiveTab("basic")}>
-                Previous: Basic Info
-              </Button>
-              <Button onClick={handleSubmit}>Save</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  )}
+                </>
+              )}
+
+              {useMaterialPricing && selectedMaterials.length > 0 && (
+                <div className="space-y-4 mt-4">
+                  <h3 className="text-sm font-medium">Material-Specific Pricing</h3>
+                  <div className="space-y-4">
+                    {selectedMaterials.map((material) => (
+                      <div key={material} className="border rounded-md p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">{material}</h4>
+                          <MaterialChip
+                            name={material}
+                            color={materials.find(m => m.name === material)?.color || "bg-gray-200"}
+                            onRemove={() => handleMaterialChange(material, false)}
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-rate`}>Default Rate</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5">$</span>
+                              <Input
+                                id={`${material}-rate`}
+                                value={materialPricing[material]?.defaultRate || ""}
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      defaultRate: e.target.value,
+                                    },
+                                  })
+                                }}
+                                className="pl-7 h-10"
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-measure`}>Measure</Label>
+                            <Select
+                              value={materialPricing[material]?.measure || formData.measure}
+                              onValueChange={(value) => {
+                                setMaterialPricing({
+                                  ...materialPricing,
+                                  [material]: {
+                                    ...materialPricing[material],
+                                    measure: value,
+                                  },
+                                })
+                              }}
+                            >
+                              <SelectTrigger id={`${material}-measure`} className="h-10">
+                                <SelectValue placeholder="Select measure" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {serviceMeasures.map((measure) => (
+                                  <SelectItem key={measure.id} value={measure.name}>
+                                    {measure.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          {materialPricing[material]?.measure === "Per Ton" && (
+                            <div className="space-y-2">
+                              <Label htmlFor={`${material}-free-tonnage`}>Free Tonnage</Label>
+                              <div className="relative">
+                                <Input
+                                  id={`${material}-free-tonnage`}
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  value={materialPricing[material]?.freeTonnage || 0}
+                                  onChange={(e) => {
+                                    setMaterialPricing({
+                                      ...materialPricing,
+                                      [material]: {
+                                        ...materialPricing[material],
+                                        freeTonnage: Number.parseFloat(e.target.value) || 0,
+                                      },
+                                    })
+                                  }}
+                                  placeholder="0.00"
+                                  className="h-10"
+                                />
+                                <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                              </div>
+                              <div className="min-h-[20px]">
+                                <p className="text-xs text-muted-foreground">
+                                  Amount of material that is not charged
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-overage-threshold`}>Overage Threshold</Label>
+                            <div className="relative">
+                              <Input
+                                id={`${material}-overage-threshold`}
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={materialPricing[material]?.overageThreshold || 0}
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      overageThreshold: Number.parseFloat(e.target.value) || 0,
+                                    },
+                                  })
+                                }}
+                                placeholder="0.00"
+                                className="h-10"
+                              />
+                              <span className="absolute right-3 top-2.5 text-muted-foreground">
+                                {materialPricing[material]?.measure === "Per Ton" ? "tons" : 
+                                 materialPricing[material]?.measure === "Per Cubic Yard" ? "yards" :
+                                 materialPricing[material]?.measure === "Per Item" ? "items" :
+                                 materialPricing[material]?.measure === "Per Container" ? "containers" :
+                                 materialPricing[material]?.measure === "Per Day" ? "days" :
+                                 materialPricing[material]?.measure === "Per Move" ? "moves" : "units"}
+                              </span>
+                            </div>
+                            <div className="min-h-[20px]">
+                              <p className="text-xs text-muted-foreground">
+                                Amount before overage charges apply ({materialPricing[material]?.measure.toLowerCase()})
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-overage-charge`}>Overage Charge</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5">$</span>
+                              <Input
+                                id={`${material}-overage-charge`}
+                                value={materialPricing[material]?.overageCharge || ""}
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      overageCharge: e.target.value,
+                                    },
+                                  })
+                                }}
+                                className="pl-7 h-10"
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div className="min-h-[20px]">
+                              <p className="text-xs text-muted-foreground">
+                                Additional charge per unit over threshold
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end space-x-4 pt-4">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>Save</Button>
+        </div>
+      </div>
     </div>
   )
 }
