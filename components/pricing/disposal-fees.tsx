@@ -44,6 +44,7 @@ import { DisposalFeesTable } from "./disposal-fees-table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -59,6 +60,35 @@ interface AutolinkedService {
   accountName: string
   accountNumber: string
   containerName: string
+}
+
+// Update the DisposalFee type (add this near the top of the file where types are defined)
+interface MaterialPricing {
+  materialType: string
+  tiers: { id: number; from: number; to: number | null; rate: number }[]
+  defaultRate: string
+  minCharge: string
+  freeTonnage: number
+}
+
+// Update the existing DisposalFee type to include materialPricing
+export type DisposalFee = {
+  id: number
+  name: string
+  description: string
+  type: string
+  defaultRate: string
+  minCharge: string
+  businessLine: string
+  status: string
+  locations: number
+  material: string
+  materials?: string[]
+  freeTonnage: number
+  glCode: string
+  linkedServices: number
+  tiers: { id: number; from: number; to: number | null; rate: number }[]
+  materialPricing?: MaterialPricing[] // Add this field
 }
 
 export function DisposalFees() {
@@ -83,6 +113,20 @@ export function DisposalFees() {
   const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   const componentRef = useRef<HTMLDivElement>(null)
+
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
+  const [materialPricing, setMaterialPricing] = useState<
+    Record<
+      string,
+      {
+        defaultRate: string
+        minCharge: string
+        freeTonnage: number
+        tiers: { id: number; from: number; to: number | null; rate: number }[]
+      }
+    >
+  >({})
+  const [useMaterialPricing, setUseMaterialPricing] = useState(false)
 
   useEffect(() => {
     const handleAddDisposalFee = () => {
@@ -129,9 +173,45 @@ export function DisposalFees() {
     if (selectedFee) {
       setCurrentTiers(selectedFee.tiers || [])
       setUseTieredPricing(selectedFee.tiers?.length > 1)
+
+      // Set selected materials
+      if (selectedFee.materials && selectedFee.materials.length > 0) {
+        setSelectedMaterials(selectedFee.materials)
+      } else if (selectedFee.material) {
+        setSelectedMaterials([selectedFee.material])
+      } else {
+        setSelectedMaterials([])
+      }
+
+      // Set material-specific pricing
+      const pricing: Record<string, any> = {}
+      if (selectedFee.materialPricing && selectedFee.materialPricing.length > 0) {
+        selectedFee.materialPricing.forEach((mp) => {
+          pricing[mp.materialType] = {
+            defaultRate: mp.defaultRate,
+            minCharge: mp.minCharge,
+            freeTonnage: mp.freeTonnage,
+            tiers: mp.tiers,
+          }
+        })
+      } else {
+        // If no material-specific pricing, use the default for all selected materials
+        const selectedMats = selectedFee.materials || [selectedFee.material]
+        selectedMats.forEach((mat) => {
+          pricing[mat] = {
+            defaultRate: selectedFee.defaultRate.replace("$", ""),
+            minCharge: selectedFee.minCharge.replace("$", ""),
+            freeTonnage: selectedFee.freeTonnage,
+            tiers: [...selectedFee.tiers],
+          }
+        })
+      }
+      setMaterialPricing(pricing)
     } else {
       setCurrentTiers([])
       setUseTieredPricing(false)
+      setSelectedMaterials([])
+      setMaterialPricing({})
     }
   }, [selectedFee])
 
@@ -696,7 +776,7 @@ export function DisposalFees() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-2 space-y-3">
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <CardTitle>{selectedFee.name} Details</CardTitle>
                 <CardDescription>{selectedFee.description}</CardDescription>
               </CardHeader>
@@ -748,7 +828,7 @@ export function DisposalFees() {
             </Card>
 
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Tiered Pricing</CardTitle>
@@ -760,11 +840,7 @@ export function DisposalFees() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="rounded-md border border-slate-300 shadow-inner overflow-hidden">
-                  {renderTierTable(selectedFee.tiers)}
-                </div>
-              </CardContent>
+              <CardContent className="p-4">{renderTierTable(selectedFee.tiers)}</CardContent>
               <CardFooter className="text-sm text-muted-foreground bg-slate-50 border-t">
                 <p>
                   Tiered pricing allows for different rates based on tonnage. For example, the first 2 tons might be
@@ -775,7 +851,7 @@ export function DisposalFees() {
             </Card>
 
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Linked Services</CardTitle>
@@ -801,50 +877,46 @@ export function DisposalFees() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="rounded-md border border-slate-300 shadow-inner overflow-hidden">
-                  {selectedFee.linkedServices > 0 ? (
-                    <Table>
-                      <TableHeader className="bg-slate-200">
-                        <TableRow>
-                          <TableHead>Service Name</TableHead>
-                          <TableHead>Business Line</TableHead>
-                          <TableHead>Material</TableHead>
-                          <TableHead>Custom Rate</TableHead>
+              <CardContent className="p-4">
+                {selectedFee.linkedServices > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Service Name</TableHead>
+                        <TableHead>Business Line</TableHead>
+                        <TableHead>Material</TableHead>
+                        <TableHead>Custom Rate</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.from({ length: selectedFee.linkedServices }).map((_, index) => (
+                        <TableRow key={index}>
+                          <TableCell>Service {index + 1}</TableCell>
+                          <TableCell>{selectedFee.businessLine}</TableCell>
+                          <TableCell>{selectedFee.material}</TableCell>
+                          <TableCell>
+                            {Math.random() > 0.5 ? "Default" : `$${(Math.random() * 20 + 50).toFixed(2)}`}
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {Array.from({ length: selectedFee.linkedServices }).map((_, index) => (
-                          <TableRow key={index} className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                            <TableCell>Service {index + 1}</TableCell>
-                            <TableCell>{selectedFee.businessLine}</TableCell>
-                            <TableCell>{selectedFee.material}</TableCell>
-                            <TableCell>
-                              {Math.random() > 0.5 ? "Default" : `$${(Math.random() * 20 + 50).toFixed(2)}`}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-50">
-                      <p className="text-muted-foreground mb-4">
-                        No services are currently linked to this disposal fee.
-                      </p>
-                      <Button size="sm" className="bg-slate-200 hover:bg-slate-300 text-slate-800">
-                        <Link className="h-4 w-4 mr-2" />
-                        Link Service
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <p className="text-muted-foreground mb-4">No services are currently linked to this disposal fee.</p>
+                    <Button size="sm" variant="outline">
+                      <Link className="h-4 w-4 mr-2" />
+                      Link Service
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Autolinked Services Card */}
             {autolinkEnabled && (
               <Card className="shadow-md border-slate-300 overflow-hidden">
-                <CardHeader className="bg-blue-100 border-b border-blue-300">
+                <CardHeader className="bg-blue-50 border-b border-blue-200 py-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-blue-800">Autolinked Services</CardTitle>
@@ -864,58 +936,51 @@ export function DisposalFees() {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   {isLoadingServices ? (
-                    <div className="flex justify-center items-center py-8">
+                    <div className="flex justify-center items-center py-6">
                       <p>Loading services...</p>
                     </div>
                   ) : autolinkedServices.length > 0 ? (
-                    <div className="rounded-md border border-blue-300 shadow-inner overflow-hidden">
-                      <Table>
-                        <TableHeader className="bg-blue-200">
-                          <TableRow>
-                            <TableHead>Service Name</TableHead>
-                            <TableHead>Account</TableHead>
-                            <TableHead>Container</TableHead>
-                            <TableHead className="w-[100px]">Actions</TableHead>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Service Name</TableHead>
+                          <TableHead>Account</TableHead>
+                          <TableHead>Container</TableHead>
+                          <TableHead className="w-[100px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {autolinkedServices.map((service, index) => (
+                          <TableRow key={service.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{service.name}</div>
+                                <div className="text-xs text-muted-foreground">{service.address}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div>{service.accountName}</div>
+                                <div className="text-xs text-muted-foreground">{service.accountNumber}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{service.containerName}</TableCell>
+                            <TableCell>
+                              <Button variant="outline" size="sm" onClick={() => handleLinkService(service)}>
+                                <LinkIcon className="h-4 w-4 mr-1" />
+                                Link
+                              </Button>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {autolinkedServices.map((service, index) => (
-                            <TableRow key={service.id} className={index % 2 === 0 ? "bg-white" : "bg-blue-100/50"}>
-                              <TableCell>
-                                <div>
-                                  <div className="font-medium">{service.name}</div>
-                                  <div className="text-xs text-muted-foreground">{service.address}</div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div>
-                                  <div>{service.accountName}</div>
-                                  <div className="text-xs text-muted-foreground">{service.accountNumber}</div>
-                                </div>
-                              </TableCell>
-                              <TableCell>{service.containerName}</TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleLinkService(service)}
-                                  className="bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-200"
-                                >
-                                  <LinkIcon className="h-4 w-4 mr-1" />
-                                  Link
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
+                        ))}
+                      </TableBody>
+                    </Table>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
                       <p className="text-muted-foreground mb-4">No autolinked services found for this disposal fee.</p>
-                      <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+                      <Alert variant="default" className="border-blue-200">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Autolinking is enabled</AlertTitle>
                         <AlertDescription>
@@ -932,18 +997,15 @@ export function DisposalFees() {
 
           <div className="space-y-6">
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <CardTitle>Associated Fees & Taxes</CardTitle>
                 <CardDescription>Additional fees and taxes applied with this disposal fee</CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 {linkedFees.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {linkedFees.map((fee) => (
-                      <div
-                        key={fee.id}
-                        className="flex items-center justify-between p-3 border border-slate-300 rounded-md bg-slate-50 hover:bg-slate-100 transition-colors shadow-sm"
-                      >
+                      <div key={fee.id} className="flex items-center justify-between py-2 border-b border-slate-200">
                         <div>
                           <div className="font-medium">{fee.name}</div>
                           <div className="text-xs text-muted-foreground">{fee.type}</div>
@@ -953,7 +1015,7 @@ export function DisposalFees() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4 bg-slate-50 rounded-md">
+                  <div className="text-center py-4">
                     <p className="text-muted-foreground">No associated fees or taxes</p>
                   </div>
                 )}
@@ -967,24 +1029,24 @@ export function DisposalFees() {
             </Card>
 
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <CardTitle>Pricing Zones</CardTitle>
                 <CardDescription>Zones where this disposal fee applies</CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-2">
+              <CardContent className="p-4">
+                <div className="space-y-3">
                   {pricingZones.map((zone) => (
-                    <div
-                      key={zone.id}
-                      className="flex items-center space-x-2 p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors shadow-sm"
-                    >
+                    <div key={zone.id} className="flex items-center space-x-2 py-2 border-b border-slate-200">
                       <Checkbox id={`zone-${zone.id}`} defaultChecked={zone.id === 1} />
-                      <label
-                        htmlFor={`zone-${zone.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {zone.name}
-                      </label>
+                      <div>
+                        <label
+                          htmlFor={`zone-${zone.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {zone.name}
+                        </label>
+                        <p className="text-xs text-muted-foreground mt-1">{zone.description}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -992,21 +1054,21 @@ export function DisposalFees() {
             </Card>
 
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-slate-100 border-b border-slate-300">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
                 <CardTitle>Calculation Example</CardTitle>
                 <CardDescription>Example of how this disposal fee is calculated</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 p-6">
-                <div className="p-4 border border-slate-300 rounded-md bg-gradient-to-r from-slate-100 to-white shadow-inner">
-                  <h4 className="font-medium mb-2">Example Scenario:</h4>
-                  <p className="text-sm mb-2">
+              <CardContent className="space-y-4 p-4">
+                <div>
+                  <h4 className="text-xs font-medium text-muted-foreground mb-1">Example Scenario</h4>
+                  <p className="text-sm font-medium mb-4">
                     {selectedFee.businessLine === "Roll-off"
                       ? `Customer uses a ${selectedFee.name.includes("Rental") ? "roll-off container for 10 days" : "roll-off service"}`
                       : `Customer disposes of 6 tons of ${selectedFee.material}`}
                   </p>
 
-                  <h4 className="font-medium mb-2">Calculation:</h4>
-                  <div className="space-y-1 text-sm">
+                  <h4 className="text-xs font-medium text-muted-foreground mb-1">Calculation</h4>
+                  <div className="space-y-2 text-sm">
                     {selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Rental") ? (
                       <>
                         <p>Rental period: 10 days</p>
@@ -1061,7 +1123,7 @@ export function DisposalFees() {
                       </>
                     )}
 
-                    <p className="mt-4 p-2 font-bold bg-slate-200 border border-slate-300 rounded-md text-center shadow-sm">
+                    <div className="mt-4 py-2 px-3 font-bold border-t border-slate-200 text-center">
                       Total charge: $
                       {selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Rental")
                         ? (
@@ -1079,7 +1141,7 @@ export function DisposalFees() {
                                 (6 - selectedFee.freeTonnage) *
                                 selectedFee.tiers[selectedFee.tiers.length - 1].rate
                               ).toFixed(2)}
-                    </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -1087,34 +1149,34 @@ export function DisposalFees() {
 
             {/* Autolinking Settings Card */}
             <Card className="shadow-md border-slate-300 overflow-hidden">
-              <CardHeader className="bg-blue-100 border-b border-blue-300">
+              <CardHeader className="bg-blue-50 border-b border-blue-200 py-3">
                 <CardTitle className="text-blue-800">Autolinking</CardTitle>
                 <CardDescription className="text-blue-700">Configure automatic service linking</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 p-6 bg-gradient-to-b from-blue-50/50 to-white">
-                <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
-                  <div className="space-y-0.5">
-                    <div className="font-medium">Enable Autolinking</div>
-                    <div className="text-xs text-muted-foreground">Automatically link services to this fee</div>
+              <CardContent className="space-y-4 p-4">
+                <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                  <div>
+                    <h3 className="text-sm font-medium">Enable Autolinking</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Automatically link services to this fee</p>
                   </div>
                   <Switch checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
                 </div>
 
-                <div className={`space-y-2 ${!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
-                    <div className="space-y-0.5">
-                      <div className="font-medium">Match by Material Type</div>
-                      <div className="text-xs text-muted-foreground">
+                <div className={`space-y-3 ${!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+                  <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                    <div>
+                      <h3 className="text-sm font-medium">Match by Material Type</h3>
+                      <p className="text-xs text-muted-foreground mt-1">
                         Only link services with matching material type
-                      </div>
+                      </p>
                     </div>
                     <Switch checked={autolinkByMaterial} onCheckedChange={setAutolinkByMaterial} />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
-                    <div className="space-y-0.5">
-                      <div className="font-medium">Match by Location</div>
-                      <div className="text-xs text-muted-foreground">Only link services in the same location</div>
+                  <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                    <div>
+                      <h3 className="text-sm font-medium">Match by Location</h3>
+                      <p className="text-xs text-muted-foreground mt-1">Only link services in the same location</p>
                     </div>
                     <Switch checked={autolinkByLocation} onCheckedChange={setAutolinkByLocation} />
                   </div>
@@ -1123,6 +1185,71 @@ export function DisposalFees() {
             </Card>
           </div>
         </div>
+        {selectedFee.materialPricing && selectedFee.materialPricing.length > 1 && (
+          <Card className="shadow-md border-slate-300 overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-200 py-3">
+              <CardTitle>Material-Specific Pricing</CardTitle>
+              <CardDescription>Different pricing structures for each material type</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <Tabs defaultValue={selectedFee.materialPricing[0].materialType}>
+                <TabsList
+                  className="grid"
+                  style={{ gridTemplateColumns: `repeat(${Math.min(selectedFee.materialPricing.length, 4)}, 1fr)` }}
+                >
+                  {selectedFee.materialPricing.map((mp) => (
+                    <TabsTrigger key={mp.materialType} value={mp.materialType}>
+                      {mp.materialType}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {selectedFee.materialPricing.map((mp) => (
+                  <TabsContent key={mp.materialType} value={mp.materialType} className="pt-4">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <h3 className="text-xs font-medium text-muted-foreground">Default Rate</h3>
+                        <p className="mt-1 font-bold">{mp.defaultRate}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-medium text-muted-foreground">Minimum Charge</h3>
+                        <p className="mt-1 font-medium">{mp.minCharge}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-medium text-muted-foreground">Free Tonnage</h3>
+                        <p className="mt-1 font-medium">{mp.freeTonnage} tons</p>
+                      </div>
+                    </div>
+
+                    {mp.tiers.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-medium text-muted-foreground mb-2">Pricing Tiers</h3>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>From (tons)</TableHead>
+                              <TableHead>To (tons)</TableHead>
+                              <TableHead>Rate</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {mp.tiers.map((tier) => (
+                              <TableRow key={tier.id}>
+                                <TableCell>{tier.from}</TableCell>
+                                <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
+                                <TableCell>${tier.rate.toFixed(2)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
       </div>
     )
   }
@@ -1172,19 +1299,31 @@ export function DisposalFees() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fee-material">Material Type</Label>
-            <Select defaultValue={selectedFee?.material?.toLowerCase() || ""}>
-              <SelectTrigger id="fee-material">
-                <SelectValue placeholder="Select material type" />
-              </SelectTrigger>
-              <SelectContent>
-                {materials.map((material) => (
-                  <SelectItem key={material.id} value={material.name.toLowerCase()}>
+            <Label htmlFor="fee-material">Material Types</Label>
+            <div className="border rounded-md p-2 max-h-[200px] overflow-y-auto">
+              {materials.map((material) => (
+                <div key={material.id} className="flex items-center space-x-2 py-1.5">
+                  <Checkbox
+                    id={`material-${material.id}`}
+                    checked={selectedMaterials.includes(material.name)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedMaterials([...selectedMaterials, material.name])
+                      } else {
+                        setSelectedMaterials(selectedMaterials.filter((m) => m !== material.name))
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor={`material-${material.id}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
                     {material.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </label>
+                  <span className="text-xs text-muted-foreground">({material.description})</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -1294,6 +1433,310 @@ export function DisposalFees() {
               <p>For example: $65/ton for 0-2 tons, $55/ton for 2-5 tons, and $45/ton for over 5 tons.</p>
             </div>
           </div>
+          {selectedMaterials.length > 1 && (
+            <div className="col-span-2 space-y-4 border rounded-md p-4 mt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Material-Specific Pricing</h3>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="use-material-pricing"
+                    checked={useMaterialPricing}
+                    onCheckedChange={setUseMaterialPricing}
+                  />
+                  <Label htmlFor="use-material-pricing">Enable per-material pricing</Label>
+                </div>
+              </div>
+
+              {useMaterialPricing && (
+                <div className="space-y-6">
+                  <p className="text-xs text-muted-foreground">
+                    Configure different pricing for each material type. If disabled, the default pricing above will
+                    apply to all materials.
+                  </p>
+
+                  <Tabs defaultValue={selectedMaterials[0]} className="w-full">
+                    <TabsList
+                      className="grid"
+                      style={{ gridTemplateColumns: `repeat(${Math.min(selectedMaterials.length, 4)}, 1fr)` }}
+                    >
+                      {selectedMaterials.map((material) => (
+                        <TabsTrigger key={material} value={material}>
+                          {material}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {selectedMaterials.map((material) => (
+                      <TabsContent key={material} value={material} className="space-y-4 pt-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-default-rate`}>Default Rate</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5">$</span>
+                              <Input
+                                id={`${material}-default-rate`}
+                                value={materialPricing[material]?.defaultRate || ""}
+                                className="pl-7"
+                                placeholder="0.00"
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      defaultRate: e.target.value,
+                                    },
+                                  })
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-min-charge`}>Minimum Charge</Label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5">$</span>
+                              <Input
+                                id={`${material}-min-charge`}
+                                value={materialPricing[material]?.minCharge || ""}
+                                className="pl-7"
+                                placeholder="0.00"
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      minCharge: e.target.value,
+                                    },
+                                  })
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`${material}-free-tonnage`}>Free Tonnage</Label>
+                            <div className="relative">
+                              <Input
+                                id={`${material}-free-tonnage`}
+                                value={materialPricing[material]?.freeTonnage || 0}
+                                placeholder="0.00"
+                                onChange={(e) => {
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      freeTonnage: Number.parseFloat(e.target.value) || 0,
+                                    },
+                                  })
+                                }}
+                              />
+                              <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor={`${material}-use-tiers`}>Use Tiered Pricing</Label>
+                            <Switch
+                              id={`${material}-use-tiers`}
+                              checked={materialPricing[material]?.tiers?.length > 1}
+                              onCheckedChange={(checked) => {
+                                if (
+                                  checked &&
+                                  (!materialPricing[material]?.tiers || materialPricing[material]?.tiers.length <= 1)
+                                ) {
+                                  // Add a second tier if enabling tiered pricing
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      tiers: [
+                                        {
+                                          id: 1,
+                                          from: 0,
+                                          to: 2,
+                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
+                                        },
+                                        {
+                                          id: 2,
+                                          from: 2,
+                                          to: null,
+                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0") * 0.9,
+                                        },
+                                      ],
+                                    },
+                                  })
+                                } else if (!checked && materialPricing[material]?.tiers?.length > 1) {
+                                  // Remove all but first tier if disabling
+                                  setMaterialPricing({
+                                    ...materialPricing,
+                                    [material]: {
+                                      ...materialPricing[material],
+                                      tiers: [
+                                        materialPricing[material]?.tiers[0] || {
+                                          id: 1,
+                                          from: 0,
+                                          to: null,
+                                          rate: Number.parseFloat(materialPricing[material]?.defaultRate || "0"),
+                                        },
+                                      ],
+                                    },
+                                  })
+                                }
+                              }}
+                            />
+                          </div>
+
+                          {materialPricing[material]?.tiers?.length > 0 && (
+                            <div className="border rounded-md p-4 mt-2">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-sm font-medium">{material} Pricing Tiers</h4>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const newTier = {
+                                      id: Math.max(...materialPricing[material].tiers.map((t) => t.id)) + 1,
+                                      from:
+                                        materialPricing[material].tiers[materialPricing[material].tiers.length - 1]
+                                          .to || 0,
+                                      to: null,
+                                      rate: Number.parseFloat(materialPricing[material].defaultRate || "0") * 0.8,
+                                    }
+
+                                    setMaterialPricing({
+                                      ...materialPricing,
+                                      [material]: {
+                                        ...materialPricing[material],
+                                        tiers: [...materialPricing[material].tiers, newTier],
+                                      },
+                                    })
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add Tier
+                                </Button>
+                              </div>
+
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>From (tons)</TableHead>
+                                    <TableHead>To (tons)</TableHead>
+                                    <TableHead>Rate</TableHead>
+                                    <TableHead className="w-[100px]">Actions</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {materialPricing[material].tiers.map((tier, index) => (
+                                    <TableRow key={tier.id}>
+                                      <TableCell>
+                                        <Input
+                                          value={tier.from}
+                                          onChange={(e) => {
+                                            const updatedTiers = [...materialPricing[material].tiers]
+                                            updatedTiers[index] = {
+                                              ...tier,
+                                              from: Number.parseFloat(e.target.value) || 0,
+                                            }
+                                            setMaterialPricing({
+                                              ...materialPricing,
+                                              [material]: {
+                                                ...materialPricing[material],
+                                                tiers: updatedTiers,
+                                              },
+                                            })
+                                          }}
+                                          className="w-20"
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <Input
+                                          value={tier.to === null ? "" : tier.to}
+                                          onChange={(e) => {
+                                            const value =
+                                              e.target.value.trim() === ""
+                                                ? null
+                                                : Number.parseFloat(e.target.value) || 0
+                                            const updatedTiers = [...materialPricing[material].tiers]
+                                            updatedTiers[index] = {
+                                              ...tier,
+                                              to: value,
+                                            }
+                                            setMaterialPricing({
+                                              ...materialPricing,
+                                              [material]: {
+                                                ...materialPricing[material],
+                                                tiers: updatedTiers,
+                                              },
+                                            })
+                                          }}
+                                          className="w-20"
+                                          placeholder="∞"
+                                        />
+                                      </TableCell>
+                                      <TableCell>
+                                        <div className="relative">
+                                          <span className="absolute left-3 top-2.5">$</span>
+                                          <Input
+                                            value={tier.rate}
+                                            onChange={(e) => {
+                                              const updatedTiers = [...materialPricing[material].tiers]
+                                              updatedTiers[index] = {
+                                                ...tier,
+                                                rate: Number.parseFloat(e.target.value) || 0,
+                                              }
+                                              setMaterialPricing({
+                                                ...materialPricing,
+                                                [material]: {
+                                                  ...materialPricing[material],
+                                                  tiers: updatedTiers,
+                                                },
+                                              })
+                                            }}
+                                            className="w-24 pl-7"
+                                          />
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-8 w-8 text-destructive"
+                                          onClick={() => {
+                                            if (materialPricing[material].tiers.length > 1) {
+                                              const updatedTiers = materialPricing[material].tiers.filter(
+                                                (t) => t.id !== tier.id,
+                                              )
+                                              setMaterialPricing({
+                                                ...materialPricing,
+                                                [material]: {
+                                                  ...materialPricing[material],
+                                                  tiers: updatedTiers,
+                                                },
+                                              })
+                                            }
+                                          }}
+                                          disabled={materialPricing[material].tiers.length <= 1}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="col-span-2 space-y-2">
             <Label htmlFor="fee-description">Description</Label>
