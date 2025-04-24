@@ -517,9 +517,9 @@ export function DisposalFees() {
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center p-4 mb-6">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <TabsList className="bg-white">
             <TabsTrigger value="all">All business lines</TabsTrigger>
             <TabsTrigger value="residential">Residential</TabsTrigger>
             <TabsTrigger value="commercial">Commercial</TabsTrigger>
@@ -528,11 +528,11 @@ export function DisposalFees() {
         </Tabs>
 
         <div className="flex gap-2">
-          <div className="border rounded-md overflow-hidden">
+          <div className="border rounded-md overflow-hidden shadow-sm">
             <Button
               variant={viewMode === "card" ? "default" : "ghost"}
               size="sm"
-              className="rounded-none"
+              className={viewMode === "card" ? "" : "bg-white"}
               onClick={() => setViewMode("card")}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -540,7 +540,7 @@ export function DisposalFees() {
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
-              className="rounded-none"
+              className={viewMode === "table" ? "" : "bg-white"}
               onClick={() => setViewMode("table")}
             >
               <List className="h-4 w-4" />
@@ -563,20 +563,27 @@ export function DisposalFees() {
           {disposalFees
             .filter((fee) => activeTab === "all" || fee.businessLine.toLowerCase() === activeTab)
             .map((fee) => (
-              <div key={fee.id} className="border rounded-md overflow-hidden">
-                <div className="p-4 bg-muted/10">
+              <div
+                key={fee.id}
+                className="border border-slate-300 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="p-4 bg-slate-100 border-b border-slate-300">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <h3 className="text-lg font-medium">{fee.name}</h3>
-                      <Badge variant="outline">{fee.businessLine}</Badge>
+                      <Badge variant="outline" className="bg-slate-100">
+                        {fee.businessLine}
+                      </Badge>
                       {fee.materials ? (
                         fee.materials.map((material, idx) => (
-                          <Badge key={idx} variant="outline">
+                          <Badge key={idx} variant="outline" className="bg-slate-100">
                             {material}
                           </Badge>
                         ))
                       ) : (
-                        <Badge variant="outline">{fee.material}</Badge>
+                        <Badge variant="outline" className="bg-slate-100">
+                          {fee.material}
+                        </Badge>
                       )}
                       <Badge variant="success" className="bg-green-100 text-green-800">
                         {fee.status}
@@ -601,25 +608,25 @@ export function DisposalFees() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-                  <div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white">
+                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.type}</div>
                     <div className="text-xs text-muted-foreground">Fee Type</div>
                   </div>
-                  <div>
+                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.minCharge}</div>
                     <div className="text-xs text-muted-foreground">Minimum Charge</div>
                   </div>
-                  <div>
+                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.freeTonnage} tons</div>
                     <div className="text-xs text-muted-foreground">Free Tonnage</div>
                   </div>
-                  <div>
+                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.tiers.length}</div>
                     <div className="text-xs text-muted-foreground">Pricing Tiers</div>
                   </div>
                 </div>
-                <div className="px-4 pb-4">
+                <div className="px-4 pb-4 pt-2 bg-white">
                   <Button variant="outline" size="sm" onClick={() => handleViewFee(fee)}>
                     View Details
                   </Button>
@@ -636,17 +643,17 @@ export function DisposalFees() {
 
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="outline" size="sm" onClick={() => setActiveView("list")}>
+        <div className="flex items-center justify-between p-4 mb-6">
+          <Button variant="outline" size="sm" onClick={() => setActiveView("list")} className="bg-white">
             <ChevronDown className="h-4 w-4 mr-2 rotate-90" />
             Back to List
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleEditFee(selectedFee)}>
+            <Button variant="outline" size="sm" onClick={() => handleEditFee(selectedFee)} className="bg-white">
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="bg-white">
               <Copy className="h-4 w-4 mr-2" />
               Duplicate
             </Button>
@@ -655,41 +662,41 @@ export function DisposalFees() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>Disposal Fee Details</CardTitle>
                 <CardDescription>Basic information about this disposal fee</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 p-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Name</h3>
                     <p>{selectedFee.name}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Status</h3>
                     <Badge variant="success" className="bg-green-100 text-green-800">
                       {selectedFee.status}
                     </Badge>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Description</h3>
                     <p className="text-sm text-muted-foreground">{selectedFee.description}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">GL Code</h3>
                     <p>{selectedFee.glCode}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Business Line</h3>
                     <p>{selectedFee.businessLine}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Materials</h3>
                     <div className="flex flex-wrap gap-1">
                       {selectedFee.materials && selectedFee.materials.length > 0 ? (
                         selectedFee.materials.map((material, idx) => (
-                          <Badge key={idx} variant="outline">
+                          <Badge key={idx} variant="outline" className="bg-white">
                             {material}
                           </Badge>
                         ))
@@ -698,19 +705,19 @@ export function DisposalFees() {
                       )}
                     </div>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Fee Type</h3>
                     <p>{selectedFee.type}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Default Rate</h3>
                     <p className="font-bold">{selectedFee.defaultRate}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Minimum Charge</h3>
                     <p>{selectedFee.minCharge}</p>
                   </div>
-                  <div>
+                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Free Tonnage</h3>
                     <p>{selectedFee.freeTonnage} tons</p>
                   </div>
@@ -718,21 +725,25 @@ export function DisposalFees() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Tiered Pricing</CardTitle>
                     <CardDescription>Pricing tiers for this disposal fee</CardDescription>
                   </div>
-                  <Button size="sm">
+                  <Button size="sm" className="bg-slate-200 hover:bg-slate-300 text-slate-800">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Tier
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>{renderTierTable(selectedFee.tiers)}</CardContent>
-              <CardFooter className="text-sm text-muted-foreground">
+              <CardContent className="p-6">
+                <div className="rounded-md border border-slate-300 shadow-inner overflow-hidden">
+                  {renderTierTable(selectedFee.tiers)}
+                </div>
+              </CardContent>
+              <CardFooter className="text-sm text-muted-foreground bg-slate-50 border-t">
                 <p>
                   Tiered pricing allows for different rates based on tonnage. For example, the first 2 tons might be
                   charged at $65/ton, while tonnage between 2-5 tons is charged at $55/ton, and anything over 5 tons is
@@ -741,8 +752,8 @@ export function DisposalFees() {
               </CardFooter>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Linked Services</CardTitle>
@@ -761,111 +772,128 @@ export function DisposalFees() {
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                    <Button size="sm">
+                    <Button size="sm" className="bg-slate-200 hover:bg-slate-300 text-slate-800">
                       <Link className="h-4 w-4 mr-2" />
                       Link Service
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                {selectedFee.linkedServices > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Service Name</TableHead>
-                        <TableHead>Business Line</TableHead>
-                        <TableHead>Material</TableHead>
-                        <TableHead>Custom Rate</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {Array.from({ length: selectedFee.linkedServices }).map((_, index) => (
-                        <TableRow key={index}>
-                          <TableCell>Service {index + 1}</TableCell>
-                          <TableCell>{selectedFee.businessLine}</TableCell>
-                          <TableCell>{selectedFee.material}</TableCell>
-                          <TableCell>
-                            {Math.random() > 0.5 ? "Default" : `$${(Math.random() * 20 + 50).toFixed(2)}`}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <p className="text-muted-foreground mb-4">No services are currently linked to this disposal fee.</p>
-                    <Button size="sm">
-                      <Link className="h-4 w-4 mr-2" />
-                      Link Service
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Autolinked Services Card */}
-            {autolinkEnabled && (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Autolinked Services</CardTitle>
-                      <CardDescription>Services that can be automatically linked to this fee</CardDescription>
-                    </div>
-                    {autolinkedServices.length > 0 && (
-                      <Button size="sm" onClick={handleLinkAllServices}>
-                        <LinkIcon className="h-4 w-4 mr-2" />
-                        Link All
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingServices ? (
-                    <div className="flex justify-center items-center py-8">
-                      <p>Loading services...</p>
-                    </div>
-                  ) : autolinkedServices.length > 0 ? (
+              <CardContent className="p-6">
+                <div className="rounded-md border border-slate-300 shadow-inner overflow-hidden">
+                  {selectedFee.linkedServices > 0 ? (
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="bg-slate-200">
                         <TableRow>
                           <TableHead>Service Name</TableHead>
-                          <TableHead>Account</TableHead>
-                          <TableHead>Container</TableHead>
-                          <TableHead className="w-[100px]">Actions</TableHead>
+                          <TableHead>Business Line</TableHead>
+                          <TableHead>Material</TableHead>
+                          <TableHead>Custom Rate</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {autolinkedServices.map((service) => (
-                          <TableRow key={service.id}>
+                        {Array.from({ length: selectedFee.linkedServices }).map((_, index) => (
+                          <TableRow key={index} className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                            <TableCell>Service {index + 1}</TableCell>
+                            <TableCell>{selectedFee.businessLine}</TableCell>
+                            <TableCell>{selectedFee.material}</TableCell>
                             <TableCell>
-                              <div>
-                                <div className="font-medium">{service.name}</div>
-                                <div className="text-xs text-muted-foreground">{service.address}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <div>{service.accountName}</div>
-                                <div className="text-xs text-muted-foreground">{service.accountNumber}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>{service.containerName}</TableCell>
-                            <TableCell>
-                              <Button variant="outline" size="sm" onClick={() => handleLinkService(service)}>
-                                <LinkIcon className="h-4 w-4 mr-1" />
-                                Link
-                              </Button>
+                              {Math.random() > 0.5 ? "Default" : `$${(Math.random() * 20 + 50).toFixed(2)}`}
                             </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
                   ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center bg-slate-50">
+                      <p className="text-muted-foreground mb-4">
+                        No services are currently linked to this disposal fee.
+                      </p>
+                      <Button size="sm" className="bg-slate-200 hover:bg-slate-300 text-slate-800">
+                        <Link className="h-4 w-4 mr-2" />
+                        Link Service
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Autolinked Services Card */}
+            {autolinkEnabled && (
+              <Card className="shadow-md border-slate-300 overflow-hidden">
+                <CardHeader className="bg-blue-100 border-b border-blue-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-blue-800">Autolinked Services</CardTitle>
+                      <CardDescription className="text-blue-700">
+                        Services that can be automatically linked to this fee
+                      </CardDescription>
+                    </div>
+                    {autolinkedServices.length > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={handleLinkAllServices}
+                        className="bg-blue-100 hover:bg-blue-200 text-blue-800"
+                      >
+                        <LinkIcon className="h-4 w-4 mr-2" />
+                        Link All
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {isLoadingServices ? (
+                    <div className="flex justify-center items-center py-8">
+                      <p>Loading services...</p>
+                    </div>
+                  ) : autolinkedServices.length > 0 ? (
+                    <div className="rounded-md border border-blue-300 shadow-inner overflow-hidden">
+                      <Table>
+                        <TableHeader className="bg-blue-200">
+                          <TableRow>
+                            <TableHead>Service Name</TableHead>
+                            <TableHead>Account</TableHead>
+                            <TableHead>Container</TableHead>
+                            <TableHead className="w-[100px]">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {autolinkedServices.map((service, index) => (
+                            <TableRow key={service.id} className={index % 2 === 0 ? "bg-white" : "bg-blue-100/50"}>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{service.name}</div>
+                                  <div className="text-xs text-muted-foreground">{service.address}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div>{service.accountName}</div>
+                                  <div className="text-xs text-muted-foreground">{service.accountNumber}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{service.containerName}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleLinkService(service)}
+                                  className="bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-200"
+                                >
+                                  <LinkIcon className="h-4 w-4 mr-1" />
+                                  Link
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <p className="text-muted-foreground mb-4">No autolinked services found for this disposal fee.</p>
-                      <Alert>
+                      <Alert className="bg-blue-50 border-blue-200 text-blue-800">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Autolinking is enabled</AlertTitle>
                         <AlertDescription>
@@ -881,16 +909,19 @@ export function DisposalFees() {
           </div>
 
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>Associated Fees & Taxes</CardTitle>
                 <CardDescription>Additional fees and taxes applied with this disposal fee</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {linkedFees.length > 0 ? (
                   <div className="space-y-2">
                     {linkedFees.map((fee) => (
-                      <div key={fee.id} className="flex items-center justify-between p-2 border rounded-md">
+                      <div
+                        key={fee.id}
+                        className="flex items-center justify-between p-3 border border-slate-300 rounded-md bg-slate-50 hover:bg-slate-100 transition-colors shadow-sm"
+                      >
                         <div>
                           <div className="font-medium">{fee.name}</div>
                           <div className="text-xs text-muted-foreground">{fee.type}</div>
@@ -900,12 +931,12 @@ export function DisposalFees() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4">
+                  <div className="text-center py-4 bg-slate-50 rounded-md">
                     <p className="text-muted-foreground">No associated fees or taxes</p>
                   </div>
                 )}
               </CardContent>
-              <CardFooter>
+              <CardFooter className="bg-slate-50 border-t">
                 <Button size="sm" variant="outline" className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Fee or Tax
@@ -913,15 +944,18 @@ export function DisposalFees() {
               </CardFooter>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>Pricing Zones</CardTitle>
                 <CardDescription>Zones where this disposal fee applies</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="space-y-2">
                   {pricingZones.map((zone) => (
-                    <div key={zone.id} className="flex items-center space-x-2">
+                    <div
+                      key={zone.id}
+                      className="flex items-center space-x-2 p-3 rounded-md bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors shadow-sm"
+                    >
                       <Checkbox id={`zone-${zone.id}`} defaultChecked={zone.id === 1} />
                       <label
                         htmlFor={`zone-${zone.id}`}
@@ -935,13 +969,13 @@ export function DisposalFees() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>Calculation Example</CardTitle>
                 <CardDescription>Example of how this disposal fee is calculated</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-3 border rounded-md bg-muted/20">
+              <CardContent className="space-y-4 p-6">
+                <div className="p-4 border border-slate-300 rounded-md bg-gradient-to-r from-slate-100 to-white shadow-inner">
                   <h4 className="font-medium mb-2">Example Scenario:</h4>
                   <p className="text-sm mb-2">
                     {selectedFee.businessLine === "Roll-off"
@@ -1005,7 +1039,7 @@ export function DisposalFees() {
                       </>
                     )}
 
-                    <p className="mt-2 font-bold">
+                    <p className="mt-4 p-2 font-bold bg-slate-200 border border-slate-300 rounded-md text-center shadow-sm">
                       Total charge: $
                       {selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Rental")
                         ? (
@@ -1030,13 +1064,13 @@ export function DisposalFees() {
             </Card>
 
             {/* Autolinking Settings Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Autolinking</CardTitle>
-                <CardDescription>Configure automatic service linking</CardDescription>
+            <Card className="shadow-md border-slate-300 overflow-hidden">
+              <CardHeader className="bg-blue-100 border-b border-blue-300">
+                <CardTitle className="text-blue-800">Autolinking</CardTitle>
+                <CardDescription className="text-blue-700">Configure automatic service linking</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="space-y-4 p-6 bg-gradient-to-b from-blue-50/50 to-white">
+                <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
                   <div className="space-y-0.5">
                     <div className="font-medium">Enable Autolinking</div>
                     <div className="text-xs text-muted-foreground">Automatically link services to this fee</div>
@@ -1045,7 +1079,7 @@ export function DisposalFees() {
                 </div>
 
                 <div className={`space-y-2 ${!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}`}>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
                     <div className="space-y-0.5">
                       <div className="font-medium">Match by Material Type</div>
                       <div className="text-xs text-muted-foreground">
@@ -1055,7 +1089,7 @@ export function DisposalFees() {
                     <Switch checked={autolinkByMaterial} onCheckedChange={setAutolinkByMaterial} />
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
                     <div className="space-y-0.5">
                       <div className="font-medium">Match by Location</div>
                       <div className="text-xs text-muted-foreground">Only link services in the same location</div>
@@ -1369,14 +1403,14 @@ export function DisposalFees() {
 
   const renderAutolinkSettingsDialog = () => (
     <Dialog open={showAutolinkSettingsDialog} onOpenChange={setShowAutolinkSettingsDialog}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="bg-gradient-to-b from-blue-50/30 to-white">
+        <DialogHeader className="bg-blue-100 -mx-6 -mt-6 px-6 pt-6 pb-4 border-b border-blue-300">
           <DialogTitle>Autolinking Settings</DialogTitle>
           <DialogDescription>Configure how services are automatically linked to fees</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
             <div className="space-y-0.5">
               <Label htmlFor="settings-autolink-enabled">Enable Autolinking</Label>
               <p className="text-xs text-muted-foreground">Automatically link services to fees</p>
@@ -1386,7 +1420,7 @@ export function DisposalFees() {
 
           <div className={!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-material">Match by Material Type</Label>
                   <p className="text-xs text-muted-foreground">Only link services with matching material type</p>
@@ -1398,7 +1432,7 @@ export function DisposalFees() {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-location">Match by Location</Label>
                   <p className="text-xs text-muted-foreground">Only link services in the same location</p>
@@ -1411,7 +1445,7 @@ export function DisposalFees() {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-muted/20 rounded-md">
+            <div className="mt-6 p-4 bg-blue-50 rounded-md">
               <h4 className="font-medium mb-2">How Autolinking Works</h4>
               <p className="text-sm text-muted-foreground">
                 Autolinking automatically finds services that match the business line of this fee. When enabled, the
@@ -1424,11 +1458,13 @@ export function DisposalFees() {
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="bg-slate-100 -mx-6 -mb-6 px-6 py-4 border-t border-slate-300">
           <Button variant="outline" onClick={() => setShowAutolinkSettingsDialog(false)}>
             Cancel
           </Button>
-          <Button onClick={() => setShowAutolinkSettingsDialog(false)}>Save Settings</Button>
+          <Button onClick={() => setShowAutolinkSettingsDialog(false)} className="bg-blue-600 hover:bg-blue-700">
+            Save Settings
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

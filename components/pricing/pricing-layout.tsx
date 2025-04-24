@@ -78,7 +78,9 @@ export function PricingLayout() {
             )}
           </div>
         </div>
-        <div className="p-4">{renderView()}</div>
+        <div className="bg-white m-4 rounded-lg border border-slate-300 shadow-sm">
+          <div className="p-4">{renderView()}</div>
+        </div>
       </div>
     </div>
   )
