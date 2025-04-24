@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Plus, Trash2, AlertCircle, HelpCircle } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -180,8 +179,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         return value.trim() === "" ? "Name is required" : ""
       case "defaultRate":
         return isNaN(Number.parseFloat(value)) ? "Rate must be a number" : ""
-      case "minCharge":
-        return isNaN(Number.parseFloat(value)) ? "Minimum charge must be a number" : ""
       case "glCode":
         return value.trim() === "" ? "GL Code is required" : ""
       case "materials":
@@ -312,7 +309,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
   const handleSubmit = () => {
     // Validate all fields
     const newErrors: Record<string, string> = {}
-    const allFields = ["name", "defaultRate", "minCharge", "glCode", "materials"]
+    const allFields = ["name", "defaultRate", "glCode", "materials"]
 
     allFields.forEach((field) => {
       const error = validateField(field, formData[field as keyof DisposalFee])
@@ -365,16 +362,11 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="p-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee"}</h2>
-        <div className="flex items-center gap-2">
-          <Badge variant={activeTab === "basic" ? "default" : "outline"}>1. Basic Info</Badge>
-          <Badge variant={activeTab === "pricing" ? "default" : "outline"}>2. Pricing & Materials</Badge>
-          <Badge variant={activeTab === "advanced" ? "default" : "outline"}>3. Advanced</Badge>
-        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full p-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic">Basic Info</TabsTrigger>
           <TabsTrigger value="pricing">Pricing & Materials</TabsTrigger>
@@ -382,17 +374,17 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         </TabsList>
 
         {/* Basic Info Tab */}
-        <TabsContent value="basic" className="space-y-4 pt-4">
+        <TabsContent value="basic" className="space-y-4 p-6">
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
               <CardDescription>Enter the basic details for this disposal fee</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="fee-name" className="flex items-center gap-1">
-                    Fee Name <span className="text-red-500">*</span>
+                    Fee Name
                   </Label>
                   <Input
                     id="fee-name"
@@ -400,7 +392,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     onChange={(e) => handleChange("name", e.target.value)}
                     onBlur={() => handleBlur("name")}
                     placeholder="e.g., MSW Disposal Fee"
-                    className={isFieldInvalid("name") ? "border-red-500" : ""}
+                    className={`h-10 ${isFieldInvalid("name") ? "border-red-500" : ""}`}
                   />
                   {isFieldInvalid("name") && (
                     <p className="text-xs text-red-500 flex items-center gap-1">
@@ -412,7 +404,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 <div className="space-y-2">
                   <Label htmlFor="fee-business-line">Business Line</Label>
                   <Select value={formData.businessLine} onValueChange={(value) => handleChange("businessLine", value)}>
-                    <SelectTrigger id="fee-business-line">
+                    <SelectTrigger id="fee-business-line" className="h-10">
                       <SelectValue placeholder="Select business line" />
                     </SelectTrigger>
                     <SelectContent>
@@ -426,14 +418,17 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
 
                 <div className="space-y-2">
                   <Label htmlFor="fee-gl-code" className="flex items-center gap-1">
-                    GL Code <span className="text-red-500">*</span>
+                    GL Code
                   </Label>
                   <Select
                     value={formData.glCode}
                     onValueChange={(value) => handleChange("glCode", value)}
                     onOpenChange={() => handleBlur("glCode")}
                   >
-                    <SelectTrigger id="fee-gl-code" className={isFieldInvalid("glCode") ? "border-red-500" : ""}>
+                    <SelectTrigger
+                      id="fee-gl-code"
+                      className={`h-10 ${isFieldInvalid("glCode") ? "border-red-500" : ""}`}
+                    >
                       <SelectValue placeholder="Select GL code" />
                     </SelectTrigger>
                     <SelectContent>
@@ -454,7 +449,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 <div className="space-y-2">
                   <Label htmlFor="fee-status">Status</Label>
                   <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                    <SelectTrigger id="fee-status">
+                    <SelectTrigger id="fee-status" className="h-10">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -466,17 +461,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="fee-description">Description</Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowDescriptionSuggestions(!showDescriptionSuggestions)}
-                    >
-                      Suggestions
-                    </Button>
-                  </div>
+                  <Label htmlFor="fee-description">Description</Label>
                   <Textarea
                     id="fee-description"
                     value={formData.description}
@@ -527,9 +512,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               <div className="space-y-4 border rounded-md p-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-1">
-                      Materials <span className="text-red-500">*</span>
-                    </Label>
+                    <Label className="flex items-center gap-1">Materials</Label>
                     <div className="flex items-center gap-2">
                       <Label htmlFor="material-specific-pricing" className="text-sm">
                         Material-Specific Pricing
@@ -630,21 +613,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                     onChange={(e) =>
                                       handleMaterialPricingChange(material, "defaultRate", e.target.value)
                                     }
-                                    className="pl-7"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor={`${material}-min-charge`}>Minimum Charge</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-2.5">$</span>
-                                  <Input
-                                    id={`${material}-min-charge`}
-                                    value={materialPricing[material]?.minCharge || ""}
-                                    onChange={(e) => handleMaterialPricingChange(material, "minCharge", e.target.value)}
-                                    className="pl-7"
+                                    className="pl-7 h-10"
                                     placeholder="0.00"
                                   />
                                 </div>
@@ -667,6 +636,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                       )
                                     }
                                     placeholder="0.00"
+                                    className="h-10"
                                   />
                                   <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                                 </div>
@@ -756,7 +726,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                                   Number.parseFloat(e.target.value) || 0,
                                                 )
                                               }
-                                              className="w-20"
+                                              className="w-20 h-10"
                                             />
                                           </TableCell>
                                           <TableCell>
@@ -772,7 +742,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                                     : Number.parseFloat(e.target.value) || 0
                                                 handleMaterialTierChange(material, index, "to", value)
                                               }}
-                                              className="w-20"
+                                              className="w-20 h-10"
                                               placeholder="∞"
                                             />
                                           </TableCell>
@@ -792,7 +762,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                                     Number.parseFloat(e.target.value) || 0,
                                                   )
                                                 }
-                                                className="w-24 pl-7"
+                                                className="w-24 pl-7 h-10"
                                               />
                                             </div>
                                           </TableCell>
@@ -823,11 +793,11 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="fee-type">Fee Type</Label>
                   <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
-                    <SelectTrigger id="fee-type">
+                    <SelectTrigger id="fee-type" className="h-10">
                       <SelectValue placeholder="Select fee type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -843,7 +813,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
 
                 <div className="space-y-2">
                   <Label htmlFor="fee-default-rate" className="flex items-center gap-1">
-                    Default Rate <span className="text-red-500">*</span>
+                    Default Rate
                   </Label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5">$</span>
@@ -852,35 +822,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       value={formData.defaultRate}
                       onChange={(e) => handleChange("defaultRate", e.target.value)}
                       onBlur={() => handleBlur("defaultRate")}
-                      className={`pl-7 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
+                      className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
                       placeholder="0.00"
                     />
                   </div>
                   {isFieldInvalid("defaultRate") && (
                     <p className="text-xs text-red-500 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="fee-min-charge" className="flex items-center gap-1">
-                    Minimum Charge <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5">$</span>
-                    <Input
-                      id="fee-min-charge"
-                      value={formData.minCharge}
-                      onChange={(e) => handleChange("minCharge", e.target.value)}
-                      onBlur={() => handleBlur("minCharge")}
-                      className={`pl-7 ${isFieldInvalid("minCharge") ? "border-red-500" : ""}`}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {isFieldInvalid("minCharge") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.minCharge}
                     </p>
                   )}
                 </div>
@@ -896,6 +844,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       value={formData.freeTonnage}
                       onChange={(e) => handleChange("freeTonnage", Number.parseFloat(e.target.value) || 0)}
                       placeholder="0.00"
+                      className="h-10"
                     />
                     <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                   </div>
@@ -965,7 +914,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                 onChange={(e) =>
                                   handleTierChange(index, "from", Number.parseFloat(e.target.value) || 0)
                                 }
-                                className="w-20"
+                                className="w-20 h-10"
                               />
                             </TableCell>
                             <TableCell>
@@ -979,7 +928,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                     e.target.value.trim() === "" ? null : Number.parseFloat(e.target.value) || 0
                                   handleTierChange(index, "to", value)
                                 }}
-                                className="w-20"
+                                className="w-20 h-10"
                                 placeholder="∞"
                               />
                             </TableCell>
@@ -994,7 +943,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                   onChange={(e) =>
                                     handleTierChange(index, "rate", Number.parseFloat(e.target.value) || 0)
                                   }
-                                  className="w-24 pl-7"
+                                  className="w-24 pl-7 h-10"
                                 />
                               </div>
                             </TableCell>

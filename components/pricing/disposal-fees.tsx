@@ -40,7 +40,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeForm } from "./disposal-fee-form"
+import { DisposalFeeForm } from "./disposal-fee-form.tsx"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -588,7 +588,7 @@ export function DisposalFees() {
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.minCharge}</div>
-                    <div className="text-xs text-muted-foreground">Minimum Charge</div>
+                    <div className="text-xs text-muted-foreground">Default Charge</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.freeTonnage} tons</div>
