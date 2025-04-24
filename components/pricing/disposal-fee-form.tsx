@@ -119,8 +119,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       measure: "Per Ton",
       defaultRate: "",
       minCharge: "",
-      businessLine: "All",
-      status: "Active",
       freeTonnage: 0,
       glCode: "",
       materials: [],
@@ -347,22 +345,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fee-business-line">Business Line</Label>
-                  <Select value={formData.businessLine} onValueChange={(value) => handleChange("businessLine", value)}>
-                    <SelectTrigger id="fee-business-line" className="h-10">
-                      <SelectValue placeholder="Select business line" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All</SelectItem>
-                      <SelectItem value="Residential">Residential</SelectItem>
-                      <SelectItem value="Commercial">Commercial</SelectItem>
-                      <SelectItem value="Roll-off">Roll-off</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="min-h-[20px]"></div>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="fee-gl-code">GL Code</Label>
                   <Select
                     value={formData.glCode}
@@ -390,21 +372,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       </p>
                     )}
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="fee-status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                    <SelectTrigger id="fee-status" className="h-10">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                      <SelectItem value="Draft">Draft</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="min-h-[20px]"></div>
                 </div>
 
                 <div className="space-y-2 col-span-2">
@@ -435,27 +402,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
-
-              <div className="space-y-4 mt-6">
-                <h3 className="text-sm font-medium">Pricing Zones</h3>
-                <div className="border rounded-md p-4 bg-slate-50">
-                  <div className="space-y-3">
-                    {[
-                      { id: 1, name: "Zone A", description: "Metropolitan Area" },
-                      { id: 2, name: "Zone B", description: "Suburban Area" },
-                      { id: 3, name: "Zone C", description: "Rural Area" },
-                    ].map((zone) => (
-                      <div key={zone.id} className="flex items-center space-x-2 py-2 border-b border-slate-200">
-                        <Checkbox id={`zone-${zone.id}`} />
-                        <div>
-                          <Label htmlFor={`zone-${zone.id}`}>{zone.name}</Label>
-                          <p className="text-xs text-muted-foreground">{zone.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </CardContent>

@@ -76,8 +76,6 @@ export type DisposalFee = {
   measure: string
   defaultRate: string
   minCharge: string
-  businessLine: string
-  status: string
   locations: number
   material: string
   materials?: string[]
