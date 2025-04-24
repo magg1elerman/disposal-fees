@@ -698,14 +698,10 @@ export function DisposalFees() {
             <Card className="shadow-md border-slate-300 overflow-hidden">
               <CardHeader className="bg-slate-100 border-b border-slate-300">
                 <CardTitle>{selectedFee.name} Details</CardTitle>
-                <CardDescription>Basic information about this disposal fee</CardDescription>
+                <CardDescription>{selectedFee.description}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 p-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Name</h3>
-                    <p>{selectedFee.name}</p>
-                  </div>
                   <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <h3 className="text-sm font-medium mb-1">Status</h3>
                     <Badge variant="success" className="bg-green-100 text-green-800">
@@ -713,11 +709,7 @@ export function DisposalFees() {
                     </Badge>
                   </div>
                   <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">Description</h3>
-                    <p className="text-sm text-muted-foreground">{selectedFee.description}</p>
-                  </div>
-                  <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <h3 className="text-sm font-medium mb-1">GL Code</h3>
+                    <h3 className="text-sm font-medium mb-1">General Ledger</h3>
                     <p>{selectedFee.glCode}</p>
                   </div>
                   <div className="p-3 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
@@ -1221,33 +1213,6 @@ export function DisposalFees() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="col-span-2">
-            <div className="text-sm font-medium mb-2">Grace Period</div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="grace-period-length" className="text-xs text-muted-foreground">
-                  Grace period length
-                </Label>
-                <Input id="grace-period-length" defaultValue="0" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="grace-period-duration" className="text-xs text-muted-foreground">
-                  Duration
-                </Label>
-                <Select defaultValue="days">
-                  <SelectTrigger id="grace-period-duration">
-                    <SelectValue placeholder="Select duration" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="days">Days</SelectItem>
-                    <SelectItem value="weeks">Weeks</SelectItem>
-                    <SelectItem value="months">Months</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
 
           <div className="space-y-2">
