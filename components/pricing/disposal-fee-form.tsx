@@ -147,7 +147,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
   })
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showDescriptionSuggestions, setShowDescriptionSuggestions] = useState(false)
-  const [autolinkEnabled, setAutolinkEnabled] = useState(true)
 
   // Initialize form data from initialFee
   useEffect(() => {
@@ -314,10 +313,9 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full p-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="basic">Basic Info</TabsTrigger>
           <TabsTrigger value="pricing">Pricing & Materials</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
 
         {/* Basic Info Tab */}
@@ -652,72 +650,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               <Button variant="outline" onClick={() => setActiveTab("basic")}>
                 Previous: Basic Info
               </Button>
-              <Button onClick={() => setActiveTab("advanced")}>Next: Advanced</Button>
+              <Button onClick={handleSubmit}>Save</Button>
             </CardFooter>
-          </Card>
-        </TabsContent>
-
-        {/* Advanced Tab */}
-        <TabsContent value="advanced" className="space-y-4 pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Advanced Settings</CardTitle>
-              <CardDescription>Configure additional settings for this disposal fee</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Autolinking</h3>
-                <div className="space-y-4 border rounded-md p-4 bg-slate-50">
-                  <div className="flex items-center justify-between py-2 border-b border-slate-200">
-                    <div>
-                      <h4 className="text-sm font-medium">Enable Autolinking</h4>
-                      <p className="text-xs text-muted-foreground mt-1">Automatically link services to this fee</p>
-                    </div>
-                    <Switch checked={autolinkEnabled} onCheckedChange={setAutolinkEnabled} />
-                  </div>
-
-                  <div className={`space-y-3 ${!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}`}>
-                    <div className="flex items-center justify-between py-2 border-b border-slate-200">
-                      <div>
-                        <h4 className="text-sm font-medium">Match by Material Type</h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Only link services with matching material type
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between py-2 border-b border-slate-200">
-                      <div>
-                        <h4 className="text-sm font-medium">Match by Location</h4>
-                        <p className="text-xs text-muted-foreground mt-1">Only link services in the same location</p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-
-                  <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
-                    <p className="text-sm text-blue-700">
-                      <span className="font-medium">How Autolinking Works:</span> Services with matching business line
-                      and material type will be automatically linked to this fee.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Associated Fees & Taxes</h3>
-                <div className="border rounded-md p-4 bg-slate-50">
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground mb-4">No associated fees or taxes</p>
-                    <Button size="sm" variant="outline">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Fee or Tax
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
