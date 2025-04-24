@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 // Types
 interface MaterialPricing {
@@ -383,9 +383,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="fee-name" className="flex items-center gap-1">
-                    Fee Name
-                  </Label>
+                  <Label htmlFor="fee-name">Fee Name</Label>
                   <Input
                     id="fee-name"
                     value={formData.name}
@@ -394,11 +392,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     placeholder="e.g., MSW Disposal Fee"
                     className={`h-10 ${isFieldInvalid("name") ? "border-red-500" : ""}`}
                   />
-                  {isFieldInvalid("name") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.name}
-                    </p>
-                  )}
+                  <div className="min-h-[20px]">
+                    {isFieldInvalid("name") && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.name}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -414,12 +414,11 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       <SelectItem value="Roll-off">Roll-off</SelectItem>
                     </SelectContent>
                   </Select>
+                  <div className="min-h-[20px]"></div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fee-gl-code" className="flex items-center gap-1">
-                    GL Code
-                  </Label>
+                  <Label htmlFor="fee-gl-code">GL Code</Label>
                   <Select
                     value={formData.glCode}
                     onValueChange={(value) => handleChange("glCode", value)}
@@ -439,11 +438,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       ))}
                     </SelectContent>
                   </Select>
-                  {isFieldInvalid("glCode") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.glCode}
-                    </p>
-                  )}
+                  <div className="min-h-[20px]">
+                    {isFieldInvalid("glCode") && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.glCode}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -458,6 +459,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       <SelectItem value="Draft">Draft</SelectItem>
                     </SelectContent>
                   </Select>
+                  <div className="min-h-[20px]"></div>
                 </div>
 
                 <div className="space-y-2 col-span-2">
@@ -517,6 +519,22 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       <Label htmlFor="material-specific-pricing" className="text-sm">
                         Material-Specific Pricing
                       </Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
+                            <HelpCircle className="h-4 w-4" />
+                            <span className="sr-only">Material-specific pricing info</span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                          <div className="flex flex-col gap-2">
+                            <h4 className="font-medium">Multiple materials selected</h4>
+                            <p className="text-sm text-muted-foreground">
+                              You can enable material-specific pricing to set different rates for each material.
+                            </p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <Switch
                         id="material-specific-pricing"
                         checked={useMaterialPricing}
@@ -571,16 +589,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     <p className="text-xs text-red-500 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" /> {errors.materials}
                     </p>
-                  )}
-
-                  {selectedMaterials.length > 1 && (
-                    <Alert className="bg-blue-50 border-blue-200">
-                      <HelpCircle className="h-4 w-4 text-blue-600" />
-                      <AlertTitle className="text-blue-800">Multiple materials selected</AlertTitle>
-                      <AlertDescription className="text-blue-700">
-                        You can enable material-specific pricing to set different rates for each material.
-                      </AlertDescription>
-                    </Alert>
                   )}
                 </div>
 
@@ -808,13 +816,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+                  <div className="min-h-[20px]">
+                    <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fee-default-rate" className="flex items-center gap-1">
-                    Default Rate
-                  </Label>
+                  <Label htmlFor="fee-default-rate">Default Rate</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5">$</span>
                     <Input
@@ -826,11 +834,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       placeholder="0.00"
                     />
                   </div>
-                  {isFieldInvalid("defaultRate") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
-                    </p>
-                  )}
+                  <div className="min-h-[20px]">
+                    {isFieldInvalid("defaultRate") && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -848,7 +858,9 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     />
                     <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
+                  <div className="min-h-[20px]">
+                    <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
+                  </div>
                 </div>
               </div>
 
@@ -1077,39 +1089,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
           </Card>
         </TabsContent>
       </Tabs>
-
-      <div className="flex justify-between pt-4 border-t">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <div className="flex gap-2">
-          {activeTab !== "basic" && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                const tabs = ["basic", "pricing", "advanced"]
-                const currentIndex = tabs.indexOf(activeTab)
-                setActiveTab(tabs[currentIndex - 1])
-              }}
-            >
-              Previous
-            </Button>
-          )}
-          {activeTab !== "advanced" ? (
-            <Button
-              onClick={() => {
-                const tabs = ["basic", "pricing", "advanced"]
-                const currentIndex = tabs.indexOf(activeTab)
-                setActiveTab(tabs[currentIndex + 1])
-              }}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit}>{initialFee ? "Save Changes" : "Create Disposal Fee"}</Button>
-          )}
-        </div>
-      </div>
     </div>
   )
 }
