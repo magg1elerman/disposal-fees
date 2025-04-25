@@ -21,6 +21,13 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -384,8 +391,33 @@ export function DisposalFees() {
                 tabIndex={0}
                 className="border border-slate-300 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
-                <div className="px-4 py-3 bg-white border-b border-slate-200">
+                <div className="flex justify-between items-center px-4 py-3 bg-white border-b border-slate-200">
                   <h3 className="text-lg font-medium text-slate-900">{fee.name}</h3>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditFee(fee); }}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* add services */ }}>
+                        Add services
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* remove services */ }}>
+                        Remove services
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem disabled>
+                        Archive
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* delete fee */ }} className="text-destructive">
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <div className="flex flex-wrap items-center border-t border-slate-200 divide-x divide-slate-200 bg-white">
                   <div className="flex items-baseline px-4 py-2">
