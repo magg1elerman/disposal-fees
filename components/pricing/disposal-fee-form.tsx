@@ -514,7 +514,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         <Card className="border-0 shadow-none">
           <CardHeader>
             <CardTitle>Pricing</CardTitle>
-            <CardDescription>Select materials and define the pricing structure</CardDescription>
+            <CardDescription>Define the pricing structure</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Materials Selection Section - Only show when rateStructure is not "Per Container" */}
