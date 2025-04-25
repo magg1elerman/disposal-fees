@@ -16,6 +16,8 @@ import { Separator } from "@/components/ui/separator"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { MaterialChip } from "./material-chip"
 import { cn } from "@/lib/utils"
+import { RadioGroupItem } from "@/components/ui/radio-group"
+import { RadioGroup } from "@/components/ui/radio-group"
 
 // Types
 interface Material {
@@ -62,6 +64,7 @@ interface DisposalFee {
   overageThreshold: number
   includedTonnage: number
   glCode: string
+  businessLine: string
   materials?: string[]
   materialPricing?: MaterialPricing[]
   containers?: string[]
@@ -129,6 +132,13 @@ const containers: Container[] = [
   { id: 4, name: "10 Yard", color: "bg-purple-200 text-black" },
 ]
 
+const businessLines = [
+  { id: 1, name: "Residential", description: "Residential waste services" },
+  { id: 2, name: "Commercial", description: "Commercial waste services" },
+  { id: 3, name: "Roll-off", description: "Roll-off container services" },
+  { id: 4, name: "All", description: "All business lines" },
+]
+
 export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
@@ -142,6 +152,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       overageThreshold: 0,
       includedTonnage: 0,
       glCode: "",
+      businessLine: "",
       materials: [],
     },
   )
@@ -202,6 +213,11 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       // Set the rateStructure value
       if (initialFee.rateStructure) {
         handleChange("rateStructure", initialFee.rateStructure)
+      }
+
+      // Set the businessLine value
+      if (initialFee.businessLine) {
+        handleChange("businessLine", initialFee.businessLine)
       }
     }
   }, [initialFee])
@@ -365,14 +381,14 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
 
       <div className="p-6 space-y-8">
         {/* Basic Information Section */}
-        <Card>
+        <Card className="border-0 shadow-none">
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
             <CardDescription>Enter the basic details for this disposal fee</CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
+              <div className="col-span-2 space-y-2">
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
                   id="fee-name"
@@ -386,36 +402,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   {isFieldInvalid("name") && (
                     <p className="text-xs text-red-500 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" /> {errors.name}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fee-gl-code">GL Code</Label>
-                <Select
-                  value={formData.glCode}
-                  onValueChange={(value) => handleChange("glCode", value)}
-                  onOpenChange={() => handleBlur("glCode")}
-                >
-                  <SelectTrigger
-                    id="fee-gl-code"
-                    className={`h-10 ${isFieldInvalid("glCode") ? "border-red-500" : ""}`}
-                  >
-                    <SelectValue placeholder="Select GL code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {glCodes.map((code) => (
-                      <SelectItem key={code.id} value={code.code}>
-                        {code.code} - {code.description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="min-h-[20px]">
-                  {isFieldInvalid("glCode") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {errors.glCode}
                     </p>
                   )}
                 </div>
@@ -450,6 +436,84 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </div>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="fee-business-line">Business Line</Label>
+                <Select
+                  value={formData.businessLine}
+                  onValueChange={(value) => handleChange("businessLine", value)}
+                  onOpenChange={() => handleBlur("businessLine")}
+                >
+                  <SelectTrigger
+                    id="fee-business-line"
+                    className={`h-10 ${isFieldInvalid("businessLine") ? "border-red-500" : ""}`}
+                  >
+                    <SelectValue placeholder="Select business line" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessLines.map((line) => (
+                      <SelectItem key={line.id} value={line.name}>
+                        {line.name} - {line.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="min-h-[20px]">
+                  {isFieldInvalid("businessLine") && (
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.businessLine}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fee-gl-code">General Ledger</Label>
+                <Select
+                  value={formData.glCode}
+                  onValueChange={(value) => handleChange("glCode", value)}
+                  onOpenChange={() => handleBlur("glCode")}
+                >
+                  <SelectTrigger
+                    id="fee-gl-code"
+                    className={`h-10 ${isFieldInvalid("glCode") ? "border-red-500" : ""}`}
+                  >
+                    <SelectValue placeholder="Select General Ledger" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {glCodes.map((code) => (
+                      <SelectItem key={code.id} value={code.code}>
+                        {code.code} - {code.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="min-h-[20px]">
+                  {isFieldInvalid("glCode") && (
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.glCode}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Fee Structure</Label>
+                <RadioGroup
+                  value={formData.rateStructure}
+                  onValueChange={(value) => handleChange("rateStructure", value)}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Per Ton" id="per-ton" />
+                    <Label htmlFor="per-ton">Per Ton</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Per Container" id="per-container" />
+                    <Label htmlFor="per-container">Per Container</Label>
+                  </div>
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+              </div>
+
+             
             </div>
           </CardContent>
         </Card>
@@ -457,83 +521,55 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         <Separator className="my-4" />
 
         {/* Materials & Pricing Section */}
-        <Card>
+        <Card className="border-0 shadow-none">
           <CardHeader>
             <CardTitle>Materials & Pricing</CardTitle>
             <CardDescription>Select materials and define the pricing structure</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Fee Structure Select */}
-            <div className="space-y-2">
-              <Label htmlFor="fee-structure">Fee Structure</Label>
-              <Select
-                value={formData.rateStructure}
-                onValueChange={(value) => handleChange("rateStructure", value)}
-              >
-                <SelectTrigger id="fee-structure" className="w-[200px]">
-                  <SelectValue placeholder="Select fee structure" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Per Ton">Per Ton</SelectItem>
-                  <SelectItem value="Per Container">Per Container</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
-            </div>
+            {formData.rateStructure === "Per Ton" && (
+              <div className="flex items-center gap-2 p-4">
+                <Label htmlFor="material-specific-pricing" className="text-sm">
+                  Material-Specific Pricing
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
+                      <HelpCircle className="h-4 w-4" />
+                      <span className="sr-only">Material-specific pricing info</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <div className="flex flex-col gap-2">
+                      <h4 className="font-medium">Multiple materials selected</h4>
+                      <p className="text-sm text-muted-foreground">
+                        You can enable material-specific pricing to set different rates for each material.
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <Switch
+                  id="material-specific-pricing"
+                  checked={useMaterialPricing}
+                  onCheckedChange={(checked) => {
+                    setUseMaterialPricing(checked)
+                  }}
+                />
+              </div>
+            )}
+
+            {errors.materialPricing && (
+              <p className="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {errors.materialPricing}
+              </p>
+            )}
 
             {/* Materials Selection Section */}
-            <div className="space-y-4 border rounded-md p-4">
+            <div className="space-y-4 p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center gap-1">Materials</Label>
-                  {formData.rateStructure === "Per Ton" && (
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="material-specific-pricing" className="text-sm">
-                        Material-Specific Pricing
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
-                            <HelpCircle className="h-4 w-4" />
-                            <span className="sr-only">Material-specific pricing info</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="flex flex-col gap-2">
-                            <h4 className="font-medium">Multiple materials selected</h4>
-                            <p className="text-sm text-muted-foreground">
-                              You can enable material-specific pricing to set different rates for each material.
-                            </p>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <Switch
-                        id="material-specific-pricing"
-                        checked={useMaterialPricing}
-                        onCheckedChange={(checked) => {
-                          if (checked && selectedMaterials.length <= 1) {
-                            setErrors({
-                              ...errors,
-                              materialPricing: "Select multiple materials to enable material-specific pricing",
-                            })
-                            return
-                          }
-                          setErrors({
-                            ...errors,
-                            materialPricing: "",
-                          })
-                          setUseMaterialPricing(checked)
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
-
-                {errors.materialPricing && (
-                  <p className="text-xs text-red-500 flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> {errors.materialPricing}
-                  </p>
-                )}
 
                 <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
                   <div className="space-y-4">
