@@ -32,8 +32,8 @@ interface MaterialTypes {
 
 interface MaterialPricing {
   materialType: string
-  measure: string
-  defaultRate: string
+  rateStructure: string
+  rate: string
   minCharge: string
   freeTonnage: number
   overageCharge: string
@@ -45,12 +45,12 @@ interface DisposalFee {
   id?: number
   name: string
   description: string
-  measure: string
-  defaultRate: string
+  rateStructure: string
+  rate: string
   minCharge: string
   overageCharge: string
   overageThreshold: number
-  freeTonnage: number
+  includedTonnage: number
   glCode: string
   materials?: string[]
   materialPricing?: MaterialPricing[]
@@ -115,12 +115,12 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
     initialFee || {
       name: "",
       description: "",
-      measure: "Per Ton",
-      defaultRate: "",
+      rateStructure: "Per Ton",
+      rate: "",
       minCharge: "",
       overageCharge: "",
       overageThreshold: 0,
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "",
       materials: [],
     },
@@ -133,18 +133,16 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
     Record<
       string,
       {
-        defaultRate: string
+        rate: string
         minCharge: string
         freeTonnage: number
-        measure: string
+        rateStructure: string
         overageThreshold: number
         overageCharge: string
       }
     >
   >({})
-  const [errors, setErrors] = useState<Record<string, string>>({
-    materialPricing: "",
-  })
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showDescriptionSuggestions, setShowDescriptionSuggestions] = useState(false)
 
@@ -154,8 +152,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       // Set selected materials
       if (initialFee.materials && initialFee.materials.length > 0) {
         setSelectedMaterials(initialFee.materials)
-      } else if (initialFee.material) {
-        setSelectedMaterials([initialFee.material])
       }
 
       // Set material-specific pricing
@@ -165,10 +161,10 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         initialFee.materialPricing.forEach((mp) => {
           if (mp.materialType) {
             pricing[mp.materialType] = {
-              defaultRate: mp.defaultRate,
+              rate: mp.rate,
               minCharge: mp.minCharge,
               freeTonnage: mp.freeTonnage,
-              measure: mp.measure || formData.measure,
+              rateStructure: mp.rateStructure || formData.rateStructure,
               overageThreshold: mp.overageThreshold,
               overageCharge: mp.overageCharge,
             }
@@ -176,14 +172,14 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         })
       } else {
         // If no material-specific pricing, use the default for all selected materials
-        const selectedMats = initialFee.materials || [initialFee.material]
+        const selectedMats = initialFee.materials || []
         selectedMats.forEach((mat) => {
           if (mat) {
             pricing[mat] = {
-              defaultRate: initialFee.defaultRate.replace("$", ""),
+              rate: initialFee.rate.replace("$", ""),
               minCharge: initialFee.minCharge.replace("$", ""),
               freeTonnage: initialFee.freeTonnage,
-              measure: initialFee.measure,
+              rateStructure: initialFee.rateStructure,
               overageThreshold: initialFee.overageThreshold,
               overageCharge: initialFee.overageCharge,
             }
@@ -192,9 +188,9 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       }
       setMaterialPricing(pricing)
 
-      // Set the measure value
-      if (initialFee.measure) {
-        handleChange("measure", initialFee.measure)
+      // Set the rateStructure value
+      if (initialFee.rateStructure) {
+        handleChange("rateStructure", initialFee.rateStructure)
       }
     }
   }, [initialFee])
@@ -204,7 +200,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
     switch (name) {
       case "name":
         return value.trim() === "" ? "Name is required" : ""
-      case "defaultRate":
+      case "rate":
         return isNaN(Number.parseFloat(value)) ? "Rate must be a number" : ""
       case "glCode":
         return value.trim() === "" ? "GL Code is required" : ""
@@ -230,38 +226,44 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
     }
   }
 
-  const handleMaterialChange = (material: string, checked: boolean) => {
-    let newMaterials = [...selectedMaterials]
+  const handleMaterialPricingChange = (
+    material: string,
+    field: string,
+    value: string | number,
+  ) => {
+    setMaterialPricing((prev) => ({
+      ...prev,
+      [material]: {
+        ...prev[material],
+        [field]: value,
+      },
+    }))
+  }
 
-    if (checked) {
-      newMaterials.push(material)
-
-      // Initialize material pricing if not exists
-      if (!materialPricing[material]) {
-        setMaterialPricing({
-          ...materialPricing,
-          [material]: {
-            defaultRate: formData.defaultRate.replace("$", ""),
-            minCharge: formData.minCharge.replace("$", ""),
-            freeTonnage: formData.freeTonnage,
-            measure: formData.measure,
-            overageThreshold: formData.overageThreshold,
-            overageCharge: formData.overageCharge,
-          },
-        })
+  const handleMaterialToggle = (material: string) => {
+    setSelectedMaterials((prev) => {
+      if (prev.includes(material)) {
+        const newMaterials = prev.filter((m) => m !== material)
+        setFormData((prevData) => ({
+          ...prevData,
+          materials: newMaterials,
+        }))
+        return newMaterials
+      } else {
+        const newMaterials = [...prev, material]
+        setFormData((prevData) => ({
+          ...prevData,
+          materials: newMaterials,
+        }))
+        return newMaterials
       }
-    } else {
-      newMaterials = newMaterials.filter((m) => m !== material)
-    }
-
-    setSelectedMaterials(newMaterials)
-    handleChange("materials", newMaterials)
+    })
   }
 
   const handleSubmit = () => {
     // Validate all fields
     const newErrors: Record<string, string> = {}
-    const allFields = ["name", "defaultRate", "glCode", "materials"]
+    const allFields = ["name", "rate", "glCode", "materials"]
 
     allFields.forEach((field) => {
       const error = validateField(field, formData[field as keyof DisposalFee])
@@ -282,17 +284,17 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       if (useMaterialPricing && selectedMaterials.length > 1) {
         finalData.materialPricing = selectedMaterials.map((material) => ({
           materialType: material,
-          defaultRate: `$${materialPricing[material].defaultRate}`,
+          rate: `$${materialPricing[material].rate}`,
           minCharge: `$${materialPricing[material].minCharge}`,
           freeTonnage: materialPricing[material].freeTonnage,
-          measure: materialPricing[material].measure,
+          rateStructure: materialPricing[material].rateStructure,
           overageThreshold: materialPricing[material].overageThreshold,
           overageCharge: materialPricing[material].overageCharge,
         }))
       }
 
       // Format currency values
-      finalData.defaultRate = `$${finalData.defaultRate}`
+      finalData.rate = `$${finalData.rate}`
       finalData.minCharge = `$${finalData.minCharge}`
 
       onSave(finalData)
@@ -477,7 +479,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     <Select
                       onValueChange={(value) => {
                         if (!selectedMaterials.includes(value)) {
-                          handleMaterialChange(value, true)
+                          handleMaterialToggle(value)
                         }
                       }}
                     >
@@ -506,7 +508,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                             key={material.id}
                             name={material.name}
                             color={material.color}
-                            onRemove={() => handleMaterialChange(material.name, false)}
+                            onRemove={() => handleMaterialToggle(material.name)}
                           />
                         )
                       })}
@@ -524,34 +526,34 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 <>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="fee-default-rate">Default Rate</Label>
+                      <Label htmlFor="fee-rate">Rate</Label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5">$</span>
                         <Input
-                          id="fee-default-rate"
-                          value={formData.defaultRate}
-                          onChange={(e) => handleChange("defaultRate", e.target.value)}
-                          onBlur={() => handleBlur("defaultRate")}
-                          className={`pl-7 h-10 ${isFieldInvalid("defaultRate") ? "border-red-500" : ""}`}
+                          id="fee-rate"
+                          value={formData.rate}
+                          onChange={(e) => handleChange("rate", e.target.value)}
+                          onBlur={() => handleBlur("rate")}
+                          className={`pl-7 h-10 ${isFieldInvalid("rate") ? "border-red-500" : ""}`}
                           placeholder="0.00"
                         />
                       </div>
                       <div className="min-h-[20px]">
-                        {isFieldInvalid("defaultRate") && (
+                        {isFieldInvalid("rate") && (
                           <p className="text-xs text-red-500 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" /> {errors.defaultRate}
+                            <AlertCircle className="h-3 w-3" /> {errors.rate}
                           </p>
                         )}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="measures">Measure</Label>
-                      <Select 
-                        value={formData.measure || "Per Ton"} 
-                        onValueChange={(value) => handleChange("measure", value)}
+                      <Label htmlFor="rateStructure">Rate Structure</Label>
+                      <Select
+                        value={formData.rateStructure || "Per Ton"}
+                        onValueChange={(value) => handleChange("rateStructure", value)}
                       >
-                        <SelectTrigger id="measures" className="h-10">
-                          <SelectValue placeholder="Select measure" />
+                        <SelectTrigger id="rateStructure" className="h-10">
+                          <SelectValue placeholder="Select rate structure" />
                         </SelectTrigger>
                         <SelectContent>
                           {serviceMeasures.map((measure) => (
@@ -561,9 +563,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           ))}
                         </SelectContent>
                       </Select>
-                      <div className="min-h-[20px]">
-                        <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -581,17 +581,17 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           className="h-10"
                         />
                         <span className="absolute right-3 top-2.5 text-muted-foreground">
-                          {formData.measure === "Per Ton" ? "tons" : 
-                           formData.measure === "Per Cubic Yard" ? "yards" :
-                           formData.measure === "Per Item" ? "items" :
-                           formData.measure === "Per Container" ? "containers" :
-                           formData.measure === "Per Day" ? "days" :
-                           formData.measure === "Per Move" ? "moves" : "units"}
+                          {formData.rateStructure === "Per Ton" ? "tons" : 
+                           formData.rateStructure === "Per Cubic Yard" ? "yards" :
+                           formData.rateStructure === "Per Item" ? "items" :
+                           formData.rateStructure === "Per Container" ? "containers" :
+                           formData.rateStructure === "Per Day" ? "days" :
+                           formData.rateStructure === "Per Move" ? "moves" : "units"}
                         </span>
                       </div>
                       <div className="min-h-[20px]">
                         <p className="text-xs text-muted-foreground">
-                          Amount before overage charges apply ({formData.measure.toLowerCase()})
+                          Amount before overage charges apply ({formData.rateStructure.toLowerCase()})
                         </p>
                       </div>
                     </div>
@@ -614,27 +614,25 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       </div>
                     </div>
                   </div>
-                  {formData.measure === "Per Ton" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fee-free-tonnage">Free Tonnage</Label>
-                      <div className="relative">
-                        <Input
-                          id="fee-free-tonnage"
-                          type="number"
-                          min="0"
-                          step="0.1"
-                          value={formData.freeTonnage}
-                          onChange={(e) => handleChange("freeTonnage", Number.parseFloat(e.target.value) || 0)}
-                          placeholder="0.00"
-                          className="h-10"
-                        />
-                        <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                      </div>
-                      <div className="min-h-[20px]">
-                        <p className="text-xs text-muted-foreground">Amount of material that is not charged</p>
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fee-included-tonnage">Included Tonnage</Label>
+                    <div className="relative">
+                      <Input
+                        id="fee-included-tonnage"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={formData.includedTonnage}
+                        onChange={(e) => handleChange("includedTonnage", Number.parseFloat(e.target.value) || 0)}
+                        placeholder="0.00"
+                        className="h-10"
+                      />
+                      <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                     </div>
-                  )}
+                    <div className="min-h-[20px]">
+                      <p className="text-xs text-muted-foreground">Amount of material that is included in the base rate</p>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -649,47 +647,31 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           <MaterialChip
                             name={material}
                             color={materials.find(m => m.name === material)?.color || "bg-gray-200"}
-                            onRemove={() => handleMaterialChange(material, false)}
+                            onRemove={() => handleMaterialToggle(material)}
                           />
                         </div>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                           <div className="space-y-2">
-                            <Label htmlFor={`${material}-rate`}>Default Rate</Label>
+                            <Label htmlFor={`${material}-rate`}>Rate</Label>
                             <div className="relative">
                               <span className="absolute left-3 top-2.5">$</span>
                               <Input
                                 id={`${material}-rate`}
-                                value={materialPricing[material]?.defaultRate || ""}
-                                onChange={(e) => {
-                                  setMaterialPricing({
-                                    ...materialPricing,
-                                    [material]: {
-                                      ...materialPricing[material],
-                                      defaultRate: e.target.value,
-                                    },
-                                  })
-                                }}
+                                value={materialPricing[material]?.rate || ""}
+                                onChange={(e) => handleMaterialPricingChange(material, "rate", e.target.value)}
                                 className="pl-7 h-10"
                                 placeholder="0.00"
                               />
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor={`${material}-measure`}>Measure</Label>
+                            <Label htmlFor={`${material}-rateStructure`}>Rate Structure</Label>
                             <Select
-                              value={materialPricing[material]?.measure || formData.measure}
-                              onValueChange={(value) => {
-                                setMaterialPricing({
-                                  ...materialPricing,
-                                  [material]: {
-                                    ...materialPricing[material],
-                                    measure: value,
-                                  },
-                                })
-                              }}
+                              value={materialPricing[material]?.rateStructure || formData.rateStructure}
+                              onValueChange={(value) => handleMaterialPricingChange(material, "rateStructure", value)}
                             >
-                              <SelectTrigger id={`${material}-measure`} className="h-10">
-                                <SelectValue placeholder="Select measure" />
+                              <SelectTrigger id={`${material}-rateStructure`} className="h-10">
+                                <SelectValue placeholder="Select rate structure" />
                               </SelectTrigger>
                               <SelectContent>
                                 {serviceMeasures.map((measure) => (
@@ -700,7 +682,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                               </SelectContent>
                             </Select>
                           </div>
-                          {materialPricing[material]?.measure === "Per Ton" && (
+                          {materialPricing[material]?.rateStructure === "Per Ton" && (
                             <div className="space-y-2">
                               <Label htmlFor={`${material}-free-tonnage`}>Free Tonnage</Label>
                               <div className="relative">
@@ -710,15 +692,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                   min="0"
                                   step="0.1"
                                   value={materialPricing[material]?.freeTonnage || 0}
-                                  onChange={(e) => {
-                                    setMaterialPricing({
-                                      ...materialPricing,
-                                      [material]: {
-                                        ...materialPricing[material],
-                                        freeTonnage: Number.parseFloat(e.target.value) || 0,
-                                      },
-                                    })
-                                  }}
+                                  onChange={(e) => handleMaterialPricingChange(material, "freeTonnage", Number.parseFloat(e.target.value) || 0)}
                                   placeholder="0.00"
                                   className="h-10"
                                 />
@@ -742,30 +716,22 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                 min="0"
                                 step="0.1"
                                 value={materialPricing[material]?.overageThreshold || 0}
-                                onChange={(e) => {
-                                  setMaterialPricing({
-                                    ...materialPricing,
-                                    [material]: {
-                                      ...materialPricing[material],
-                                      overageThreshold: Number.parseFloat(e.target.value) || 0,
-                                    },
-                                  })
-                                }}
+                                onChange={(e) => handleMaterialPricingChange(material, "overageThreshold", Number.parseFloat(e.target.value) || 0)}
                                 placeholder="0.00"
                                 className="h-10"
                               />
                               <span className="absolute right-3 top-2.5 text-muted-foreground">
-                                {materialPricing[material]?.measure === "Per Ton" ? "tons" : 
-                                 materialPricing[material]?.measure === "Per Cubic Yard" ? "yards" :
-                                 materialPricing[material]?.measure === "Per Item" ? "items" :
-                                 materialPricing[material]?.measure === "Per Container" ? "containers" :
-                                 materialPricing[material]?.measure === "Per Day" ? "days" :
-                                 materialPricing[material]?.measure === "Per Move" ? "moves" : "units"}
+                                {materialPricing[material]?.rateStructure === "Per Ton" ? "tons" : 
+                                 materialPricing[material]?.rateStructure === "Per Cubic Yard" ? "yards" :
+                                 materialPricing[material]?.rateStructure === "Per Item" ? "items" :
+                                 materialPricing[material]?.rateStructure === "Per Container" ? "containers" :
+                                 materialPricing[material]?.rateStructure === "Per Day" ? "days" :
+                                 materialPricing[material]?.rateStructure === "Per Move" ? "moves" : "units"}
                               </span>
                             </div>
                             <div className="min-h-[20px]">
                               <p className="text-xs text-muted-foreground">
-                                Amount before overage charges apply ({materialPricing[material]?.measure.toLowerCase()})
+                                Amount before overage charges apply ({materialPricing[material]?.rateStructure.toLowerCase()})
                               </p>
                             </div>
                           </div>
@@ -776,15 +742,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                               <Input
                                 id={`${material}-overage-charge`}
                                 value={materialPricing[material]?.overageCharge || ""}
-                                onChange={(e) => {
-                                  setMaterialPricing({
-                                    ...materialPricing,
-                                    [material]: {
-                                      ...materialPricing[material],
-                                      overageCharge: e.target.value,
-                                    },
-                                  })
-                                }}
+                                onChange={(e) => handleMaterialPricingChange(material, "overageCharge", e.target.value)}
                                 className="pl-7 h-10"
                                 placeholder="0.00"
                               />

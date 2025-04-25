@@ -35,15 +35,15 @@ export type DisposalFee = {
   id: number
   name: string
   description: string
-  measure: string
-  defaultRate: string
+  rateStructure: string
+  rate: string
   minCharge: string
   businessLine: string
   status: string
   locations: number
   material: string
   materials?: string[]
-  freeTonnage: number
+  includedTonnage: number
   glCode: string
   linkedServices: number
   tiers: { id: number; from: number; to: number | null; rate: number }[]
@@ -125,15 +125,15 @@ export function DisposalFeesTable({ data, onViewFee, onEditFee, activeTab }: Dis
       cell: ({ row }) => <div>{row.getValue("businessLine")}</div>,
     },
     {
-      accessorKey: "measure",
-      header: "Measure",
-      cell: ({ row }) => <div>{row.getValue("measure")}</div>,
+      accessorKey: "rateStructure",
+      header: "Rate Structure",
+      cell: ({ row }) => <div>{row.getValue("rateStructure")}</div>,
     },
     {
-      accessorKey: "defaultRate",
-      header: () => <div className="text-right">Default Rate</div>,
+      accessorKey: "rate",
+      header: () => <div className="text-right">Rate</div>,
       cell: ({ row }) => {
-        return <div className="text-right font-medium">{row.getValue("defaultRate")}</div>
+        return <div className="text-right font-medium">{row.getValue("rate")}</div>
       },
     },
     {
