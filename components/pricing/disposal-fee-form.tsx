@@ -523,47 +523,10 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         {/* Materials & Pricing Section */}
         <Card className="border-0 shadow-none">
           <CardHeader>
-            <CardTitle>Materials & Pricing</CardTitle>
+            <CardTitle>Pricing</CardTitle>
             <CardDescription>Select materials and define the pricing structure</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {formData.rateStructure === "Per Ton" && (
-              <div className="flex items-center gap-2 p-4">
-                <Label htmlFor="material-specific-pricing" className="text-sm">
-                  Material-Specific Pricing
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
-                      <HelpCircle className="h-4 w-4" />
-                      <span className="sr-only">Material-specific pricing info</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="flex flex-col gap-2">
-                      <h4 className="font-medium">Multiple materials selected</h4>
-                      <p className="text-sm text-muted-foreground">
-                        You can enable material-specific pricing to set different rates for each material.
-                      </p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <Switch
-                  id="material-specific-pricing"
-                  checked={useMaterialPricing}
-                  onCheckedChange={(checked) => {
-                    setUseMaterialPricing(checked)
-                  }}
-                />
-              </div>
-            )}
-
-            {errors.materialPricing && (
-              <p className="text-xs text-red-500 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" /> {errors.materialPricing}
-              </p>
-            )}
-
             {/* Materials Selection Section */}
             <div className="space-y-4 p-4">
               <div className="space-y-4">
@@ -596,17 +559,33 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       </SelectContent>
                     </Select>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-2">
                       {selectedMaterials.map((materialName) => {
                         const material = materials.find(m => m.name === materialName)
                         if (!material) return null
                         return (
-                          <MaterialChip
-                            key={material.id}
-                            name={material.name}
-                            color={material.color}
-                            onRemove={() => handleMaterialToggle(material.name)}
-                          />
+                          <div key={material.id} className="flex items-center">
+                            <div className="w-[180px]">
+                              <MaterialChip
+                                name={material.name}
+                                color={material.color}
+                                onRemove={() => handleMaterialToggle(material.name)}
+                              />
+                            </div>
+                            <div className="w-[200px]">
+                              <div className="relative">
+                                <span className="absolute left-3 top-2">$</span>
+                                <Input
+                                  id={`${material.name}-rate`}
+                                  value={materialPricing[material.name]?.rate || ""}
+                                  onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
+                                  className="pl-7 pr-10 h-10 w-[100px]"
+                                  placeholder="0.00"
+                                />
+                                <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
+                              </div>
+                            </div>
+                          </div>
                         )
                       })}
                     </div>
@@ -618,63 +597,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </p>
                 )}
               </div>
-
-              {!useMaterialPricing && (
-                <div className="space-y-2">
-                  <Label htmlFor="fee-rate">Rate</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5">$</span>
-                    <Input
-                      id="fee-rate"
-                      value={formData.rate}
-                      onChange={(e) => handleChange("rate", e.target.value)}
-                      onBlur={() => handleBlur("rate")}
-                      className={`pl-7 h-10 ${isFieldInvalid("rate") ? "border-red-500" : ""}`}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="min-h-[20px]">
-                    {isFieldInvalid("rate") && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {errors.rate}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {useMaterialPricing && selectedMaterials.length > 0 && (
-                <div className="space-y-4 mt-4">
-                  <h3 className="text-sm font-medium">Material-Specific Rates</h3>
-                  <div className="space-y-4">
-                    {selectedMaterials.map((material) => (
-                      <div key={material} className="border rounded-md p-4 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">{material}</h4>
-                          <MaterialChip
-                            name={material}
-                            color={materials.find(m => m.name === material)?.color || "bg-gray-200"}
-                            onRemove={() => handleMaterialToggle(material)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`${material}-rate`}>Rate</Label>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
-                            <Input
-                              id={`${material}-rate`}
-                              value={materialPricing[material]?.rate || ""}
-                              onChange={(e) => handleMaterialPricingChange(material, "rate", e.target.value)}
-                              className="pl-7 h-10"
-                              placeholder="0.00"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {formData.rateStructure === "Per Ton" && (
                 <>
@@ -837,29 +759,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     </div>
                   </div>
 
-                  {!useContainerPricing && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fee-rate">Rate</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5">$</span>
-                        <Input
-                          id="fee-rate"
-                          value={formData.rate}
-                          onChange={(e) => handleChange("rate", e.target.value)}
-                          onBlur={() => handleBlur("rate")}
-                          className={`pl-7 h-10 ${isFieldInvalid("rate") ? "border-red-500" : ""}`}
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <div className="min-h-[20px]">
-                        {isFieldInvalid("rate") && (
-                          <p className="text-xs text-red-500 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" /> {errors.rate}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
+              
 
                   {useContainerPricing && selectedContainers.length > 0 && (
                     <div className="space-y-4 mt-4">
