@@ -18,6 +18,7 @@ import { MaterialChip } from "./material-chip"
 import { cn } from "@/lib/utils"
 import { RadioGroupItem } from "@/components/ui/radio-group"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { type DisposalFee, type MaterialPricing } from "./types"
 
 // Types
 interface Material {
@@ -32,17 +33,6 @@ interface MaterialTypes {
   specialized: Material[]
 }
 
-interface MaterialPricing {
-  materialType: string
-  rateStructure: string
-  rate: string
-  minCharge: string
-  freeTonnage: number
-  overageCharge: string
-  overageThreshold: number
-  freeTonnageUnits?: string
-}
-
 interface Container {
   id: number
   name: string
@@ -51,24 +41,6 @@ interface Container {
 
 interface ContainerPricing {
   rate: string
-}
-
-interface DisposalFee {
-  id?: number
-  name: string
-  description: string
-  rateStructure: string
-  rate: string
-  minCharge: string
-  overageCharge: string
-  overageThreshold: number
-  includedTonnage: number
-  glCode: string
-  businessLine: string
-  materials?: string[]
-  materialPricing?: MaterialPricing[]
-  containers?: string[]
-  containerPricing?: ContainerPricing[]
 }
 
 interface DisposalFeeFormProps {
@@ -341,18 +313,16 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       // Prepare final data
       const finalData = { ...formData }
 
-      // Add material pricing if enabled
-      if (useMaterialPricing && selectedMaterials.length > 1) {
-        finalData.materialPricing = selectedMaterials.map((material) => ({
-          materialType: material,
-          rate: `$${materialPricing[material].rate}`,
-          minCharge: `$${materialPricing[material].minCharge}`,
-          freeTonnage: materialPricing[material].freeTonnage,
-          rateStructure: materialPricing[material].rateStructure,
-          overageThreshold: materialPricing[material].overageThreshold,
-          overageCharge: materialPricing[material].overageCharge,
-        }))
-      }
+      // Add material pricing
+      finalData.materialPricing = selectedMaterials.map((material) => ({
+        materialType: material,
+        rate: materialPricing[material]?.rate || "",
+        minCharge: materialPricing[material]?.minCharge || "",
+        freeTonnage: materialPricing[material]?.freeTonnage || 0,
+        rateStructure: materialPricing[material]?.rateStructure || formData.rateStructure,
+        overageThreshold: materialPricing[material]?.overageThreshold || 0,
+        overageCharge: materialPricing[material]?.overageCharge || "",
+      }))
 
       // Format currency values
       finalData.rate = `$${finalData.rate}`
@@ -534,267 +504,286 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   <Label className="flex items-center gap-1">Materials</Label>
                 </div>
 
-                <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
                   <div className="space-y-4">
-                    <Select
-                      onValueChange={(value) => {
-                        if (!selectedMaterials.includes(value)) {
-                          handleMaterialToggle(value)
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a material type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {materials.map((material) => (
-                          <SelectItem
-                            key={material.id}
-                            value={material.name}
-                            disabled={selectedMaterials.includes(material.name)}
-                          >
-                            {material.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  
+                    <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
+                      <div className="space-y-4">
+                    
 
-                    <div className="space-y-2">
-                      {selectedMaterials.map((materialName) => {
-                        const material = materials.find(m => m.name === materialName)
-                        if (!material) return null
-                        return (
-                          <div key={material.id} className="flex items-center">
-                            <div className="w-[180px]">
-                              <MaterialChip
-                                name={material.name}
-                                color={material.color}
-                                onRemove={() => handleMaterialToggle(material.name)}
-                              />
-                            </div>
-                            <div className="w-[200px]">
-                              <div className="relative">
-                                <span className="absolute left-3 top-2">$</span>
-                                <Input
-                                  id={`${material.name}-rate`}
-                                  value={materialPricing[material.name]?.rate || ""}
-                                  onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
-                                  className="pl-7 pr-10 h-10 w-[100px]"
-                                  placeholder="0.00"
-                                />
-                                <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
+                        <div className="space-y-2">
+                          <Table>
+                            {/* <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[180px]">Material</TableHead>
+                                <TableHead className="w-[200px]">Rate</TableHead>
+                              </TableRow>
+                            </TableHeader> */}
+                            <TableBody>
+                              {selectedMaterials.map((materialName, index) => {
+                                const material = materials.find(m => m.name === materialName)
+                                if (!material) return null
+                                return (
+                                  <TableRow key={material.id}>
+                                    <TableCell className="w-[180px]">
+                                      <MaterialChip
+                                        name={material.name}
+                                        color={material.color}
+                                        onRemove={() => handleMaterialToggle(material.name)}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="w-[200px]">
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-2">$</span>
+                                        <Input
+                                          id={`${material.name}-rate`}
+                                          value={materialPricing[material.name]?.rate || ""}
+                                          onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
+                                          className="pl-7 pr-10 h-10 w-[100px]"
+                                          placeholder="0.00"
+                                        />
+                                        <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="absolute right-0 top-1/2 -translate-y-1/2"
+                                            onClick={() => {
+                                              if (selectedMaterials.length > 0) {
+                                                const firstMaterial = selectedMaterials[0]
+                                                const firstMaterialPrice = materialPricing[firstMaterial]?.rate || ""
+                                                const newPricing = { ...materialPricing }
+                                                selectedMaterials.forEach(material => {
+                                                  newPricing[material] = {
+                                                    ...newPricing[material],
+                                                    rate: firstMaterialPrice
+                                                  }
+                                                })
+                                                setMaterialPricing(newPricing)
+                                              }
+                                            }}
+                                          >
+                                            Copy to all
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              })}
+                              <TableRow>
+                                <TableCell colSpan={2}>
+                                  <Select
+                                    onValueChange={(value) => {
+                                      if (!selectedMaterials.includes(value)) {
+                                        handleMaterialToggle(value)
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-1/2 border-0 p-0 h-auto hover:bg-transparent focus:ring-0 [&>svg]:hidden">
+                                      <div className="flex items-center gap-1">
+                                        <span>Add Material</span>
+                                        <Plus className="h-4 w-4" />
+                                      </div>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {materials
+                                        .filter(material => !selectedMaterials.includes(material.name))
+                                        .map((material) => (
+                                          <SelectItem
+                                            key={material.id}
+                                            value={material.name}
+                                          >
+                                            {material.name}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
                     </div>
+                    {isFieldInvalid("materials") && (
+                      <p className="text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {errors.materials}
+                      </p>
+                    )}
                   </div>
-                </div>
-                {isFieldInvalid("materials") && (
-                  <p className="text-xs text-red-500 flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" /> {errors.materials}
-                  </p>
-                )}
-              </div>
+         
 
-              {formData.rateStructure === "Per Ton" && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="fee-included-tonnage">Included Tonnage</Label>
-                    <div className="relative">
-                      <Input
-                        id="fee-included-tonnage"
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={formData.includedTonnage}
-                        onChange={(e) => handleChange("includedTonnage", Number.parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                        className="h-10"
-                      />
-                      <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                    </div>
-                    <div className="min-h-[20px]">
-                      <p className="text-xs text-muted-foreground">Amount of material that is included in the base rate</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {formData.rateStructure === "Per Ton" && (
+                  <>
                     <div className="space-y-2">
-                      <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
+                      <Label htmlFor="fee-included-tonnage">Included Tonnage</Label>
                       <div className="relative">
                         <Input
-                          id="fee-overage-threshold"
+                          id="fee-included-tonnage"
                           type="number"
                           min="0"
                           step="0.1"
-                          value={formData.overageThreshold}
-                          onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                          value={formData.includedTonnage}
+                          onChange={(e) => handleChange("includedTonnage", Number.parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
                           className="h-10"
                         />
                         <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                       </div>
                       <div className="min-h-[20px]">
-                        <p className="text-xs text-muted-foreground">
-                          Amount before overage charges apply
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="fee-overage-charge">Overage Charge</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2.5">$</span>
-                        <Input
-                          id="fee-overage-charge"
-                          value={formData.overageCharge}
-                          onChange={(e) => handleChange("overageCharge", e.target.value)}
-                          className="pl-7 h-10"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <div className="min-h-[20px]">
-                        <p className="text-xs text-muted-foreground">
-                          Additional charge per ton over threshold
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {formData.rateStructure === "Per Container" && (
-                <>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label className="flex items-center gap-1">Containers</Label>
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="container-specific-pricing" className="text-sm">
-                          Container-Specific Pricing
-                        </Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 p-0">
-                              <HelpCircle className="h-4 w-4" />
-                              <span className="sr-only">Container-specific pricing info</span>
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-80">
-                            <div className="flex flex-col gap-2">
-                              <h4 className="font-medium">Multiple containers selected</h4>
-                              <p className="text-sm text-muted-foreground">
-                                You can enable container-specific pricing to set different rates for each container type.
-                              </p>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                        <Switch
-                          id="container-specific-pricing"
-                          checked={useContainerPricing}
-                          onCheckedChange={(checked) => {
-                            if (checked && selectedContainers.length <= 1) {
-                              setErrors({
-                                ...errors,
-                                containerPricing: "Select multiple containers to enable container-specific pricing",
-                              })
-                              return
-                            }
-                            setErrors({
-                              ...errors,
-                              containerPricing: "",
-                            })
-                            setUseContainerPricing(checked)
-                          }}
-                        />
+                        <p className="text-xs text-muted-foreground">Amount of material that is included in the base rate</p>
                       </div>
                     </div>
 
-                    {errors.containerPricing && (
-                      <p className="text-xs text-red-500 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {errors.containerPricing}
-                      </p>
-                    )}
-
-                    <div className={isFieldInvalid("containers") ? "border border-red-500 rounded-md p-3" : ""}>
-                      <div className="space-y-4">
-                        <Select
-                          onValueChange={(value) => {
-                            if (!selectedContainers.includes(value)) {
-                              handleContainerToggle(value)
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a container type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {containers.map((container) => (
-                              <SelectItem
-                                key={container.id}
-                                value={container.name}
-                                disabled={selectedContainers.includes(container.name)}
-                              >
-                                {container.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-
-                        <div className="flex flex-wrap gap-2">
-                          {selectedContainers.map((containerName) => {
-                            const container = containers.find(c => c.name === containerName)
-                            if (!container) return null
-                            return (
-                              <MaterialChip
-                                key={container.id}
-                                name={container.name}
-                                color={container.color}
-                                onRemove={() => handleContainerToggle(container.name)}
-                              />
-                            )
-                          })}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
+                        <div className="relative">
+                          <Input
+                            id="fee-overage-threshold"
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={formData.overageThreshold}
+                            onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                            placeholder="0.00"
+                            className="h-10"
+                          />
+                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                        </div>
+                        <div className="min-h-[20px]">
+                          <p className="text-xs text-muted-foreground">
+                            Amount before overage charges apply
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="fee-overage-charge">Overage Charge</Label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5">$</span>
+                          <Input
+                            id="fee-overage-charge"
+                            value={formData.overageCharge}
+                            onChange={(e) => handleChange("overageCharge", e.target.value)}
+                            className="pl-7 h-10"
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <div className="min-h-[20px]">
+                          <p className="text-xs text-muted-foreground">
+                            Additional charge per ton over threshold
+                          </p>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </>
+                )}
 
-              
-
-                  {useContainerPricing && selectedContainers.length > 0 && (
-                    <div className="space-y-4 mt-4">
-                      <h3 className="text-sm font-medium">Container-Specific Rates</h3>
-                      <div className="space-y-4">
-                        {selectedContainers.map((container) => (
-                          <div key={container} className="border rounded-md p-4 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-medium">{container}</h4>
-                              <MaterialChip
-                                name={container}
-                                color={containers.find(c => c.name === container)?.color || "bg-gray-200"}
-                                onRemove={() => handleContainerToggle(container)}
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor={`${container}-rate`}>Rate</Label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-2.5">$</span>
-                                <Input
-                                  id={`${container}-rate`}
-                                  value={containerPricing[container]?.rate || ""}
-                                  onChange={(e) => handleContainerPricingChange(container, "rate", e.target.value)}
-                                  className="pl-7 h-10"
-                                  placeholder="0.00"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                {formData.rateStructure === "Per Container" && (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-1">Containers</Label>
                       </div>
+
+                      <div className={isFieldInvalid("containers") ? "border border-red-500 rounded-md p-3" : ""}>
+                        <div className="space-y-4">
+                          <Table>
+                            <TableBody>
+                              {selectedContainers.map((containerName, index) => {
+                                const container = containers.find(c => c.name === containerName)
+                                if (!container) return null
+                                return (
+                                  <TableRow key={container.id}>
+                                    <TableCell className="w-[180px]">
+                                      <MaterialChip
+                                        name={container.name}
+                                        color={container.color}
+                                        onRemove={() => handleContainerToggle(container.name)}
+                                      />
+                                    </TableCell>
+                                    <TableCell className="w-[200px]">
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-2">$</span>
+                                        <Input
+                                          id={`${container.name}-rate`}
+                                          value={containerPricing[container.name]?.rate || ""}
+                                          onChange={(e) => handleContainerPricingChange(container.name, "rate", e.target.value)}
+                                          className="pl-7 pr-10 h-10 w-[100px]"
+                                          placeholder="0.00"
+                                        />
+                                        <span className="absolute left-[110px] top-2 text-muted-foreground">per container</span>
+                                        {index === 0 && selectedContainers.length > 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="absolute right-0 top-1/2 -translate-y-1/2"
+                                            onClick={() => {
+                                              if (selectedContainers.length > 0) {
+                                                const firstContainer = selectedContainers[0]
+                                                const firstContainerPrice = containerPricing[firstContainer]?.rate || ""
+                                                const newPricing = { ...containerPricing }
+                                                selectedContainers.forEach(container => {
+                                                  newPricing[container] = {
+                                                    ...newPricing[container],
+                                                    rate: firstContainerPrice
+                                                  }
+                                                })
+                                                setContainerPricing(newPricing)
+                                              }
+                                            }}
+                                          >
+                                            Copy to all
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              })}
+                              <TableRow>
+                                <TableCell colSpan={2}>
+                                  <Select
+                                    onValueChange={(value) => {
+                                      if (!selectedContainers.includes(value)) {
+                                        handleContainerToggle(value)
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-1/2 border-0 p-0 h-auto hover:bg-transparent focus:ring-0 [&>svg]:hidden">
+                                      <div className="flex items-center gap-1">
+                                        <span>Add Container</span>
+                                        <Plus className="h-4 w-4" />
+                                      </div>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {containers
+                                        .filter(container => !selectedContainers.includes(container.name))
+                                        .map((container) => (
+                                          <SelectItem
+                                            key={container.id}
+                                            value={container.name}
+                                          >
+                                            {container.name}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                      {isFieldInvalid("containers") && (
+                        <p className="text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> {errors.containers}
+                        </p>
+                      )}
                     </div>
-                  )}
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
