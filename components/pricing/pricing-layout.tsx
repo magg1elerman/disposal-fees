@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen, Plus, MoreVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PricingSidebar } from "@/components/pricing/pricing-sidebar"
 import { LateFees } from "@/components/pricing/late-fees"
@@ -59,22 +59,27 @@ export function PricingLayout() {
               {activeView === "taxes" && "Taxes"}
             </h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center space-x-2">
             {activeView === "disposal" && (
-              <Button
-                size="sm"
-                onClick={() => {
-                  // This will be handled by the DisposalFees component
-                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                  if (disposalFeesComponent) {
-                    const event = new CustomEvent("add-disposal-fee")
-                    disposalFeesComponent.dispatchEvent(event)
-                  }
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Disposal Fee
-              </Button>
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    // This will be handled by the DisposalFees component
+                    const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                    if (disposalFeesComponent) {
+                      const event = new CustomEvent("add-disposal-fee")
+                      disposalFeesComponent.dispatchEvent(event)
+                    }
+                  }}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </>
             )}
           </div>
         </div>

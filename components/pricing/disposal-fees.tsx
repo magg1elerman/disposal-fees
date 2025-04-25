@@ -301,8 +301,9 @@ export function DisposalFees() {
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
-      <div className="flex justify-between items-center mb-6">
-        <div className="border-b border-slate-200 w-full">
+      {/* Tab Navigation */}
+      <div className="border-b border-slate-200 mb-6">
+        <div className="flex items-center justify-between">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab("all")}
@@ -343,23 +344,20 @@ export function DisposalFees() {
               Roll-off
             </button>
           </div>
-        </div>
-
-        <div className="flex gap-2 ml-auto">
-          <div className="flex border rounded-md overflow-hidden shadow-sm">
+          <div className="flex items-center gap-2">
             <Button
-              variant={viewMode === "card" ? "default" : "ghost"}
+              variant={viewMode === "card" ? "default" : "outline"}
               size="sm"
-              className={viewMode === "card" ? "" : "bg-white"}
               onClick={() => setViewMode("card")}
+              className="h-8"
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
             <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
+              variant={viewMode === "table" ? "default" : "outline"}
               size="sm"
-              className={viewMode === "table" ? "" : "bg-white"}
               onClick={() => setViewMode("table")}
+              className="h-8"
             >
               <List className="h-4 w-4" />
             </Button>
@@ -381,7 +379,10 @@ export function DisposalFees() {
             .map((fee) => (
               <div
                 key={fee.id}
-                className="border border-slate-300 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all"
+                onClick={() => handleViewFee(fee)}
+                role="button"
+                tabIndex={0}
+                className="border border-slate-300 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="px-4 py-3 bg-white border-b border-slate-200">
                   <h3 className="text-lg font-medium text-slate-900">{fee.name}</h3>
@@ -418,11 +419,6 @@ export function DisposalFees() {
                     <span className="font-bold text-base text-slate-900">{fee.businessLine}</span>
                     <span className="ml-1 text-xs text-muted-foreground">Business line</span>
                   </div>
-                </div>
-                <div className="px-4 pb-4 pt-2 bg-white">
-                  <Button variant="outline" size="sm" onClick={() => handleViewFee(fee)}>
-                    View Details
-                  </Button>
                 </div>
               </div>
             ))}
