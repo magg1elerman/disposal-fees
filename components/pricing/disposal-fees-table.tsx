@@ -29,26 +29,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { type DisposalFee } from "./types"
 
-// Define the DisposalFee type
-export type DisposalFee = {
-  id: number
-  name: string
-  description: string
+// Define the MaterialPricing type
+export type MaterialPricing = {
+  materialType: string
   rateStructure: string
   rate: string
   minCharge: string
-  businessLine: string
-  status: string
-  locations: number
-  material: string
-  materials?: string[]
-  includedTonnage: number
-  glCode: string
-  linkedServices: number
-  tiers: { id: number; from: number; to: number | null; rate: number }[]
+  freeTonnage: number
   overageCharge: string
   overageThreshold: number
+  freeTonnageUnits?: string
+  defaultRate: string
+  tiers: { id: number; from: number; to: number | null; rate: number }[]
 }
 
 interface DisposalFeesTableProps {
@@ -114,9 +108,9 @@ export function DisposalFeesTable({ data, onViewFee, onEditFee, activeTab }: Dis
                   {material}
                 </Badge>
               ))
-            ) : (
+            ) : fee.material ? (
               <Badge variant="outline">{fee.material}</Badge>
-            )}
+            ) : null}
           </div>
         )
       },

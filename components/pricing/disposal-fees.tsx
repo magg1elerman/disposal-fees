@@ -1,15 +1,12 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
-
 import { DialogDescription } from "@/components/ui/dialog"
-
 import { Switch } from "@/components/ui/switch"
-
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
+import { type DisposalFee, type MaterialPricing } from "./types"
 import {
   MoreVertical,
   Plus,
@@ -43,53 +40,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DisposalFeeForm } from "./disposal-fee-form"
 
 // Interface for autolinked services
-// interface AutolinkedService {
-//   id: string
-//   name: string
-//   businessLine: string
-//   material?: string
-//   price: string
-//   status: string
-//   address: string
-//   city: string
-//   state: string
-//   accountName: string
-//   accountNumber: string
-//   containerName: string
-// }
-
-// Update the DisposalFee type (add this near the top of the file where types are defined)
-interface MaterialPricing {
-  materialType: string
-  tiers: { id: number; from: number; to: number | null; rate: number }[]
-  defaultRate: string
-  minCharge: string
-  freeTonnage: number
-  freeTonnageUnits?: string
-}
-
-// Update the existing DisposalFee type to include materialPricing
-export type DisposalFee = {
-  id: number
+interface AutolinkedService {
+  id: string
   name: string
-  description: string
-  rateStructure: string
-  rate: string
-  minCharge: string
-  locations: number
+  businessLine: string
   material: string
-  materials?: string[]
-  includedTonnage: number
-  glCode: string
-  linkedServices: number
-  materialPricing?: MaterialPricing[] // Add this field
-  overageCharge: string
-  overageThreshold: number
+  price: string
+  status: string
+  address: string
+  city: string
+  state: string
+  accountName: string
+  accountNumber: string
+  containerName: string
 }
 
 export function DisposalFees() {
   const [activeTab, setActiveTab] = useState("all")
-  const [activeView, setActiveView] = useState("list")
+  const [activeView, setActiveView] = useState<"list" | "detail">("list")
   const [viewMode, setViewMode] = useState<"card" | "table">("card")
   const [selectedFee, setSelectedFee] = useState<DisposalFee | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
@@ -104,6 +72,61 @@ export function DisposalFees() {
   const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   const componentRef = useRef<HTMLDivElement>(null)
+
+  const [disposalFees, setDisposalFees] = useState<DisposalFee[]>([
+    {
+      id: 1,
+      name: "MSW Disposal Fee",
+      description: "Standard disposal fee for municipal solid waste",
+      rateStructure: "Flat Rate",
+      rate: "85.00",
+      minCharge: "100.00",
+      businessLine: "Waste",
+      status: "Active",
+      locations: 5,
+      linkedServices: 12,
+      material: "MSW",
+      includedTonnage: 5,
+      glCode: "4010",
+      overageCharge: "95.00",
+      overageThreshold: 10,
+      tiers: [
+        { id: 1, from: 0, to: 5, rate: 85 },
+        { id: 2, from: 6, to: 10, rate: 80 },
+        { id: 3, from: 11, to: null, rate: 75 }
+      ]
+    },
+    {
+      id: 2,
+      name: "C&D Disposal Fee",
+      description: "Disposal fee for construction and demolition waste",
+      rateStructure: "Tiered",
+      rate: "95.00",
+      minCharge: "150.00",
+      businessLine: "Construction",
+      status: "Active",
+      locations: 3,
+      linkedServices: 8,
+      material: "C&D",
+      includedTonnage: 3,
+      glCode: "4020",
+      overageCharge: "105.00",
+      overageThreshold: 8,
+      tiers: [
+        { id: 1, from: 0, to: 5, rate: 95 },
+        { id: 2, from: 6, to: 10, rate: 90 },
+        { id: 3, from: 11, to: null, rate: 85 }
+      ]
+    }
+  ])
+
+  const linkedFees = [
+    { id: 1, name: "Environmental Fee", type: "Fee", amount: "$5.00" },
+    { id: 2, name: "Fuel Surcharge", type: "Fee", amount: "3%" },
+    { id: 3, name: "State Disposal Tax", type: "Tax", amount: "$2.50" },
+    { id: 4, name: "County Waste Fee", type: "Fee", amount: "$1.75" },
+    { id: 5, name: "Regulatory Compliance Fee", type: "Fee", amount: "$3.50" },
+  ]
 
   useEffect(() => {
     const handleAddDisposalFee = () => {
@@ -203,241 +226,6 @@ export function DisposalFees() {
     setAutolinkedServices(linked)
   }
 
-  const disposalFees = [
-    {
-      id: 1,
-      name: "MSW Disposal Fee",
-      description: "Municipal Solid Waste disposal fee for all business lines",
-      rateStructure: "Per Ton",
-      rate: "$65.00",
-      minCharge: "$25.00",
-      businessLine: "All",
-      status: "Active",
-      locations: 5,
-      material: "MSW",
-      materials: ["MSW"],
-      includedTonnage: 0.5,
-      glCode: "4100-DISP",
-      linkedServices: 3,
-      tiers: [
-        { id: 1, from: 0, to: 2, rate: 65.0 },
-        { id: 2, from: 2, to: 5, rate: 55.0 },
-        { id: 3, from: 5, to: null, rate: 45.0 },
-      ],
-      overageCharge: "$75.00",
-      overageThreshold: 10
-    },
-    {
-      id: 2,
-      name: "C&D Disposal Fee",
-      description: "Construction & Demolition disposal fee for commercial customers",
-      rateStructure: "Per Ton",
-      rate: "$75.00",
-      minCharge: "$30.00",
-      businessLine: "Commercial",
-      status: "Active",
-      locations: 3,
-      material: "C&D",
-      includedTonnage: 0,
-      glCode: "4100-DISP-CD",
-      linkedServices: 2,
-      tiers: [
-        { id: 1, from: 0, to: 3, rate: 75.0 },
-        { id: 2, from: 3, to: null, rate: 65.0 },
-      ],
-      overageCharge: "$85.00",
-      overageThreshold: 15
-    },
-    {
-      id: 3,
-      name: "Recycling Processing Fee",
-      description: "Recycling processing fee for residential customers",
-      rateStructure: "Per Ton",
-      rate: "$45.00",
-      minCharge: "$20.00",
-      businessLine: "Residential",
-      status: "Active",
-      locations: 4,
-      material: "Recycling",
-      includedTonnage: 0.25,
-      glCode: "4100-DISP-REC",
-      linkedServices: 1,
-      tiers: [{ id: 1, from: 0, to: null, rate: 45.0 }],
-      overageCharge: "$55.00",
-      overageThreshold: 8
-    },
-    {
-      id: 4,
-      name: "Yard Waste Disposal",
-      description: "Yard waste disposal fee for residential customers",
-      rateStructure: "Per Cubic Yard",
-      rate: "$15.00",
-      minCharge: "$10.00",
-      businessLine: "Residential",
-      status: "Active",
-      locations: 2,
-      material: "Yard Waste",
-      includedTonnage: 0.1,
-      glCode: "4100-DISP-YW",
-      linkedServices: 1,
-      tiers: [{ id: 1, from: 0, to: null, rate: 15.0 }],
-      overageCharge: "$25.00",
-      overageThreshold: 5
-    },
-    {
-      id: 5,
-      name: "Hazardous Waste Surcharge",
-      description: "Hazardous waste surcharge for all business lines",
-      rateStructure: "Per Item",
-      rate: "$25.00",
-      minCharge: "$25.00",
-      businessLine: "All",
-      status: "Active",
-      locations: 1,
-      material: "Hazardous",
-      includedTonnage: 0,
-      glCode: "4100-DISP-HZ",
-      linkedServices: 0,
-      tiers: [{ id: 1, from: 0, to: null, rate: 25.0 }],
-      overageCharge: "$35.00",
-      overageThreshold: 3
-    },
-    // New Roll-off specific fees
-    {
-      id: 6,
-      name: "Roll-off Delivery Fee",
-      description: "Fee for delivering roll-off containers to customer locations",
-      rateStructure: "Per Container",
-      rate: "$85.00",
-      minCharge: "$85.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-DEL",
-      linkedServices: 12,
-      tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
-      overageCharge: "$95.00",
-      overageThreshold: 20
-    },
-    {
-      id: 7,
-      name: "Roll-off Pickup Fee",
-      description: "Fee for picking up roll-off containers from customer locations",
-      rateStructure: "Per Container",
-      rate: "$85.00",
-      minCharge: "$85.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-PU",
-      linkedServices: 12,
-      tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
-      overageCharge: "$95.00",
-      overageThreshold: 20
-    },
-    {
-      id: 8,
-      name: "Roll-off Daily Rental",
-      description: "Daily rental fee for roll-off containers",
-      rateStructure: "Per Ton",
-      rate: "$15.00",
-      minCharge: "$15.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-RENT",
-      linkedServices: 10,
-      tiers: [
-        { id: 1, from: 1, to: 7, rate: 15.0 },
-        { id: 2, from: 8, to: 14, rate: 12.0 },
-        { id: 3, from: 15, to: null, rate: 10.0 },
-      ],
-      overageCharge: "$20.00",
-      overageThreshold: 30
-    },
-    {
-      id: 9,
-      name: "Roll-off Overweight Fee",
-      description: "Fee for roll-off containers exceeding weight limits",
-      rateStructure: "Per Ton",
-      rate: "$95.00",
-      minCharge: "$50.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-OW",
-      linkedServices: 8,
-      tiers: [
-        { id: 1, from: 0, to: 1, rate: 95.0 },
-        { id: 2, from: 1, to: 3, rate: 120.0 },
-        { id: 3, from: 3, to: null, rate: 150.0 },
-      ],
-      overageCharge: "$120.00",
-      overageThreshold: 2
-    },
-    {
-      id: 10,
-      name: "Roll-off Relocation Fee",
-      description: "Fee for relocating roll-off containers at customer request",
-      rateStructure: "Per Move",
-      rate: "$75.00",
-      minCharge: "$75.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-RELOC",
-      linkedServices: 6,
-      tiers: [{ id: 1, from: 0, to: null, rate: 75.0 }],
-      overageCharge: "$85.00",
-      overageThreshold: 5
-    },
-    {
-      id: 11,
-      name: "Roll-off Contamination Fee",
-      description: "Fee for contaminated materials in roll-off containers",
-      rateStructure: "Per Ton",
-      rate: "$150.00",
-      minCharge: "$150.00",
-      businessLine: "Roll-off",
-      status: "Active",
-      locations: 8,
-      material: "Multiple",
-      materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      includedTonnage: 0,
-      glCode: "4200-ROLL-CONT",
-      linkedServices: 5,
-      tiers: [
-        { id: 1, from: 0, to: 1, rate: 150.0 },
-        { id: 2, from: 1, to: null, rate: 250.0 },
-      ],
-      overageCharge: "$200.00",
-      overageThreshold: 1
-    },
-  ]
-
-  const linkedFees = [
-    { id: 1, name: "Environmental Fee", type: "Fee", amount: "$5.00" },
-    { id: 2, name: "Fuel Surcharge", type: "Fee", amount: "3%" },
-    { id: 3, name: "State Disposal Tax", type: "Tax", amount: "$2.50" },
-    { id: 4, name: "County Waste Fee", type: "Fee", amount: "$1.75" },
-    { id: 5, name: "Regulatory Compliance Fee", type: "Fee", amount: "$3.50" },
-  ]
-
   const handleViewFee = (fee: DisposalFee) => {
     setSelectedFee(fee)
     setActiveView("detail")
@@ -467,14 +255,54 @@ export function DisposalFees() {
 
     // If editing an existing fee, update it in the list
     if (selectedFee?.id) {
-      // This is just for demo purposes
+      // Update the existing fee in the disposalFees array
+      setDisposalFees((prev: DisposalFee[]) =>
+        prev.map((f) => (f.id === selectedFee.id ? { ...fee, id: f.id, status: f.status || "Active", locations: f.locations || 0, linkedServices: 0 } : f))
+      )
       alert(`Fee "${fee.name}" updated successfully!`)
     } else {
-      // This is just for demo purposes
+      // Add the new fee to the disposalFees array
+      setDisposalFees((prev: DisposalFee[]) => {
+        const maxId = prev.reduce((max, f) => Math.max(max, f.id ?? 0), 0);
+        return [
+          ...prev,
+          {
+            ...fee,
+            id: maxId + 1,
+            status: "Active",
+            locations: 0,
+            linkedServices: 0,
+          },
+        ];
+      })
       alert(`Fee "${fee.name}" created successfully!`)
     }
 
     setActiveView("list")
+  }
+
+  const renderTiers = (tiers?: { id: number; from: number; to: number | null; rate: number }[]) => {
+    if (!tiers || tiers.length === 0) return null;
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>From (tons)</TableHead>
+            <TableHead>To (tons)</TableHead>
+            <TableHead>Rate</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tiers.map((tier) => (
+            <TableRow key={tier.id}>
+              <TableCell>{tier.from}</TableCell>
+              <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
+              <TableCell>${tier.rate.toFixed(2)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
   }
 
   const renderListView = () => (
@@ -722,35 +550,12 @@ export function DisposalFees() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>From (tons)</TableHead>
-                      <TableHead>To (tons)</TableHead>
-                      <TableHead>Rate</TableHead>
-                      <TableHead className="w-[100px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {selectedFee.tiers.map((tier) => (
-                      <TableRow key={tier.id}>
-                        <TableCell>{tier.from}</TableCell>
-                        <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
-                        <TableCell>${tier.rate.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {selectedFee?.tiers && selectedFee.tiers.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-medium text-muted-foreground mb-2">Pricing Tiers</h3>
+                    {renderTiers(selectedFee.tiers)}
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="text-sm text-muted-foreground bg-slate-50 border-t">
                 <p>
@@ -1124,7 +929,7 @@ export function DisposalFees() {
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       <div>
                         <h3 className="text-xs font-medium text-muted-foreground">Default Rate</h3>
-                        <p className="mt-1 font-bold">{mp.defaultRate}</p>
+                        <p className="mt-1 font-medium">{mp.rate}</p>
                       </div>
                       <div>
                         <h3 className="text-xs font-medium text-muted-foreground">Minimum Charge</h3>
@@ -1136,27 +941,10 @@ export function DisposalFees() {
                       </div>
                     </div>
 
-                    {mp.tiers.length > 0 && (
+                    {mp.tiers && mp.tiers.length > 0 && (
                       <div>
                         <h3 className="text-xs font-medium text-muted-foreground mb-2">Pricing Tiers</h3>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>From (tons)</TableHead>
-                              <TableHead>To (tons)</TableHead>
-                              <TableHead>Rate</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {mp.tiers.map((tier) => (
-                              <TableRow key={tier.id}>
-                                <TableCell>{tier.from}</TableCell>
-                                <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
-                                <TableCell>${tier.rate.toFixed(2)}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                        {renderTiers(mp.tiers)}
                       </div>
                     )}
                   </TabsContent>
