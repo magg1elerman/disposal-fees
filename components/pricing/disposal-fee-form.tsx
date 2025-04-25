@@ -607,6 +607,39 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 </div>
               )}
 
+              {useMaterialPricing && selectedMaterials.length > 0 && (
+                <div className="space-y-4 mt-4">
+                  <h3 className="text-sm font-medium">Material-Specific Rates</h3>
+                  <div className="space-y-4">
+                    {selectedMaterials.map((material) => (
+                      <div key={material} className="border rounded-md p-4 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">{material}</h4>
+                          <MaterialChip
+                            name={material}
+                            color={materials.find(m => m.name === material)?.color || "bg-gray-200"}
+                            onRemove={() => handleMaterialToggle(material)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`${material}-rate`}>Rate</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5">$</span>
+                            <Input
+                              id={`${material}-rate`}
+                              value={materialPricing[material]?.rate || ""}
+                              onChange={(e) => handleMaterialPricingChange(material, "rate", e.target.value)}
+                              className="pl-7 h-10"
+                              placeholder="0.00"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {formData.rateStructure === "Per Ton" && (
                 <>
                   <div className="space-y-2">
