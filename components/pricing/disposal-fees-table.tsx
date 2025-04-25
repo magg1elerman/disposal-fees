@@ -47,6 +47,8 @@ export type DisposalFee = {
   glCode: string
   linkedServices: number
   tiers: { id: number; from: number; to: number | null; rate: number }[]
+  overageCharge: string
+  overageThreshold: number
 }
 
 interface DisposalFeesTableProps {

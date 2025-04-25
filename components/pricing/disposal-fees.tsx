@@ -43,20 +43,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DisposalFeeForm } from "./disposal-fee-form"
 
 // Interface for autolinked services
-interface AutolinkedService {
-  id: string
-  name: string
-  businessLine: string
-  material?: string
-  price: string
-  status: string
-  address: string
-  city: string
-  state: string
-  accountName: string
-  accountNumber: string
-  containerName: string
-}
+// interface AutolinkedService {
+//   id: string
+//   name: string
+//   businessLine: string
+//   material?: string
+//   price: string
+//   status: string
+//   address: string
+//   city: string
+//   state: string
+//   accountName: string
+//   accountNumber: string
+//   containerName: string
+// }
 
 // Update the DisposalFee type (add this near the top of the file where types are defined)
 interface MaterialPricing {
@@ -83,6 +83,8 @@ export type DisposalFee = {
   glCode: string
   linkedServices: number
   materialPricing?: MaterialPricing[] // Add this field
+  overageCharge: string
+  overageThreshold: number
 }
 
 export function DisposalFees() {
@@ -222,6 +224,8 @@ export function DisposalFees() {
         { id: 2, from: 2, to: 5, rate: 55.0 },
         { id: 3, from: 5, to: null, rate: 45.0 },
       ],
+      overageCharge: "$75.00",
+      overageThreshold: 10
     },
     {
       id: 2,
@@ -241,6 +245,8 @@ export function DisposalFees() {
         { id: 1, from: 0, to: 3, rate: 75.0 },
         { id: 2, from: 3, to: null, rate: 65.0 },
       ],
+      overageCharge: "$85.00",
+      overageThreshold: 15
     },
     {
       id: 3,
@@ -257,6 +263,8 @@ export function DisposalFees() {
       glCode: "4100-DISP-REC",
       linkedServices: 1,
       tiers: [{ id: 1, from: 0, to: null, rate: 45.0 }],
+      overageCharge: "$55.00",
+      overageThreshold: 8
     },
     {
       id: 4,
@@ -273,6 +281,8 @@ export function DisposalFees() {
       glCode: "4100-DISP-YW",
       linkedServices: 1,
       tiers: [{ id: 1, from: 0, to: null, rate: 15.0 }],
+      overageCharge: "$25.00",
+      overageThreshold: 5
     },
     {
       id: 5,
@@ -289,6 +299,8 @@ export function DisposalFees() {
       glCode: "4100-DISP-HZ",
       linkedServices: 0,
       tiers: [{ id: 1, from: 0, to: null, rate: 25.0 }],
+      overageCharge: "$35.00",
+      overageThreshold: 3
     },
     // New Roll-off specific fees
     {
@@ -307,6 +319,8 @@ export function DisposalFees() {
       glCode: "4200-ROLL-DEL",
       linkedServices: 12,
       tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
+      overageCharge: "$95.00",
+      overageThreshold: 20
     },
     {
       id: 7,
@@ -324,6 +338,8 @@ export function DisposalFees() {
       glCode: "4200-ROLL-PU",
       linkedServices: 12,
       tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
+      overageCharge: "$95.00",
+      overageThreshold: 20
     },
     {
       id: 8,
@@ -345,6 +361,8 @@ export function DisposalFees() {
         { id: 2, from: 8, to: 14, rate: 12.0 },
         { id: 3, from: 15, to: null, rate: 10.0 },
       ],
+      overageCharge: "$20.00",
+      overageThreshold: 30
     },
     {
       id: 9,
@@ -366,6 +384,8 @@ export function DisposalFees() {
         { id: 2, from: 1, to: 3, rate: 120.0 },
         { id: 3, from: 3, to: null, rate: 150.0 },
       ],
+      overageCharge: "$120.00",
+      overageThreshold: 2
     },
     {
       id: 10,
@@ -383,6 +403,8 @@ export function DisposalFees() {
       glCode: "4200-ROLL-RELOC",
       linkedServices: 6,
       tiers: [{ id: 1, from: 0, to: null, rate: 75.0 }],
+      overageCharge: "$85.00",
+      overageThreshold: 5
     },
     {
       id: 11,
@@ -403,6 +425,8 @@ export function DisposalFees() {
         { id: 1, from: 0, to: 1, rate: 150.0 },
         { id: 2, from: 1, to: null, rate: 250.0 },
       ],
+      overageCharge: "$200.00",
+      overageThreshold: 1
     },
   ]
 
@@ -584,16 +608,16 @@ export function DisposalFees() {
                     <div className="text-xs text-muted-foreground">Rate Structure</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.minCharge}</div>
-                    <div className="text-xs text-muted-foreground">Default Charge</div>
+                    <div className="text-sm font-medium">{fee.minCharge}/ton</div>
+                    <div className="text-xs text-muted-foreground"> Price Per Ton</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.includedTonnage} tons</div>
                     <div className="text-xs text-muted-foreground">Included Tonnage</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.tiers.length}</div>
-                    <div className="text-xs text-muted-foreground">Pricing Tiers</div>
+                    <div className="text-sm font-medium">{fee.overageCharge}/ton</div>
+                    <div className="text-xs text-muted-foreground">Overage Charge</div>
                   </div>
                 </div>
                 <div className="px-4 pb-4 pt-2 bg-white">
