@@ -40,7 +40,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeForm } from "./disposal-fee-form.tsx"
+import { DisposalFeeForm } from "./disposal-fee-form"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -73,13 +73,13 @@ export type DisposalFee = {
   id: number
   name: string
   description: string
-  measure: string
-  defaultRate: string
+  rateStructure: string
+  rate: string
   minCharge: string
   locations: number
   material: string
   materials?: string[]
-  freeTonnage: number
+  includedTonnage: number
   glCode: string
   linkedServices: number
   materialPricing?: MaterialPricing[] // Add this field
@@ -206,15 +206,15 @@ export function DisposalFees() {
       id: 1,
       name: "MSW Disposal Fee",
       description: "Municipal Solid Waste disposal fee for all business lines",
-      measure: "Per Ton",
-      defaultRate: "$65.00",
+      rateStructure: "Per Ton",
+      rate: "$65.00",
       minCharge: "$25.00",
       businessLine: "All",
       status: "Active",
       locations: 5,
       material: "MSW",
       materials: ["MSW"],
-      freeTonnage: 0.5,
+      includedTonnage: 0.5,
       glCode: "4100-DISP",
       linkedServices: 3,
       tiers: [
@@ -227,14 +227,14 @@ export function DisposalFees() {
       id: 2,
       name: "C&D Disposal Fee",
       description: "Construction & Demolition disposal fee for commercial customers",
-      measure: "Per Ton",
-      defaultRate: "$75.00",
+      rateStructure: "Per Ton",
+      rate: "$75.00",
       minCharge: "$30.00",
       businessLine: "Commercial",
       status: "Active",
       locations: 3,
       material: "C&D",
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4100-DISP-CD",
       linkedServices: 2,
       tiers: [
@@ -246,14 +246,14 @@ export function DisposalFees() {
       id: 3,
       name: "Recycling Processing Fee",
       description: "Recycling processing fee for residential customers",
-      type: "Per Ton",
-      defaultRate: "$45.00",
+      rateStructure: "Per Ton",
+      rate: "$45.00",
       minCharge: "$20.00",
       businessLine: "Residential",
       status: "Active",
       locations: 4,
       material: "Recycling",
-      freeTonnage: 0.25,
+      includedTonnage: 0.25,
       glCode: "4100-DISP-REC",
       linkedServices: 1,
       tiers: [{ id: 1, from: 0, to: null, rate: 45.0 }],
@@ -262,14 +262,14 @@ export function DisposalFees() {
       id: 4,
       name: "Yard Waste Disposal",
       description: "Yard waste disposal fee for residential customers",
-      measure: "Per Cubic Yard",
-      defaultRate: "$15.00",
+      rateStructure: "Per Cubic Yard",
+      rate: "$15.00",
       minCharge: "$10.00",
       businessLine: "Residential",
       status: "Active",
       locations: 2,
       material: "Yard Waste",
-      freeTonnage: 0.1,
+      includedTonnage: 0.1,
       glCode: "4100-DISP-YW",
       linkedServices: 1,
       tiers: [{ id: 1, from: 0, to: null, rate: 15.0 }],
@@ -278,14 +278,14 @@ export function DisposalFees() {
       id: 5,
       name: "Hazardous Waste Surcharge",
       description: "Hazardous waste surcharge for all business lines",
-      measure: "Per Item",
-      defaultRate: "$25.00",
+      rateStructure: "Per Item",
+      rate: "$25.00",
       minCharge: "$25.00",
       businessLine: "All",
       status: "Active",
       locations: 1,
       material: "Hazardous",
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4100-DISP-HZ",
       linkedServices: 0,
       tiers: [{ id: 1, from: 0, to: null, rate: 25.0 }],
@@ -295,15 +295,15 @@ export function DisposalFees() {
       id: 6,
       name: "Roll-off Delivery Fee",
       description: "Fee for delivering roll-off containers to customer locations",
-      measure: "Per Container",
-      defaultRate: "$85.00",
+      rateStructure: "Per Container",
+      rate: "$85.00",
       minCharge: "$85.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-DEL",
       linkedServices: 12,
       tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
@@ -312,15 +312,15 @@ export function DisposalFees() {
       id: 7,
       name: "Roll-off Pickup Fee",
       description: "Fee for picking up roll-off containers from customer locations",
-      measure: "Per Container",
-      defaultRate: "$85.00",
+      rateStructure: "Per Container",
+      rate: "$85.00",
       minCharge: "$85.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-PU",
       linkedServices: 12,
       tiers: [{ id: 1, from: 0, to: null, rate: 85.0 }],
@@ -329,15 +329,15 @@ export function DisposalFees() {
       id: 8,
       name: "Roll-off Daily Rental",
       description: "Daily rental fee for roll-off containers",
-      type: "Per Ton",
-      defaultRate: "$15.00",
+      rateStructure: "Per Ton",
+      rate: "$15.00",
       minCharge: "$15.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-RENT",
       linkedServices: 10,
       tiers: [
@@ -350,15 +350,15 @@ export function DisposalFees() {
       id: 9,
       name: "Roll-off Overweight Fee",
       description: "Fee for roll-off containers exceeding weight limits",
-      measure: "Per Ton",
-      defaultRate: "$95.00",
+      rateStructure: "Per Ton",
+      rate: "$95.00",
       minCharge: "$50.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-OW",
       linkedServices: 8,
       tiers: [
@@ -371,15 +371,15 @@ export function DisposalFees() {
       id: 10,
       name: "Roll-off Relocation Fee",
       description: "Fee for relocating roll-off containers at customer request",
-      measure: "Per Move",
-      defaultRate: "$75.00",
+      rateStructure: "Per Move",
+      rate: "$75.00",
       minCharge: "$75.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-RELOC",
       linkedServices: 6,
       tiers: [{ id: 1, from: 0, to: null, rate: 75.0 }],
@@ -388,15 +388,15 @@ export function DisposalFees() {
       id: 11,
       name: "Roll-off Contamination Fee",
       description: "Fee for contaminated materials in roll-off containers",
-      type: "Per Ton",
-      defaultRate: "$150.00",
+      rateStructure: "Per Ton",
+      rate: "$150.00",
       minCharge: "$150.00",
       businessLine: "Roll-off",
       status: "Active",
       locations: 8,
       material: "Multiple",
       materials: ["MSW", "C&D", "Recycling", "Yard Waste"],
-      freeTonnage: 0,
+      includedTonnage: 0,
       glCode: "4200-ROLL-CONT",
       linkedServices: 5,
       tiers: [
@@ -560,7 +560,7 @@ export function DisposalFees() {
                       </Badge>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-xl font-bold mr-2">{fee.defaultRate}</span>
+                      <span className="text-xl font-bold mr-2">{fee.rate}</span>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -580,16 +580,16 @@ export function DisposalFees() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white">
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.measure}</div>
-                    <div className="text-xs text-muted-foreground">Measure</div>
+                    <div className="text-sm font-medium">{fee.rateStructure}</div>
+                    <div className="text-xs text-muted-foreground">Rate Structure</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.minCharge}</div>
                     <div className="text-xs text-muted-foreground">Default Charge</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.freeTonnage} tons</div>
-                    <div className="text-xs text-muted-foreground">Free Tonnage</div>
+                    <div className="text-sm font-medium">{fee.includedTonnage} tons</div>
+                    <div className="text-xs text-muted-foreground">Included Tonnage</div>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
                     <div className="text-sm font-medium">{fee.tiers.length}</div>
@@ -669,16 +669,16 @@ export function DisposalFees() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-xs font-medium text-muted-foreground">Measure</h3>
-                    <p className="mt-1 font-medium">{selectedFee.measure}</p>
+                    <h3 className="text-xs font-medium text-muted-foreground">Rate Structure</h3>
+                    <p className="mt-1 font-medium">{selectedFee.rateStructure}</p>
                   </div>
                   <div>
                     <h3 className="text-xs font-medium text-muted-foreground">Default Rate</h3>
-                    <p className="mt-1 font-bold">{selectedFee.defaultRate}</p>
+                    <p className="mt-1 font-bold">{selectedFee.rate}</p>
                   </div>
                   <div>
-                    <h3 className="text-xs font-medium text-muted-foreground">Free Tonnage</h3>
-                    <p className="mt-1 font-medium">{selectedFee.freeTonnage} tons</p>
+                    <h3 className="text-xs font-medium text-muted-foreground">Included Tonnage</h3>
+                    <p className="mt-1 font-medium">{selectedFee.includedTonnage} tons</p>
                   </div>
                 </div>
               </CardContent>
@@ -975,7 +975,7 @@ export function DisposalFees() {
                       </>
                     ) : selectedFee.businessLine === "Roll-off" ? (
                       <>
-                        <p>Base fee: {selectedFee.defaultRate}</p>
+                        <p>Base fee: {selectedFee.rate}</p>
                         {selectedFee.name.includes("Overweight") && (
                           <>
                             <p>Overweight amount: 2 tons</p>
@@ -993,15 +993,15 @@ export function DisposalFees() {
                       </>
                     ) : (
                       <>
-                        <p>Free tonnage: {selectedFee.freeTonnage} tons</p>
+                        <p>Free tonnage: {selectedFee.includedTonnage} tons</p>
                         <p>
-                          Chargeable tonnage: 6 - {selectedFee.freeTonnage} = {6 - selectedFee.freeTonnage} tons
+                          Chargeable tonnage: 6 - {selectedFee.includedTonnage} = {6 - selectedFee.includedTonnage} tons
                         </p>
 
                         {selectedFee.tiers.map((tier, index) => {
                           if (
-                            tier.from <= 6 - selectedFee.freeTonnage &&
-                            (tier.to === null || tier.to > 6 - selectedFee.freeTonnage)
+                            tier.from <= 6 - selectedFee.includedTonnage &&
+                            (tier.to === null || tier.to > 6 - selectedFee.includedTonnage)
                           ) {
                             return (
                               <p key={index} className="font-medium">
@@ -1023,13 +1023,13 @@ export function DisposalFees() {
                           ).toFixed(2)
                         : selectedFee.businessLine === "Roll-off" && selectedFee.name.includes("Overweight")
                           ? (
-                              Number.parseFloat(selectedFee.defaultRate.replace("$", "")) +
+                              Number.parseFloat(selectedFee.rate.replace("$", "")) +
                               2 * (selectedFee.tiers[1]?.rate || selectedFee.tiers[0].rate)
                             ).toFixed(2)
                           : selectedFee.businessLine === "Roll-off"
-                            ? selectedFee.defaultRate.replace("$", "")
+                            ? selectedFee.rate.replace("$", "")
                             : (
-                                (6 - selectedFee.freeTonnage) *
+                                (6 - selectedFee.includedTonnage) *
                                 selectedFee.tiers[selectedFee.tiers.length - 1].rate
                               ).toFixed(2)}
                     </div>
@@ -1107,7 +1107,7 @@ export function DisposalFees() {
                         <p className="mt-1 font-medium">{mp.minCharge}</p>
                       </div>
                       <div>
-                        <h3 className="text-xs font-medium text-muted-foreground">Free Tonnage</h3>
+                        <h3 className="text-xs font-medium text-muted-foreground">Included Tonnage</h3>
                         <p className="mt-1 font-medium">{mp.freeTonnage} tons</p>
                       </div>
                     </div>
