@@ -40,7 +40,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeForm } from "./disposal-fee-form.tsx"
+import { DisposalFeeForm } from "./disposal-fee-form"
 
 // Interface for autolinked services
 interface AutolinkedService {
