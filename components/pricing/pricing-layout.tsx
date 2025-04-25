@@ -45,9 +45,9 @@ export function PricingLayout() {
       <div className="flex-1 overflow-auto">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
+            {/* <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
               {sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
-            </Button>
+            </Button> */}
             <h1 className="text-xl font-semibold">
               {activeView === "late-fees" && "Late Fees"}
               {activeView === "fees" && "Fees"}
@@ -83,7 +83,7 @@ export function PricingLayout() {
             )}
           </div>
         </div>
-        <div className="bg-white m-4 rounded-lg border border-slate-300 shadow-sm">
+        <div className="bg-white m-4  shadow-sm">
           <div className="p-4">{renderView()}</div>
         </div>
       </div>

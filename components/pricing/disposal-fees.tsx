@@ -382,7 +382,7 @@ export function DisposalFees() {
                 onClick={() => handleViewFee(fee)}
                 role="button"
                 tabIndex={0}
-                className="border border-slate-300 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
+                className="border border-slate-300 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="px-4 py-3 bg-white border-b border-slate-200">
                   <h3 className="text-lg font-medium text-slate-900">{fee.name}</h3>
@@ -933,7 +933,7 @@ export function DisposalFees() {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+          <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
             <div className="space-y-0.5">
               <Label htmlFor="settings-autolink-enabled">Enable Autolinking</Label>
               <p className="text-xs text-muted-foreground">Automatically link services to fees</p>
@@ -943,7 +943,7 @@ export function DisposalFees() {
 
           <div className={!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+              <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-material">Match by Material Type</Label>
                   <p className="text-xs text-muted-foreground">Only link services with matching material type</p>
@@ -955,7 +955,7 @@ export function DisposalFees() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+              <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-location">Match by Location</Label>
                   <p className="text-xs text-muted-foreground">Only link services in the same location</p>
@@ -968,7 +968,7 @@ export function DisposalFees() {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-md">
+            <div className="mt-6 p-4 bg-blue-50 rounded-sm">
               <h4 className="font-medium mb-2">How Autolinking Works</h4>
               <p className="text-sm text-muted-foreground">
                 Autolinking automatically finds services that match the business line of this fee. When enabled, the
