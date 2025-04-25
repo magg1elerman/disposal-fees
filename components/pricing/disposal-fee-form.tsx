@@ -407,7 +407,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   rows={3}
                 />
                 {showDescriptionSuggestions && (
-                  <div className="mt-2 border rounded-md p-2 bg-slate-50">
+                  <div className="mt-2 border rounded-sm p-2 bg-slate-50">
                     <p className="text-xs text-muted-foreground mb-2">Select a template:</p>
                     <div className="space-y-1">
                       {descriptionTemplates.map((template) => (
@@ -526,7 +526,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </div>
 
                   <div className="space-y-4">
-                    <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-md p-3" : ""}>
+                    <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-sm p-3" : ""}>
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Table>
@@ -706,7 +706,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   <Label className="flex items-center gap-1">Containers</Label>
                 </div>
 
-                <div className={isFieldInvalid("containers") ? "border border-red-500 rounded-md p-3" : ""}>
+                <div className={isFieldInvalid("containers") ? "border border-red-500 rounded-sm p-3" : ""}>
                   <div className="space-y-4">
                     <Table>
                       <TableHeader>

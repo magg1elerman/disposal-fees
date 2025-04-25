@@ -25,13 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+// Removed DropdownMenu import as it's no longer used
 import { DisposalFeesTable } from "./disposal-fees-table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
@@ -307,8 +301,9 @@ export function DisposalFees() {
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
-      <div className="flex justify-between items-center mb-6">
-        <div className="border-b border-slate-200 w-full">
+      {/* Tab Navigation */}
+      <div className="border-b border-slate-200 mb-6">
+        <div className="flex items-center justify-between">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab("all")}
@@ -349,23 +344,20 @@ export function DisposalFees() {
               Roll-off
             </button>
           </div>
-        </div>
-
-        <div className="flex gap-2 ml-auto">
-          <div className="flex border rounded-md overflow-hidden shadow-sm">
+          <div className="flex items-center gap-2">
             <Button
-              variant={viewMode === "card" ? "default" : "ghost"}
+              variant={viewMode === "card" ? "default" : "outline"}
               size="sm"
-              className={viewMode === "card" ? "" : "bg-white"}
               onClick={() => setViewMode("card")}
+              className="h-8"
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
             <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
+              variant={viewMode === "table" ? "default" : "outline"}
               size="sm"
-              className={viewMode === "table" ? "" : "bg-white"}
               onClick={() => setViewMode("table")}
+              className="h-8"
             >
               <List className="h-4 w-4" />
             </Button>
@@ -387,71 +379,46 @@ export function DisposalFees() {
             .map((fee) => (
               <div
                 key={fee.id}
-                className="border border-slate-300 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-all"
+                onClick={() => handleViewFee(fee)}
+                role="button"
+                tabIndex={0}
+                className="border border-slate-300 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
-                <div className="p-4 bg-slate-100 border-b border-slate-300">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-medium">{fee.name}</h3>
-                      <Badge variant="outline" className="bg-slate-100">
-                        {fee.businessLine}
-                      </Badge>
-                      {fee.materials ? (
-                        fee.materials.map((material, idx) => (
-                          <Badge key={idx} variant="outline" className="bg-slate-100">
-                            {material}
-                          </Badge>
-                        ))
-                      ) : (
-                        <Badge variant="outline" className="bg-slate-100">
-                          {fee.material}
-                        </Badge>
-                      )}
-                      <Badge variant="success" className="bg-green-100 text-green-800">
-                        {fee.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-xl font-bold mr-2">{fee.rate}</span>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewFee(fee)}>View Details</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditFee(fee)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
+                <div className="px-4 py-3 bg-white border-b border-slate-200">
+                  <h3 className="text-lg font-medium text-slate-900">{fee.name}</h3>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white">
-                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.rateStructure}</div>
-                    <div className="text-xs text-muted-foreground">Rate Structure</div>
+                <div className="flex flex-wrap items-center border-t border-slate-200 divide-x divide-slate-200 bg-white">
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">
+                      {fee.rate}
+                      {fee.rateStructure === "Per Ton" ? "/Ton" : fee.rateStructure === "Per Container" ? "/Container" : ""}
+                    </span>
+                    <span className="ml-1 text-xs text-muted-foreground">Base price</span>
                   </div>
-                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.minCharge}/ton</div>
-                    <div className="text-xs text-muted-foreground"> Price Per Ton</div>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.includedTonnage} Ton</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Free</span>
                   </div>
-                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.includedTonnage} tons</div>
-                    <div className="text-xs text-muted-foreground">Included Tonnage</div>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.minCharge}</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Min charge</span>
                   </div>
-                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
-                    <div className="text-sm font-medium">{fee.overageCharge}/ton</div>
-                    <div className="text-xs text-muted-foreground">Overage Charge</div>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.overageCharge}/ton</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Overage</span>
                   </div>
-                </div>
-                <div className="px-4 pb-4 pt-2 bg-white">
-                  <Button variant="outline" size="sm" onClick={() => handleViewFee(fee)}>
-                    View Details
-                  </Button>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.locations}</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Accounts</span>
+                  </div>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.linkedServices}</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Services</span>
+                  </div>
+                  <div className="flex items-baseline px-4 py-2">
+                    <span className="font-bold text-base text-slate-900">{fee.businessLine}</span>
+                    <span className="ml-1 text-xs text-muted-foreground">Business line</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -966,7 +933,7 @@ export function DisposalFees() {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+          <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
             <div className="space-y-0.5">
               <Label htmlFor="settings-autolink-enabled">Enable Autolinking</Label>
               <p className="text-xs text-muted-foreground">Automatically link services to fees</p>
@@ -976,7 +943,7 @@ export function DisposalFees() {
 
           <div className={!autolinkEnabled ? "opacity-50 pointer-events-none" : ""}>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+              <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-material">Match by Material Type</Label>
                   <p className="text-xs text-muted-foreground">Only link services with matching material type</p>
@@ -988,7 +955,7 @@ export function DisposalFees() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-md bg-white border border-blue-300 shadow-sm">
+              <div className="flex items-center justify-between p-3 rounded-sm bg-white border border-blue-300 shadow-sm">
                 <div className="space-y-0.5">
                   <Label htmlFor="settings-autolink-location">Match by Location</Label>
                   <p className="text-xs text-muted-foreground">Only link services in the same location</p>
@@ -1001,7 +968,7 @@ export function DisposalFees() {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-md">
+            <div className="mt-6 p-4 bg-blue-50 rounded-sm">
               <h4 className="font-medium mb-2">How Autolinking Works</h4>
               <p className="text-sm text-muted-foreground">
                 Autolinking automatically finds services that match the business line of this fee. When enabled, the
