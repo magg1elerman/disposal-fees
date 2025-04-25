@@ -21,6 +21,13 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -32,6 +39,7 @@ import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DisposalFeeForm } from "./disposal-fee-form"
+import { Input } from "@/components/ui/input"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -56,14 +64,17 @@ export function DisposalFees() {
   const [selectedFee, setSelectedFee] = useState<DisposalFee | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAutolinkSettingsDialog, setShowAutolinkSettingsDialog] = useState(false)
+  const [showAddServicesDialog, setShowAddServicesDialog] = useState(false)
+  const [selectedServices, setSelectedServices] = useState<ServiceData[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [services, setServices] = useState<ServiceData[]>([])
+  const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   // Autolinking states
   const [autolinkEnabled, setAutolinkEnabled] = useState(true)
   const [autolinkByMaterial, setAutolinkByMaterial] = useState(true)
   const [autolinkByLocation, setAutolinkByLocation] = useState(false)
-  const [services, setServices] = useState<ServiceData[]>([])
   const [autolinkedServices, setAutolinkedServices] = useState<AutolinkedService[]>([])
-  const [isLoadingServices, setIsLoadingServices] = useState(false)
 
   const componentRef = useRef<HTMLDivElement>(null)
 
@@ -111,6 +122,102 @@ export function DisposalFees() {
         { id: 2, from: 6, to: 10, rate: 90 },
         { id: 3, from: 11, to: null, rate: 85 }
       ]
+    },
+    {
+      id: 3,
+      name: "Residential Waste Disposal Fee",
+      description: "Standard residential waste disposal service",
+      rateStructure: "Flat Rate",
+      rate: "45.00",
+      minCharge: "45.00",
+      businessLine: "Residential",
+      status: "Active",
+      locations: 15,
+      linkedServices: 3,
+      material: "MSW",
+      includedTonnage: 1,
+      glCode: "4031",
+      overageCharge: "50.00",
+      overageThreshold: 1,
+      tiers: [],
+    },
+    {
+      id: 4,
+      name: "Commercial Waste Disposal Fee",
+      description: "Disposal fee for commercial waste accounts",
+      rateStructure: "Per Ton",
+      rate: "70.00",
+      minCharge: "70.00",
+      businessLine: "Commercial",
+      status: "Active",
+      locations: 10,
+      linkedServices: 6,
+      material: "MSW",
+      includedTonnage: 2,
+      glCode: "4032",
+      overageCharge: "75.00",
+      overageThreshold: 2,
+      tiers: [
+        { id: 1, from: 0, to: 2, rate: 70 },
+        { id: 2, from: 3, to: null, rate: 65 }
+      ],
+    },
+    {
+      id: 5,
+      name: "Roll-off Container Disposal Fee",
+      description: "Fee for roll-off container waste disposal",
+      rateStructure: "Per Container",
+      rate: "200.00",
+      minCharge: "200.00",
+      businessLine: "Roll-off",
+      status: "Active",
+      locations: 7,
+      linkedServices: 5,
+      material: "MSW",
+      includedTonnage: 4,
+      glCode: "4033",
+      overageCharge: "60.00",
+      overageThreshold: 4,
+      tiers: [],
+    },
+    {
+      id: 6,
+      name: "Residential Bulk Item Disposal",
+      description: "Disposal for bulk residential items",
+      rateStructure: "Flat Rate",
+      rate: "30.00",
+      minCharge: "30.00",
+      businessLine: "Residential",
+      status: "Active",
+      locations: 12,
+      linkedServices: 2,
+      material: "Bulky",
+      includedTonnage: 0,
+      glCode: "4034",
+      overageCharge: "35.00",
+      overageThreshold: 0,
+      tiers: [],
+    },
+    {
+      id: 7,
+      name: "Commercial Recycling Disposal Fee",
+      description: "Fee for recycling disposal for commercial businesses",
+      rateStructure: "Per Ton",
+      rate: "55.00",
+      minCharge: "55.00",
+      businessLine: "Commercial",
+      status: "Active",
+      locations: 8,
+      linkedServices: 4,
+      material: "Recycling",
+      includedTonnage: 1,
+      glCode: "4035",
+      overageCharge: "60.00",
+      overageThreshold: 1,
+      tiers: [
+        { id: 1, from: 0, to: 1, rate: 55 },
+        { id: 2, from: 2, to: null, rate: 50 }
+      ],
     }
   ])
 
@@ -137,12 +244,13 @@ export function DisposalFees() {
     }
   }, [])
 
-  // Fetch services data for autolinking
+  // Fetch services data
   useEffect(() => {
     const loadServices = async () => {
       setIsLoadingServices(true)
       try {
         const data = await fetchServiceData()
+        console.log("Loaded services:", data) // Add this for debugging
         setServices(data)
       } catch (error) {
         console.error("Error loading services:", error)
@@ -275,6 +383,39 @@ export function DisposalFees() {
     setActiveView("list")
   }
 
+  const handleAddServices = (fee: DisposalFee) => {
+    setSelectedFee(fee)
+    setShowAddServicesDialog(true)
+  }
+
+  const handleSaveSelectedServices = () => {
+    if (!selectedFee) return
+
+    // In a real app, this would update the database
+    // For now, we'll just update the linkedServices count
+    setDisposalFees((prev) =>
+      prev.map((f) =>
+        f.id === selectedFee.id
+          ? { ...f, linkedServices: (f.linkedServices || 0) + selectedServices.length }
+          : f
+      )
+    )
+    setSelectedServices([])
+    setShowAddServicesDialog(false)
+  }
+
+  // Filter services based on search term and fee properties
+  const filteredServices = services.filter((service) => {
+    // Match by search term
+    const searchMatches =
+      !searchTerm ||
+      service["Service name"]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service["Account name"]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service["Service address"]?.toLowerCase().includes(searchTerm.toLowerCase())
+
+    return searchMatches
+  })
+
   const renderTiers = (tiers?: { id: number; from: number; to: number | null; rate: number }[]) => {
     if (!tiers || tiers.length === 0) return null;
     return (
@@ -302,7 +443,7 @@ export function DisposalFees() {
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200 mb-6">
+      <div className=" border-slate-200 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex space-x-8">
             <button
@@ -384,8 +525,33 @@ export function DisposalFees() {
                 tabIndex={0}
                 className="border border-slate-300 rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
-                <div className="px-4 py-3 bg-white border-b border-slate-200">
+                <div className="flex justify-between items-center px-4 py-3 bg-white border-b border-slate-200">
                   <h3 className="text-lg font-medium text-slate-900">{fee.name}</h3>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditFee(fee); }}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleAddServices(fee); }}>
+                        Add services
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* remove services */ }}>
+                        Remove services
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem disabled>
+                        Archive
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); /* delete fee */ }} className="text-destructive">
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <div className="flex flex-wrap items-center border-t border-slate-200 divide-x divide-slate-200 bg-white">
                   <div className="flex items-baseline px-4 py-2">
@@ -993,6 +1159,116 @@ export function DisposalFees() {
     </Dialog>
   )
 
+  const renderAddServicesDialog = () => (
+    <Dialog open={showAddServicesDialog} onOpenChange={setShowAddServicesDialog}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>Add Services to {selectedFee?.name}</DialogTitle>
+          <DialogDescription>
+            Select services to link to this disposal fee. Services will be filtered based on business line and material type.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Search services..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1"
+            />
+            <Button variant="outline" size="sm" onClick={() => setSearchTerm("")}>
+              Clear
+            </Button>
+          </div>
+
+          {isLoadingServices ? (
+            <div className="flex items-center justify-center py-8">
+              <p>Loading services...</p>
+            </div>
+          ) : (
+            <div className="border rounded-md overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[40px]">
+                      <Checkbox
+                        checked={selectedServices.length === filteredServices.length}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedServices(filteredServices)
+                          } else {
+                            setSelectedServices([])
+                          }
+                        }}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
+                    <TableHead>Service Name</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Address</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>State</TableHead>
+                    <TableHead>Account</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredServices.map((service) => (
+                    <TableRow key={service["Account #"]}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedServices.some((s) => s["Account #"] === service["Account #"])}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedServices((prev) => [...prev, service])
+                            } else {
+                              setSelectedServices((prev) =>
+                                prev.filter((s) => s["Account #"] !== service["Account #"])
+                              )
+                            }
+                          }}
+                          aria-label={`Select ${service["Service name"]}`}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{service["Service name"]}</TableCell>
+                      <TableCell>{service.Price}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            service.Status === "Active"
+                              ? "bg-green-50 text-green-700 hover:bg-green-50 hover:text-green-700"
+                              : "bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700"
+                          }
+                        >
+                          {service.Status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{service["Service address"]}</TableCell>
+                      <TableCell>{service.City}</TableCell>
+                      <TableCell>{service.ST}</TableCell>
+                      <TableCell>{service["Account name"]}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowAddServicesDialog(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSaveSelectedServices} disabled={selectedServices.length === 0}>
+            Add {selectedServices.length} Services
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+
   return (
     <>
       {activeView === "list" ? renderListView() : renderDetailView()}
@@ -1009,6 +1285,7 @@ export function DisposalFees() {
       </Dialog>
 
       {renderAutolinkSettingsDialog()}
+      {showAddServicesDialog && renderAddServicesDialog()}
     </>
   )
 }

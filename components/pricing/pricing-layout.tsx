@@ -43,7 +43,7 @@ export function PricingLayout() {
       <PricingSidebar activeView={activeView} onViewChange={setActiveView} collapsed={sidebarCollapsed} />
 
       <div className="flex-1 overflow-auto">
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 bg-gray-100 border-b">
           <div className="flex items-center gap-4">
             {/* <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
               {sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
