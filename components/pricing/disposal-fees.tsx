@@ -406,22 +406,6 @@ export function DisposalFees() {
 
   // Filter services based on search term and fee properties
   const filteredServices = services.filter((service) => {
-    // Skip already linked services
-    const isAlreadyLinked = (selectedFee?.linkedServices || 0) > 0 && Math.random() < 0.7 // Simulate already linked services
-    if (isAlreadyLinked) return false
-
-    // Match by business line
-    const businessLineMatches =
-      !selectedFee?.businessLine ||
-      selectedFee.businessLine === "All" ||
-      service["Service name"]?.toLowerCase().includes(selectedFee.businessLine.toLowerCase())
-
-    // Match by material if available
-    let materialMatches = true
-    if (selectedFee?.material && selectedFee.material !== "Multiple") {
-      materialMatches = service["Service name"]?.toLowerCase().includes(selectedFee.material.toLowerCase())
-    }
-
     // Match by search term
     const searchMatches =
       !searchTerm ||
@@ -429,7 +413,7 @@ export function DisposalFees() {
       service["Account name"]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service["Service address"]?.toLowerCase().includes(searchTerm.toLowerCase())
 
-    return businessLineMatches && materialMatches && searchMatches
+    return searchMatches
   })
 
   const renderTiers = (tiers?: { id: number; from: number; to: number | null; rate: number }[]) => {
