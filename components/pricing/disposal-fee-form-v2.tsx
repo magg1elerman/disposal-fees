@@ -112,7 +112,7 @@ const businessLines = [
   { id: 4, name: "All", description: "All business lines" },
 ]
 
-export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
+export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
     initialFee || {
@@ -160,6 +160,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               minCharge: mp.minCharge,
               freeTonnage: mp.freeTonnage,
               rateStructure: mp.rateStructure || formData.rateStructure,
+              overageThreshold: mp.overageThreshold,
               overageCharge: mp.overageCharge,
             }
           }
@@ -174,6 +175,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               minCharge: initialFee.minCharge.replace("$", ""),
               includedTonnage: initialFee.includedTonnage,
               rateStructure: initialFee.rateStructure,
+              overageThreshold: initialFee.overageThreshold,
               overageCharge: initialFee.overageCharge,
             }
           }
@@ -328,6 +330,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
           minCharge: materialPricing[material]?.minCharge || "",
           freeTonnage: materialPricing[material]?.freeTonnage || 0,
           rateStructure: materialPricing[material]?.rateStructure || formData.rateStructure,
+          overageThreshold: materialPricing[material]?.overageThreshold || 0,
           overageCharge: materialPricing[material]?.overageCharge || "",
         }))
       }
@@ -364,7 +367,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
   return (
     <div className="space-y-6">
       <div className="p-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee"}</h2>
+        <h2 className="text-2xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee (V2)"}</h2>
       </div>
 
       <div className="p-6 space-y-8">
@@ -500,8 +503,6 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                 </RadioGroup>
                 <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
               </div>
-
-             
             </div>
           </CardContent>
         </Card>
@@ -530,9 +531,11 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[180px]">Material</TableHead>
-                                <TableHead className="w-[200px]">Rate</TableHead>
-                                <TableHead className="w-[200px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[200px]">Material</TableHead>
+                                <TableHead className="w-[220px]">Rate</TableHead>
+                                <TableHead className="w-[220px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Overage Threshold</TableHead>
+                                <TableHead className="w-[220px]">Overage Fee</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -541,14 +544,14 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                 if (!material) return null
                                 return (
                                   <TableRow key={material.id}>
-                                    <TableCell className="w-[180px]">
+                                    <TableCell className="w-[200px]">
                                       <MaterialChip
                                         name={material.name}
                                         color={material.color}
                                         onRemove={() => handleMaterialToggle(material.name)}
                                       />
                                     </TableCell>
-                                    <TableCell className="w-[200px]">
+                                    <TableCell className="w-[220px]">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
                                           <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
@@ -595,7 +598,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                         )}
                                       </div>
                                     </TableCell>
-                                    <TableCell className="w-[200px]">
+                                    <TableCell className="w-[220px]">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
                                           <Input
@@ -644,11 +647,106 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                         )}
                                       </div>
                                     </TableCell>
+                                    <TableCell className="w-[220px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative w-[120px]">
+                                          <Input
+                                            id={`${material.name}-overage-threshold`}
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            value={materialPricing[material.name]?.overageThreshold || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                                            className="pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialThreshold = materialPricing[firstMaterial]?.overageThreshold || 0
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          overageThreshold: firstMaterialThreshold
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="w-[220px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative w-[120px]">
+                                          <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
+                                          <Input
+                                            id={`${material.name}-overage-charge`}
+                                            value={materialPricing[material.name]?.overageCharge || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "overageCharge", e.target.value)}
+                                            className="pl-7 pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialOverageCharge = materialPricing[firstMaterial]?.overageCharge || ""
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          overageCharge: firstMaterialOverageCharge
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                        )}
+                                      </div>
+                                    </TableCell>
                                   </TableRow>
                                 )
                               })}
                               <TableRow>
-                                <TableCell colSpan={2}>
+                                <TableCell colSpan={5}>
                                   <Select
                                     onValueChange={(value) => {
                                       if (!selectedMaterials.includes(value)) {
@@ -689,28 +787,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     )}
                   </div>
 
-                  {formData.rateStructure === "Per Ton" && (
+                  {/* {formData.rateStructure === "Per Ton" && (
                     <>
-                      {/* <div className="space-y-2">
-                        <Label htmlFor="fee-included-tonnage">Included Tonnage</Label>
-                        <div className="relative">
-                          <Input
-                            id="fee-included-tonnage"
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={formData.includedTonnage}
-                            onChange={(e) => handleChange("includedTonnage", Number.parseFloat(e.target.value) || 0)}
-                            placeholder="0.00"
-                            className="h-10"
-                          />
-                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                        </div>
-                        <div className="min-h-[20px]">
-                          <p className="text-xs text-muted-foreground">Amount of material that is included in the base rate</p>
-                        </div>
-                      </div> */}
-
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
@@ -747,13 +825,13 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           </div>
                           <div className="min-h-[20px]">
                             <p className="text-xs text-muted-foreground">
-                             Flat-rate fee charged when overage threshold is exceeded
+                              Flat-rate fee charged when overage threshold is exceeded
                             </p>
                           </div>
                         </div>
                       </div>
                     </>
-                  )}
+                  )} */}
                 </div>
               </div>
             )}
@@ -788,16 +866,18 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                 />
                               </TableCell>
                               <TableCell className="w-[200px]">
-                                <div className="relative">
-                                  <span className="absolute left-3 top-2">$</span>
-                                  <Input
-                                    id={`${container.name}-rate`}
-                                    value={containerPricing[container.name]?.rate || ""}
-                                    onChange={(e) => handleContainerPricingChange(container.name, "rate", e.target.value)}
-                                    className="pl-7 pr-10 h-10 w-[100px]"
-                                    placeholder="0.00"
-                                  />
-                                  <span className="absolute left-[110px] top-2 text-muted-foreground">per container</span>
+                                <div className="relative flex items-center gap-2">
+                                  <div className="relative w-[120px]">
+                                    <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
+                                    <Input
+                                      id={`${container.name}-rate`}
+                                      value={containerPricing[container.name]?.rate || ""}
+                                      onChange={(e) => handleContainerPricingChange(container.name, "rate", e.target.value)}
+                                      className="pl-7 pr-10 h-10"
+                                      placeholder="0.00"
+                                    />
+                                    <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ container</span>
+                                  </div>
                                   {index === 0 && selectedContainers.length > 1 && (
                                     <TooltipProvider delayDuration={100}>
                                       <Tooltip>
@@ -805,7 +885,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                           <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="absolute right-0 top-1/2 -translate-y-1/2"
+                                            className="shrink-0 p-2"
                                             onClick={() => {
                                               if (selectedContainers.length > 0) {
                                                 const firstContainer = selectedContainers[0]
@@ -888,4 +968,4 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
       </div>
     </div>
   )
-}
+} 

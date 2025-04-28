@@ -40,6 +40,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DisposalFeeForm } from "./disposal-fee-form"
 import { Input } from "@/components/ui/input"
+import { DisposalFeeFormV2 } from "./disposal-fee-form-v2"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -63,6 +64,7 @@ export function DisposalFees() {
   const [viewMode, setViewMode] = useState<"card" | "table">("card")
   const [selectedFee, setSelectedFee] = useState<DisposalFee | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showEditDialogV2, setShowEditDialogV2] = useState(false)
   const [showAutolinkSettingsDialog, setShowAutolinkSettingsDialog] = useState(false)
   const [showAddServicesDialog, setShowAddServicesDialog] = useState(false)
   const [selectedServices, setSelectedServices] = useState<ServiceData[]>([])
@@ -235,11 +237,18 @@ export function DisposalFees() {
       setShowEditDialog(true)
     }
 
+    const handleAddDisposalFeeV2 = () => {
+      setSelectedFee(null)
+      setShowEditDialogV2(true)
+    }
+
     const currentRef = componentRef.current
     if (currentRef) {
       currentRef.addEventListener("add-disposal-fee", handleAddDisposalFee)
+      currentRef.addEventListener("add-disposal-fee-v2", handleAddDisposalFeeV2)
       return () => {
         currentRef.removeEventListener("add-disposal-fee", handleAddDisposalFee)
+        currentRef.removeEventListener("add-disposal-fee-v2", handleAddDisposalFeeV2)
       }
     }
   }, [])
@@ -354,12 +363,20 @@ export function DisposalFees() {
     // In a real app, this would update the database
     console.log("Saving fee:", fee)
     setShowEditDialog(false)
+    setShowEditDialogV2(false)
 
     // If editing an existing fee, update it in the list
     if (selectedFee?.id) {
       // Update the existing fee in the disposalFees array
       setDisposalFees((prev: DisposalFee[]) =>
-        prev.map((f) => (f.id === selectedFee.id ? { ...fee, id: f.id, status: f.status || "Active", locations: f.locations || 0, linkedServices: 0 } : f))
+        prev.map((f) => (f.id === selectedFee.id ? { 
+          ...fee, 
+          id: f.id, 
+          status: f.status || "Active", 
+          locations: f.locations || 0, 
+          linkedServices: f.linkedServices || 0,
+          tiers: f.tiers || []
+        } : f))
       )
       alert(`Fee "${fee.name}" updated successfully!`)
     } else {
@@ -374,6 +391,7 @@ export function DisposalFees() {
             status: "Active",
             locations: 0,
             linkedServices: 0,
+            tiers: []
           },
         ];
       })
@@ -416,29 +434,73 @@ export function DisposalFees() {
     return searchMatches
   })
 
-  const renderTiers = (tiers?: { id: number; from: number; to: number | null; rate: number }[]) => {
+  const renderTierBreakdown = () => {
+    if (!selectedFee?.tiers) return null;
+    
+    const tiers = selectedFee.tiers;
     if (!tiers || tiers.length === 0) return null;
-    return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>From (tons)</TableHead>
-            <TableHead>To (tons)</TableHead>
-            <TableHead>Rate</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {tiers.map((tier) => (
-            <TableRow key={tier.id}>
-              <TableCell>{tier.from}</TableCell>
-              <TableCell>{tier.to === null ? "∞" : tier.to}</TableCell>
-              <TableCell>${tier.rate.toFixed(2)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+
+    // Type guard to ensure we only work with valid tiers
+    const isValidTier = (tier: typeof tiers[0]): tier is typeof tier & { to: number } => {
+      return typeof tier.to === 'number' && tier.to > tier.from;
+    };
+
+    const validTiers = tiers.filter(isValidTier);
+    if (validTiers.length === 0) return null;
+
+    const totalTons = validTiers.reduce((sum, tier) => 
+      sum + (tier.to - tier.from), 0
     );
-  }
+
+    const totalCost = validTiers.reduce((sum, tier) => 
+      sum + tier.rate * (tier.to - tier.from), 0
+    );
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-medium">Tier Breakdown</h3>
+            <p className="text-xs text-muted-foreground">
+              {totalTons} tons total
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium">${totalCost.toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground">
+              ${(totalCost / totalTons).toFixed(2)}/ton average
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {validTiers.map((tier, index) => {
+            const tierTons = tier.to - tier.from;
+            const tierCost = tier.rate * tierTons;
+            return (
+              <div key={tier.id} className="flex items-center gap-4">
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {index === 0 ? "Base Rate" : `Tier ${index}`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {index === 0
+                      ? "First 6 tons"
+                      : `Next ${tierTons} tons`}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">${tier.rate}/ton</p>
+                  <p className="text-xs text-muted-foreground">
+                    ${tierCost.toFixed(2)} total
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const renderListView = () => (
     <div className="space-y-6" ref={componentRef} data-disposal-fees>
@@ -596,6 +658,9 @@ export function DisposalFees() {
   const renderDetailView = () => {
     if (!selectedFee) return null
 
+    const linkedServicesCount = selectedFee.linkedServices || 0;
+    const tiers = selectedFee.tiers || [];
+
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between p-4 mb-6">
@@ -683,10 +748,10 @@ export function DisposalFees() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {selectedFee?.tiers && selectedFee.tiers.length > 0 && (
+                {tiers.length > 0 && (
                   <div>
                     <h3 className="text-xs font-medium text-muted-foreground mb-2">Pricing Tiers</h3>
-                    {renderTiers(selectedFee.tiers)}
+                    {renderTierBreakdown()}
                   </div>
                 )}
               </CardContent>
@@ -727,7 +792,7 @@ export function DisposalFees() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {selectedFee.linkedServices > 0 ? (
+                {linkedServicesCount > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -738,7 +803,7 @@ export function DisposalFees() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {Array.from({ length: selectedFee.linkedServices }).map((_, index) => (
+                      {Array.from({ length: linkedServicesCount }).map((_, index) => (
                         <TableRow key={index}>
                           <TableCell>Service {index + 1}</TableCell>
                           <TableCell>{selectedFee.businessLine}</TableCell>
@@ -773,7 +838,7 @@ export function DisposalFees() {
                         Services that can be automatically linked to this fee
                       </CardDescription>
                     </div>
-                    {autolinkedServices.length > 0 && (
+                    {linkedServicesCount > 0 && (
                       <Button
                         size="sm"
                         onClick={handleLinkAllServices}
@@ -790,7 +855,7 @@ export function DisposalFees() {
                     <div className="flex justify-center items-center py-6">
                       <p>Loading services...</p>
                     </div>
-                  ) : autolinkedServices.length > 0 ? (
+                  ) : linkedServicesCount > 0 ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -960,7 +1025,7 @@ export function DisposalFees() {
                           Chargeable tonnage: 6 - {selectedFee.includedTonnage} = {6 - selectedFee.includedTonnage} tons
                         </p>
 
-                        {selectedFee.tiers.map((tier, index) => {
+                        {tiers.map((tier, index) => {
                           if (
                             tier.from <= 6 - selectedFee.includedTonnage &&
                             (tier.to === null || tier.to > 6 - selectedFee.includedTonnage)
@@ -1077,7 +1142,7 @@ export function DisposalFees() {
                     {mp.tiers && mp.tiers.length > 0 && (
                       <div>
                         <h3 className="text-xs font-medium text-muted-foreground mb-2">Pricing Tiers</h3>
-                        {renderTiers(mp.tiers)}
+                        {renderTierBreakdown()}
                       </div>
                     )}
                   </TabsContent>
@@ -1280,6 +1345,17 @@ export function DisposalFees() {
             initialFee={selectedFee || undefined}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog V2 */}
+      <Dialog open={showEditDialogV2} onOpenChange={setShowEditDialogV2}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeFormV2
+            initialFee={selectedFee || undefined}
+            onSave={handleSaveFee}
+            onCancel={() => setShowEditDialogV2(false)}
           />
         </DialogContent>
       </Dialog>

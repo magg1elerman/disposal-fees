@@ -8,15 +8,23 @@ import { LateFees } from "@/components/pricing/late-fees"
 import { Fees } from "@/components/pricing/fees"
 import { DisposalFees } from "@/components/pricing/disposal-fees"
 import { Services } from "@/components/pricing/services"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { DisposalFeeFormV2 } from "@/components/pricing/disposal-fee-form-v2"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
 export function PricingLayout() {
   const [activeView, setActiveView] = useState<ActiveView>("disposal")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [showFormV2, setShowFormV2] = useState(false)
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed)
+  }
+
+  const handleSaveV2 = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV2(false)
   }
 
   const renderView = () => {
@@ -74,7 +82,18 @@ export function PricingLayout() {
                     }
                   }}
                 >
-                  <Plus className="h-5 w-5" />
+                  v1
+                  {/* <Plus className="h-5 w-5" /> */}
+                </Button>
+             
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setShowFormV2(true)}
+                >
+                  v2
+                  {/* <Plus className="h-5 w-5" /> */}
+
                 </Button>
                 <Button variant="ghost" size="icon">
                   <MoreVertical className="h-5 w-5" />
@@ -87,6 +106,15 @@ export function PricingLayout() {
           <div className="p-4">{renderView()}</div>
         </div>
       </div>
+
+      <Dialog open={showFormV2} onOpenChange={setShowFormV2}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeFormV2
+            onSave={handleSaveV2}
+            onCancel={() => setShowFormV2(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
