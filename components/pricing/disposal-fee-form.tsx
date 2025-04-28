@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { MaterialChip } from "./material-chip"
 import { cn } from "@/lib/utils"
 import { RadioGroupItem } from "@/components/ui/radio-group"
@@ -553,7 +554,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                     </TableCell>
                                     <TableCell className="w-[200px]">
                                       <div className="relative flex items-center gap-2">
-                                        <div className="relative flex-1">
+                                        <div className="relative w-[120px]">
                                           <span className="absolute left-3 top-2">$</span>
                                           <Input
                                             id={`${material.name}-rate`}
@@ -562,36 +563,46 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                             className="pl-7 pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
+                                          <span className="absolute left-[80px] top-2.5 text-muted-foreground text-xs">/ ton</span>
+
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="shrink-0 p-2"
-                                            onClick={() => {
-                                              if (selectedMaterials.length > 0) {
-                                                const firstMaterial = selectedMaterials[0]
-                                                const firstMaterialPrice = materialPricing[firstMaterial]?.rate || ""
-                                                const newPricing = { ...materialPricing }
-                                                selectedMaterials.forEach(material => {
-                                                  newPricing[material] = {
-                                                    ...newPricing[material],
-                                                    rate: firstMaterialPrice
-                                                  }
-                                                })
-                                                setMaterialPricing(newPricing)
-                                              }
-                                            }}
-                                          >
-                                            <Copy className="h-4 w-4" />
-                                          </Button>
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialPrice = materialPricing[firstMaterial]?.rate || ""
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          rate: firstMaterialPrice
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         )}
                                       </div>
                                     </TableCell>
                                     <TableCell className="w-[200px]">
                                       <div className="relative flex items-center gap-2">
-                                        <div className="relative flex-1">
+                                        <div className="relative w-[120px]">
                                           <Input
                                             id={`${material.name}-included-tonnage`}
                                             type="number"
@@ -605,33 +616,42 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                           <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="shrink-0 p-2"
-                                            onClick={() => {
-                                              if (selectedMaterials.length > 0) {
-                                                const firstMaterial = selectedMaterials[0]
-                                                const firstMaterialIncludedTonnage = materialPricing[firstMaterial]?.includedTonnage || 0
-                                                const newPricing = { ...materialPricing }
-                                                selectedMaterials.forEach(material => {
-                                                  newPricing[material] = {
-                                                    ...newPricing[material],
-                                                    includedTonnage: firstMaterialIncludedTonnage
-                                                  }
-                                                })
-                                                setMaterialPricing(newPricing)
-                                              }
-                                            }}
-                                          >
-                                            <Copy className="h-4 w-4" />
-                                          </Button>
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialIncludedTonnage = materialPricing[firstMaterial]?.includedTonnage || 0
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          includedTonnage: firstMaterialIncludedTonnage
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         )}
                                       </div>
                                     </TableCell>
                                     <TableCell className="w-[200px]">
                                       <div className="relative flex items-center gap-2">
-                                        <div className="relative flex-1">
+                                        <div className="relative w-[120px]">
                                           <Input
                                             id={`${material.name}-overage-threshold`}
                                             type="number"
@@ -645,27 +665,36 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                           <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="shrink-0 p-2"
-                                            onClick={() => {
-                                              if (selectedMaterials.length > 0) {
-                                                const firstMaterial = selectedMaterials[0]
-                                                const firstMaterialThreshold = materialPricing[firstMaterial]?.overageThreshold || 0
-                                                const newPricing = { ...materialPricing }
-                                                selectedMaterials.forEach(material => {
-                                                  newPricing[material] = {
-                                                    ...newPricing[material],
-                                                    overageThreshold: firstMaterialThreshold
-                                                  }
-                                                })
-                                                setMaterialPricing(newPricing)
-                                              }
-                                            }}
-                                          >
-                                            <Copy className="h-4 w-4" />
-                                          </Button>
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialThreshold = materialPricing[firstMaterial]?.overageThreshold || 0
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          overageThreshold: firstMaterialThreshold
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         )}
                                       </div>
                                     </TableCell>
@@ -824,27 +853,36 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                   />
                                   <span className="absolute left-[110px] top-2 text-muted-foreground">per container</span>
                                   {index === 0 && selectedContainers.length > 1 && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="absolute right-0 top-1/2 -translate-y-1/2"
-                                      onClick={() => {
-                                        if (selectedContainers.length > 0) {
-                                          const firstContainer = selectedContainers[0]
-                                          const firstContainerPrice = containerPricing[firstContainer]?.rate || ""
-                                          const newPricing = { ...containerPricing }
-                                          selectedContainers.forEach(container => {
-                                            newPricing[container] = {
-                                              ...newPricing[container],
-                                              rate: firstContainerPrice
-                                            }
-                                          })
-                                          setContainerPricing(newPricing)
-                                        }
-                                      }}
-                                    >
-                                      <Copy className="h-4 w-4" />
-                                    </Button>
+                                    <TooltipProvider delayDuration={100}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="absolute right-0 top-1/2 -translate-y-1/2"
+                                            onClick={() => {
+                                              if (selectedContainers.length > 0) {
+                                                const firstContainer = selectedContainers[0]
+                                                const firstContainerPrice = containerPricing[firstContainer]?.rate || ""
+                                                const newPricing = { ...containerPricing }
+                                                selectedContainers.forEach(container => {
+                                                  newPricing[container] = {
+                                                    ...newPricing[container],
+                                                    rate: firstContainerPrice
+                                                  }
+                                                })
+                                                setContainerPricing(newPricing)
+                                              }
+                                            }}
+                                          >
+                                            <Copy className="h-4 w-4" />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Copy this value to all containers</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   )}
                                 </div>
                               </TableCell>
