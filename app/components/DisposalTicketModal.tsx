@@ -4,13 +4,22 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { materials, Material, MaterialPricing } from '@/app/config/materials';
 
-// Add new interface for disposal fee
+// Update the DisposalFee interface to match the pricing section
 interface DisposalFee {
-  id: string;
+  id: number;
   name: string;
-  date: string;
-  amount: number;
-  materialId: string;
+  description: string;
+  rateStructure: string;
+  rate: string;
+  minCharge: string;
+  businessLine: string;
+  status: string;
+  material: string;
+  includedTonnage: number;
+  glCode: string;
+  overageCharge: string;
+  overageThreshold: number;
+  tiers?: { id: number; from: number; to: number | null; rate: number }[];
 }
 
 interface DisposalTicketModalProps {
@@ -68,33 +77,68 @@ export default function DisposalTicketModal({
     }
   }, [isPricingPerTon, ticketPricing, containerRate, actualTonnage, selectedMaterial]);
 
-  // Add effect to update pricing when disposal fee is selected
+  // Update the useEffect for disposal fee selection
   useEffect(() => {
     if (selectedDisposalFee && selectedMaterial) {
-      // Update pricing based on the selected disposal fee
-      setCalculatedFeePrice(selectedDisposalFee.amount);
+      // When a disposal fee is selected, update the fee price but keep the ticket price calculation
+      const baseRate = parseFloat(selectedDisposalFee.rate.replace('$', ''));
+      const ticketPrice = calculateTicketPrice();
+      setCalculatedTicketPrice(ticketPrice);
+      
+      if (selectedDisposalFee.rateStructure === 'Per Ton') {
+        const chargeableTonnage = Math.max(0, actualTonnage - selectedDisposalFee.includedTonnage);
+        let feePrice = baseRate * chargeableTonnage;
+        if (actualTonnage > selectedDisposalFee.overageThreshold) {
+          feePrice += parseFloat(selectedDisposalFee.overageCharge.replace('$', ''));
+        }
+        setCalculatedFeePrice(feePrice);
+      } else {
+        setCalculatedFeePrice(baseRate);
+      }
+    } else {
+      // When no disposal fee is selected, calculate both prices normally
+      calculatePrices();
     }
-  }, [selectedDisposalFee]);
+  }, [selectedDisposalFee, actualTonnage]);
 
+  // Separate ticket price calculation
+  const calculateTicketPrice = () => {
+    if (!selectedMaterial) return 0;
+
+    if (isPricingPerTon) {
+      const chargeableTonnage = Math.max(0, actualTonnage - ticketPricing.includedTonnage);
+      let price = ticketPricing.rate * chargeableTonnage;
+      if (actualTonnage > ticketPricing.overageThreshold) {
+        price += ticketPricing.overageFee;
+      }
+      return price;
+    } else {
+      return containerRate;
+    }
+  };
+
+  // Update the main price calculation function
   const calculatePrices = () => {
     if (!selectedMaterial) return;
 
     // Calculate ticket price (what we're charged)
-    const chargeableTonnage = Math.max(0, actualTonnage - ticketPricing.includedTonnage);
-    let ticketPrice = ticketPricing.rate * chargeableTonnage;
-    if (actualTonnage > ticketPricing.overageThreshold) {
-      ticketPrice += ticketPricing.overageFee;
-    }
+    const ticketPrice = calculateTicketPrice();
     setCalculatedTicketPrice(ticketPrice);
 
-    // Calculate fee price (what we charge)
-    const feePricing = selectedMaterial.pricing.disposalFee;
-    const feeChargeableTonnage = Math.max(0, actualTonnage - feePricing.includedTonnage);
-    let feePrice = feePricing.rate * feeChargeableTonnage;
-    if (actualTonnage > feePricing.overageThreshold) {
-      feePrice += feePricing.overageFee;
+    // If no disposal fee is selected, calculate fee price based on material pricing
+    if (!selectedDisposalFee) {
+      if (isPricingPerTon) {
+        const feePricing = selectedMaterial.pricing.disposalFee;
+        const feeChargeableTonnage = Math.max(0, actualTonnage - feePricing.includedTonnage);
+        let feePrice = feePricing.rate * feeChargeableTonnage;
+        if (actualTonnage > feePricing.overageThreshold) {
+          feePrice += feePricing.overageFee;
+        }
+        setCalculatedFeePrice(feePrice);
+      } else {
+        setCalculatedFeePrice(selectedMaterial.pricing.disposalFee.containerRate || 0);
+      }
     }
-    setCalculatedFeePrice(feePrice);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,24 +202,54 @@ export default function DisposalTicketModal({
                   className="border rounded px-3 py-2 w-full"
                   value={selectedDisposalFee?.id || ''}
                   onChange={(e) => {
-                    const fee = disposalFees.find(f => f.id === e.target.value);
+                    const fee = disposalFees.find(f => f.id === Number(e.target.value));
                     setSelectedDisposalFee(fee || null);
+                    
+                    // Update pricing when a fee is selected
+                    if (fee) {
+                      const baseRate = parseFloat(fee.rate.replace('$', ''));
+                      setCalculatedFeePrice(baseRate);
+                      
+                      // Update the pricing structure based on the fee's configuration
+                      if (fee.rateStructure === 'Per Ton') {
+                        setIsPricingPerTon(true);
+                        const chargeableTonnage = Math.max(0, actualTonnage - fee.includedTonnage);
+                        let feePrice = baseRate * chargeableTonnage;
+                        if (actualTonnage > fee.overageThreshold) {
+                          feePrice += parseFloat(fee.overageCharge.replace('$', ''));
+                        }
+                        setCalculatedFeePrice(feePrice);
+                      } else if (fee.rateStructure === 'Per Container') {
+                        setIsPricingPerTon(false);
+                        setCalculatedFeePrice(baseRate);
+                      }
+                    }
                   }}
                   disabled={!selectedMaterial}
                 >
                   <option value="">Select a fee...</option>
                   {disposalFees
-                    .filter(fee => !selectedMaterial || fee.materialId === selectedMaterial.id)
+                    .filter(fee => fee.status === 'Active' && 
+                      (!selectedMaterial || fee.material === selectedMaterial.name))
                     .map(fee => (
                       <option key={fee.id} value={fee.id}>
-                        ${fee.amount.toFixed(2)} - {new Date(fee.date).toLocaleDateString()}
+                        {fee.name} - {fee.rateStructure === 'Per Ton' 
+                          ? `${fee.rate}/ton` 
+                          : fee.rate} ({fee.businessLine})
                       </option>
                     ))}
                 </select>
                 {selectedDisposalFee && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Fee: ${selectedDisposalFee.amount.toFixed(2)}
-                  </p>
+                  <div className="mt-2 text-sm text-gray-500">
+                    <div>Rate: {selectedDisposalFee.rate}</div>
+                    {selectedDisposalFee.rateStructure === 'Per Ton' && (
+                      <>
+                        <div>Included Tonnage: {selectedDisposalFee.includedTonnage} tons</div>
+                        <div>Overage Threshold: {selectedDisposalFee.overageThreshold} tons</div>
+                        <div>Overage Charge: {selectedDisposalFee.overageCharge}</div>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -316,7 +390,7 @@ export default function DisposalTicketModal({
             {selectedMaterial && (
               <div className="mt-6 space-y-4">
                 <div className="p-4 bg-gray-50 rounded">
-                  <div className="text-lg font-semibold mb-2">Disposal Ticket (Our Cost)</div>
+                  <div className="text-lg font-semibold mb-2">Disposal Ticket (Hauler Cost)</div>
                   <div className="text-2xl text-blue-600 mb-3">
                     ${calculatedTicketPrice.toFixed(2)}
                   </div>
@@ -374,7 +448,7 @@ export default function DisposalTicketModal({
                         <h4 className="font-medium text-gray-700 mb-2">Profit Analysis</h4>
                         <div className="space-y-1 text-gray-600">
                           <div className="flex justify-between">
-                            <span>Our Cost:</span>
+                            <span>Hauler Cost:</span>
                             <span>${calculatedTicketPrice.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between">
@@ -429,7 +503,7 @@ export default function DisposalTicketModal({
                         <h4 className="font-medium text-gray-700 mb-2">Profit Analysis</h4>
                         <div className="space-y-1 text-gray-600">
                           <div className="flex justify-between">
-                            <span>Our Cost:</span>
+                            <span>Hauler Cost:</span>
                             <span>${calculatedTicketPrice.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between">
@@ -612,6 +686,14 @@ export default function DisposalTicketModal({
                 actualTonnage,
                 connectedDisposalFeeId: selectedDisposalFee?.id,
                 connectedDisposalFeeName: selectedDisposalFee?.name,
+                // Add pricing details to ensure they're available
+                pricing: {
+                  rate: selectedDisposalFee ? selectedDisposalFee.rate : selectedMaterial?.pricing.disposalFee.rate,
+                  includedTonnage: selectedDisposalFee ? 0 : selectedMaterial?.pricing.disposalFee.includedTonnage,
+                  overageThreshold: selectedDisposalFee ? 0 : selectedMaterial?.pricing.disposalFee.overageThreshold,
+                  overageFee: selectedDisposalFee ? 0 : selectedMaterial?.pricing.disposalFee.overageFee,
+                  containerRate: selectedDisposalFee ? selectedDisposalFee.rate : selectedMaterial?.pricing.disposalFee.containerRate
+                }
               });
               onClose();
             }}
