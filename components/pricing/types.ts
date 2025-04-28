@@ -1,12 +1,13 @@
 // Define the MaterialPricing type
-export type MaterialPricing = {
-  materialType: string
-  rateStructure: string
+export interface MaterialPricing {
   rate: string
-  minCharge: string
-  freeTonnage: number
-  overageCharge: string
-  overageThreshold: number
+  minCharge?: string
+  freeTonnage?: number
+  rateStructure?: string
+  overageThreshold?: number
+  overageCharge?: string
+  includedTonnage?: number
+  materialType: string
   freeTonnageUnits?: string
   defaultRate?: string
   tiers?: { id: number; from: number; to: number | null; rate: number }[]

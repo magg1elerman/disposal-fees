@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Plus, Trash2, AlertCircle, HelpCircle } from "lucide-react"
+import { Plus, Trash2, AlertCircle, HelpCircle, Copy } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -534,6 +534,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                               <TableRow>
                                 <TableHead className="w-[180px]">Material</TableHead>
                                 <TableHead className="w-[200px]">Rate</TableHead>
+                                <TableHead className="w-[200px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[200px]">Overage Threshold</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -550,21 +552,23 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                       />
                                     </TableCell>
                                     <TableCell className="w-[200px]">
-                                      <div className="relative">
-                                        <span className="absolute left-3 top-2">$</span>
-                                        <Input
-                                          id={`${material.name}-rate`}
-                                          value={materialPricing[material.name]?.rate || ""}
-                                          onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
-                                          className="pl-7 pr-10 h-10 w-[100px]"
-                                          placeholder="0.00"
-                                        />
-                                        <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative flex-1">
+                                          <span className="absolute left-3 top-2">$</span>
+                                          <Input
+                                            id={`${material.name}-rate`}
+                                            value={materialPricing[material.name]?.rate || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
+                                            className="pl-7 pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute left-[110px] top-2 text-muted-foreground">per ton</span>
+                                        </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="absolute right-0 top-1/2 -translate-y-1/2"
+                                            className="shrink-0 p-2"
                                             onClick={() => {
                                               if (selectedMaterials.length > 0) {
                                                 const firstMaterial = selectedMaterials[0]
@@ -580,7 +584,87 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                               }
                                             }}
                                           >
-                                            Copy to all
+                                            <Copy className="h-4 w-4" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="w-[200px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative flex-1">
+                                          <Input
+                                            id={`${material.name}-included-tonnage`}
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            value={materialPricing[material.name]?.includedTonnage || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "includedTonnage", Number.parseFloat(e.target.value) || 0)}
+                                            className="pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="shrink-0 p-2"
+                                            onClick={() => {
+                                              if (selectedMaterials.length > 0) {
+                                                const firstMaterial = selectedMaterials[0]
+                                                const firstMaterialIncludedTonnage = materialPricing[firstMaterial]?.includedTonnage || 0
+                                                const newPricing = { ...materialPricing }
+                                                selectedMaterials.forEach(material => {
+                                                  newPricing[material] = {
+                                                    ...newPricing[material],
+                                                    includedTonnage: firstMaterialIncludedTonnage
+                                                  }
+                                                })
+                                                setMaterialPricing(newPricing)
+                                              }
+                                            }}
+                                          >
+                                            <Copy className="h-4 w-4" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="w-[200px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative flex-1">
+                                          <Input
+                                            id={`${material.name}-overage-threshold`}
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            value={materialPricing[material.name]?.overageThreshold || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                                            className="pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="shrink-0 p-2"
+                                            onClick={() => {
+                                              if (selectedMaterials.length > 0) {
+                                                const firstMaterial = selectedMaterials[0]
+                                                const firstMaterialThreshold = materialPricing[firstMaterial]?.overageThreshold || 0
+                                                const newPricing = { ...materialPricing }
+                                                selectedMaterials.forEach(material => {
+                                                  newPricing[material] = {
+                                                    ...newPricing[material],
+                                                    overageThreshold: firstMaterialThreshold
+                                                  }
+                                                })
+                                                setMaterialPricing(newPricing)
+                                              }
+                                            }}
+                                          >
+                                            <Copy className="h-4 w-4" />
                                           </Button>
                                         )}
                                       </div>
@@ -632,7 +716,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
 
                   {formData.rateStructure === "Per Ton" && (
                     <>
-                      <div className="space-y-2">
+                      {/* <div className="space-y-2">
                         <Label htmlFor="fee-included-tonnage">Included Tonnage</Label>
                         <div className="relative">
                           <Input
@@ -650,10 +734,10 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                         <div className="min-h-[20px]">
                           <p className="text-xs text-muted-foreground">Amount of material that is included in the base rate</p>
                         </div>
-                      </div>
+                      </div> */}
 
-                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <div className="space-y-2">
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-1">
+                        {/* <div className="space-y-2">
                           <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
                           <div className="relative">
                             <Input
@@ -670,12 +754,12 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           </div>
                           <div className="min-h-[20px]">
                             <p className="text-xs text-muted-foreground">
-                              Amount before overage charges apply
+                              Amount before overage fee applies
                             </p>
                           </div>
-                        </div>
+                        </div> */}
                         <div className="space-y-2">
-                          <Label htmlFor="fee-overage-charge">Overage Charge</Label>
+                          <Label htmlFor="fee-overage-charge">Overage Fee</Label>
                           <div className="relative">
                             <span className="absolute left-3 top-2.5">$</span>
                             <Input
@@ -688,7 +772,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           </div>
                           <div className="min-h-[20px]">
                             <p className="text-xs text-muted-foreground">
-                              Additional charge per ton over threshold
+                             Flat-rate fee charged when overage threshold is exceeded
                             </p>
                           </div>
                         </div>
@@ -759,7 +843,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                         }
                                       }}
                                     >
-                                      Copy to all
+                                      <Copy className="h-4 w-4" />
                                     </Button>
                                   )}
                                 </div>
