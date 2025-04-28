@@ -555,7 +555,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                     <TableCell className="w-[200px]">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
-                                          <span className="absolute left-3 top-2">$</span>
+                                          <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
                                           <Input
                                             id={`${material.name}-rate`}
                                             value={materialPricing[material.name]?.rate || ""}
@@ -563,7 +563,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                             className="pl-7 pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute left-[80px] top-2.5 text-muted-foreground text-xs">/ ton</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ ton</span>
 
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
@@ -613,7 +613,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -662,7 +662,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -790,7 +790,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                         <div className="space-y-2">
                           <Label htmlFor="fee-overage-charge">Overage Fee</Label>
                           <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
+                            <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
                             <Input
                               id="fee-overage-charge"
                               value={formData.overageCharge}
