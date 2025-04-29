@@ -189,6 +189,12 @@ export default function DisposalTicketModal({
     overageThreshold: 1.5,
     overageFee: 25.00
   });
+  const [tippingFeePricing, setTippingFeePricing] = useState<MaterialPricing['disposalTicket']>({
+    rate: 65.00,
+    includedTonnage: 1,
+    overageThreshold: 1.5,
+    overageFee: 20.00
+  });
   const [containerRate, setContainerRate] = useState(150.00);
   const [actualTonnage, setActualTonnage] = useState(0);
   const [calculatedTicketPrice, setCalculatedTicketPrice] = useState(0);
@@ -230,11 +236,21 @@ export default function DisposalTicketModal({
   // Update pricing when material is selected
   useEffect(() => {
     if (currentMaterial) {
-      setTicketPricing(currentMaterial.pricing.disposalTicket);
+      // Set tipping fee rate (Hauler Charge)
+      // Customer Charge uses the material's disposal fee base rate
+      setTicketPricing({ ...currentMaterial.pricing.disposalFee });
+
+      // Hauler Charge (tipping fee) is 15% below the base rate
+      setTippingFeePricing({
+        rate: currentMaterial.pricing.disposalFee.rate * 0.85,
+        includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
+        overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
+        overageFee: currentMaterial.pricing.disposalTicket.overageFee
+      });
+
       if (currentMaterial.pricing.disposalTicket.containerRate) {
         setContainerRate(currentMaterial.pricing.disposalTicket.containerRate);
       }
-      // If material doesn't allow per container pricing, force per ton
       if (!currentMaterial.allowPerContainer) {
         setIsPricingPerTon(true);
       }
@@ -341,6 +357,17 @@ export default function DisposalTicketModal({
       } else {
         setCalculatedFeePrice(currentMaterial.pricing.disposalFee.containerRate || 0);
       }
+    }
+  };
+
+  // Simplify tipping fee calculation to just rate × net weight
+  const calculateTippingFee = () => {
+    if (!currentMaterial) return 0;
+
+    if (isPricingPerTon) {
+      return tippingFeePricing.rate * actualTonnage; // Simple rate × net weight
+    } else {
+      return containerRate;
     }
   };
 
@@ -615,7 +642,7 @@ export default function DisposalTicketModal({
                   className="w-full border rounded-lg px-4 py-2 text-gray-700"
                   value={currentMaterial?.id || ''}
                   onChange={(e) => {
-                    const material = materials.find(m => m.id === e.target.value);
+                    const material = materials.find((m: Material) => m.id === e.target.value);
                     setCurrentMaterial(material || null);
                     if (material) {
                       // Set the default pricing type based on material settings
@@ -629,7 +656,7 @@ export default function DisposalTicketModal({
                   }}
                 >
                   <option value="">Select a material...</option>
-                  {materials.map(material => (
+                  {materials.map((material: Material) => (
                     <option key={material.id} value={material.id}>
                       {material.name}
                     </option>
@@ -796,7 +823,10 @@ export default function DisposalTicketModal({
             {/* Right Column - Fee Details */}
             <div className={`p-6 rounded-lg bg-gray-50`}>
               <div className="flex justify-between items-center mb-2">
-                <div className="text-sm font-semibold">{currentMaterial ? `${currentMaterial.name} Disposal Fee` : 'Disposal Fee'}</div>
+                <div>
+                  <div className="text-sm font-semibold">{currentMaterial ? currentMaterial.name : 'Select Material'}</div>
+                  <div className="text-xs text-gray-500">Disposal Fee Details</div>
+                </div>
                 <div className="relative group">
                   <button 
                     className="text-gray-500 hover:text-gray-700"
@@ -905,29 +935,29 @@ export default function DisposalTicketModal({
                   <div className="p-3 bg-white rounded shadow-sm">
                     <div className="space-y-1 text-gray-600">
                       <div className="flex justify-between">
-                        <span className="font-medium">Material:</span>
+                        <span className="font-medium text-xs">Material:</span>
                         <span>{currentMaterial?.name || 'Not selected'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-medium">Pricing Type:</span>
+                        <span className="font-medium text-xs">Pricing Type:</span>
                         <span>{currentMaterial ? (isPricingPerTon ? 'Per Ton' : 'Per Container') : 'Not selected'}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-medium">Base Rate:</span>
+                        <span className="font-medium text-xs">Base Rate:</span>
                         <span>{currentMaterial ? `$${currentMaterial.pricing.disposalTicket.rate.toFixed(2)}` : 'Not set'}</span>
                       </div>
                       {isPricingPerTon && (
                         <>
                           <div className="flex justify-between">
-                            <span className="font-medium">Included Tonnage:</span>
+                            <span className="font-medium text-xs">Included Tonnage:</span>
                             <span>{currentMaterial ? `${currentMaterial.pricing.disposalTicket.includedTonnage} tons` : 'Not set'}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="font-medium">Overage Threshold:</span>
+                            <span className="font-medium text-xs">Overage Threshold:</span>
                             <span>{currentMaterial ? `${currentMaterial.pricing.disposalTicket.overageThreshold} tons` : 'Not set'}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="font-medium">Overage Fee:</span>
+                            <span className="font-medium text-xs">Overage Fee:</span>
                             <span>{currentMaterial ? `$${currentMaterial.pricing.disposalTicket.overageFee.toFixed(2)}` : 'Not set'}</span>
                           </div>
                         </>
@@ -943,60 +973,40 @@ export default function DisposalTicketModal({
                 )}
               </div>
             </div>
+            
           </div>
         </div>
 
-
-        {/* Pricing Calculations */}
-        <div className="grid grid-cols-2 gap-8">
+        {/* Move tipping fee section above disposal fee */}
+        <div className="space-y-8">
+          {/* Tipping Fee Section */}
           <div className="p-6 bg-gray-50 rounded-lg">
-            <div className="text-lg font-semibold mb-2">Tipping Fee</div>
+            <div className="text-lg font-semibold mb-2">Tipping Fee (Hauler Charge)</div>
             <div className="text-2xl text-blue-600 mb-3">
-              ${calculatedTicketPrice.toFixed(2)}
+              ${calculateTippingFee().toFixed(2)}
             </div>
-            {isPricingPerTon && (
-              <div className="space-y-2 text-sm">
-                <div className="p-3 bg-white rounded shadow-sm">
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Net Rate:</span>
-                      <span>${ticketPricing.rate}/ton</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rate:</span>
-                      <span>${ticketPricing.rate}/ton</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between font-medium">
-                      <span>Total Cost:</span>
-                      <span>${calculatedTicketPrice.toFixed(2)}</span>
-                    </div>
+            <div className="space-y-2 text-sm">
+              <div className="p-3 bg-white rounded shadow-sm">
+                <div className="space-y-1 text-gray-600">
+                  <div className="flex justify-between">
+                    <span>Net Weight:</span>
+                    <span>{actualTonnage.toFixed(2)} tons</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Disposal Site Rate:</span>
+                    <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
+                  </div>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <div className="flex justify-between font-medium">
+                    <span>Total Cost:</span>
+                    <span>${calculateTippingFee().toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-            )}
-            {!isPricingPerTon && (
-              <div className="space-y-2 text-sm">
-                <div className="p-3 bg-white rounded shadow-sm">
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Net Rate:</span>
-                      <span>${containerRate.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rate:</span>
-                      <span>${containerRate.toFixed(2)}</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between font-medium">
-                      <span>Total Cost:</span>
-                      <span>${calculatedTicketPrice.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
+
+          {/* Disposal Fee Section */}
           <div className={`p-6 rounded-lg bg-gray-50`}>
             <div className="text-lg font-semibold mb-2">Disposal Fee (Customer Charge)</div>
             <div className="text-2xl text-blue-600 mb-3">
@@ -1009,7 +1019,7 @@ export default function DisposalTicketModal({
                   <div className="space-y-1 text-gray-600">
                     <div className="flex justify-between">
                       <span>Base Rate:</span>
-                      <span>${currentMaterial.pricing.disposalFee.rate}/ton</span>
+                      <span>${(currentMaterial.pricing.disposalTicket.rate).toFixed(2)}/ton</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Total Tonnage:</span>
@@ -1017,29 +1027,29 @@ export default function DisposalTicketModal({
                     </div>
                     <div className="flex justify-between">
                       <span>Included Tonnage:</span>
-                      <span>{currentMaterial.pricing.disposalFee.includedTonnage} tons</span>
+                      <span>{currentMaterial.pricing.disposalTicket.includedTonnage} tons</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Chargeable Tonnage:</span>
-                      <span>{Math.max(0, actualTonnage - currentMaterial.pricing.disposalFee.includedTonnage)} tons</span>
+                      <span>{Math.max(0, actualTonnage - currentMaterial.pricing.disposalTicket.includedTonnage)} tons</span>
                     </div>
                     <div className="border-t border-gray-200 my-2"></div>
                     <div className="flex justify-between">
                       <span>Base Charge:</span>
                       <span>
-                        ${(currentMaterial.pricing.disposalFee.rate * 
-                          Math.max(0, actualTonnage - currentMaterial.pricing.disposalFee.includedTonnage)).toFixed(2)}
+                        ${(currentMaterial.pricing.disposalTicket.rate * 1.10 * 
+                          Math.max(0, actualTonnage - currentMaterial.pricing.disposalTicket.includedTonnage)).toFixed(2)}
                       </span>
                     </div>
-                    {actualTonnage > currentMaterial.pricing.disposalFee.overageThreshold && (
+                    {actualTonnage > currentMaterial.pricing.disposalTicket.overageThreshold && (
                       <>
                         <div className="flex justify-between text-orange-600">
                           <span>Overage Fee:</span>
-                          <span>+${currentMaterial.pricing.disposalFee.overageFee.toFixed(2)}</span>
+                          <span>+${currentMaterial.pricing.disposalTicket.overageFee.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-xs">
-                            (Applied when tonnage exceeds {currentMaterial.pricing.disposalFee.overageThreshold} tons)
+                            (Applied when tonnage exceeds {currentMaterial.pricing.disposalTicket.overageThreshold} tons)
                           </span>
                         </div>
                       </>
