@@ -665,76 +665,106 @@ export default function DisposalTicketModal({
               </div>
               <hr></hr>
               <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Gross weight
+                </label>
+                <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
+                  <span className="text-gray-500 mr-2">Tons</span>
+                  <input
+                    type="number"
+                    className="w-full focus:outline-none"
+                    value={ticketDetails.weights.gross / 2000}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      weights: {
+                        ...prev.weights,
+                        gross: Number(e.target.value) * 2000
+                      }
+                    }))}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Net weight
+                </label>
+                <div className="flex items-center justify-between border rounded-lg px-4 py-2 bg-gray-50">
+                  <span className="text-gray-500 mr-2">Tons</span>
+                  {isEditingNetWeight ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={editedNetWeight || 0}
+                        onChange={(e) => setEditedNetWeight(parseFloat(e.target.value))}
+                        className="w-24 border rounded px-2 py-1 text-sm"
+                      />
+                      <button
+                        onClick={handleSaveNetWeight}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={handleCancelNetWeight}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between w-full">
+                      <div>{ticketDetails.weights.netTons.toFixed(2)}</div>
+                      <div className="relative group ml-2">
+                        <button 
+                          className="text-gray-500 hover:text-gray-700"
+                          onClick={handleEditNetWeight}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                          Override net weight
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Gross weight
+                    Vehicle Tare
                   </label>
-                  <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50">
                     <span className="text-gray-500 mr-2">Tons</span>
                     <input
                       type="number"
-                      className="w-full focus:outline-none"
-                      value={ticketDetails.weights.gross / 2000}
-                      onChange={(e) => setTicketDetails(prev => ({
-                        ...prev,
-                        weights: {
-                          ...prev.weights,
-                          gross: Number(e.target.value) * 2000
-                        }
-                      }))}
+                      className="w-full focus:outline-none bg-transparent"
+                      value={ticketDetails.weights.vehicleTare / 2000}
+                      readOnly
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Net weight
+                    Container Tare
                   </label>
-                  <div className="flex items-center justify-between border rounded-lg px-4 py-2 bg-gray-50">
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50">
                     <span className="text-gray-500 mr-2">Tons</span>
-                    {isEditingNetWeight ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          value={editedNetWeight || 0}
-                          onChange={(e) => setEditedNetWeight(parseFloat(e.target.value))}
-                          className="w-24 border rounded px-2 py-1 text-sm"
-                        />
-                        <button
-                          onClick={handleSaveNetWeight}
-                          className="text-green-600 hover:text-green-700"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={handleCancelNetWeight}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-between w-full">
-                        <div>{ticketDetails.weights.netTons.toFixed(2)}</div>
-                        <div className="relative group ml-2">
-                          <button 
-                            className="text-gray-500 hover:text-gray-700"
-                            onClick={handleEditNetWeight}
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                            Override net weight
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <input
+                      type="number"
+                      className="w-full focus:outline-none bg-transparent"
+                      value={ticketDetails.weights.containerTare / 2000}
+                      readOnly
+                    />
                   </div>
                 </div>
+              </div>
             </div>
 
             {/* Right Column - Fee Details */}
@@ -890,54 +920,6 @@ export default function DisposalTicketModal({
           </div>
         </div>
 
-        {/* Weight Fields */}
-        <div className="bg-gray-50 p-8 rounded-lg mb-8">
-          <h3 className="text-lg font-medium mb-4">Weight Details</h3>
-          <div className="grid grid-cols-4 gap-4">
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Vehicle Tare
-              </label>
-              <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
-                <span className="text-gray-500 mr-2">Tons</span>
-                <input
-                  type="number"
-                  className="w-full focus:outline-none"
-                  value={ticketDetails.weights.vehicleTare / 2000}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    weights: {
-                      ...prev.weights,
-                      vehicleTare: Number(e.target.value) * 2000
-                    }
-                  }))}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Container Tare
-              </label>
-              <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
-                <span className="text-gray-500 mr-2">Tons</span>
-                <input
-                  type="number"
-                  className="w-full focus:outline-none"
-                  value={ticketDetails.weights.containerTare / 2000}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    weights: {
-                      ...prev.weights,
-                      containerTare: Number(e.target.value) * 2000
-                    }
-                  }))}
-                />
-              </div>
-            </div>
-          
-          </div>
-        </div>
 
         {/* Pricing Calculations */}
         <div className="grid grid-cols-2 gap-8">
