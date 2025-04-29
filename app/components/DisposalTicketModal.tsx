@@ -407,7 +407,7 @@ export default function DisposalTicketModal({
             <h3 className="text-lg font-medium text-gray-700 mb-4">Ticket information</h3>
             
             {/* Basic Info */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-4 mb-8">
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">
                   Ticket #
@@ -425,28 +425,6 @@ export default function DisposalTicketModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Disposal site
-                </label>
-                <select
-                  className="w-full border rounded-lg px-4 py-2 text-gray-700"
-                  value={ticketDetails.disposalSite}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    disposalSite: e.target.value
-                  }))}
-                >
-                  <option value="">Select a disposal site</option>
-                  {disposalSites.map(site => (
-                    <option key={site} value={site}>{site}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
                   Date/Time
                 </label>
                 <input
@@ -459,20 +437,93 @@ export default function DisposalTicketModal({
                   }))}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Memo
+            </div>
+
+            {/* Source Selector */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Source
+              </label>
+              <div className="flex space-x-6">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-blue-600"
+                    name="source"
+                    value="office"
+                    checked={ticketDetails.source === 'office'}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      source: 'office'
+                    }))}
+                  />
+                  <span className="ml-2">Office</span>
                 </label>
-                <input
-                  type="text"
-                  className="w-full border rounded-lg px-4 py-2"
-                  value={ticketDetails.memo}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    memo: e.target.value
-                  }))}
-                />
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-blue-600"
+                    name="source"
+                    value="route"
+                    checked={ticketDetails.source === 'route'}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      source: 'route'
+                    }))}
+                  />
+                  <span className="ml-2">Route</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-blue-600"
+                    name="source"
+                    value="scale kiosk"
+                    checked={ticketDetails.source === 'scale kiosk'}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      source: 'scale kiosk'
+                    }))}
+                  />
+                  <span className="ml-2">Scale Kiosk</span>
+                </label>
               </div>
+            </div>
+
+            {/* Disposal Site */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Disposal site
+              </label>
+              <select
+                className="w-full border rounded-lg px-4 py-2 text-gray-700"
+                value={ticketDetails.disposalSite}
+                onChange={(e) => setTicketDetails(prev => ({
+                  ...prev,
+                  disposalSite: e.target.value
+                }))}
+              >
+                <option value="">Select a disposal site</option>
+                {disposalSites.map(site => (
+                  <option key={site} value={site}>{site}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Memo */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Memo
+              </label>
+              <input
+                type="text"
+                className="w-full border rounded-lg px-4 py-2"
+                value={ticketDetails.memo}
+                onChange={(e) => setTicketDetails(prev => ({
+                  ...prev,
+                  memo: e.target.value
+                }))}
+              />
             </div>
           </div>
 
@@ -589,20 +640,8 @@ export default function DisposalTicketModal({
             </div>
 
             {/* Right Column - Fee Details */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Fee Details</h3>
-                {currentMaterial && (
-                  <button
-                    onClick={() => handleEditFee(currentMaterial)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </button>
-                )}
-              </div>
+            <div className="p-6 bg-blue-50 rounded-lg">
+              <div className="text-lg font-semibold mb-2">Fee Details</div>
               <div className="mt-4">
                 {isEditingFee && editedFee ? (
                   <div className="space-y-4">
@@ -672,34 +711,43 @@ export default function DisposalTicketModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Material:</span> {currentMaterial?.name || 'Not selected'}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Pricing Type:</span> {currentMaterial ? (isPricingPerTon ? 'Per Ton' : 'Per Container') : 'Not selected'}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Base Rate:</span> {currentMaterial ? `$${currentMaterial.pricing.disposalTicket.rate.toFixed(2)}` : 'Not set'}
-                    </p>
-                    {isPricingPerTon && (
-                      <>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Included Tonnage:</span> {currentMaterial ? `${currentMaterial.pricing.disposalTicket.includedTonnage} tons` : 'Not set'}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Overage Threshold:</span> {currentMaterial ? `${currentMaterial.pricing.disposalTicket.overageThreshold} tons` : 'Not set'}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Overage Fee:</span> {currentMaterial ? `$${currentMaterial.pricing.disposalTicket.overageFee.toFixed(2)}` : 'Not set'}
-                        </p>
-                      </>
-                    )}
-                    {!isPricingPerTon && (
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Container Rate:</span> {currentMaterial ? `$${currentMaterial.pricing.disposalTicket.containerRate?.toFixed(2)}` : 'Not set'}
-                      </p>
-                    )}
+                  <div className="p-3 bg-white rounded shadow-sm">
+                    <div className="space-y-1 text-gray-600">
+                      <div className="flex justify-between">
+                        <span className="font-medium">Material:</span>
+                        <span>{currentMaterial?.name || 'Not selected'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Pricing Type:</span>
+                        <span>{currentMaterial ? (isPricingPerTon ? 'Per Ton' : 'Per Container') : 'Not selected'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium">Base Rate:</span>
+                        <span>{currentMaterial ? `$${currentMaterial.pricing.disposalTicket.rate.toFixed(2)}` : 'Not set'}</span>
+                      </div>
+                      {isPricingPerTon && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="font-medium">Included Tonnage:</span>
+                            <span>{currentMaterial ? `${currentMaterial.pricing.disposalTicket.includedTonnage} tons` : 'Not set'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium">Overage Threshold:</span>
+                            <span>{currentMaterial ? `${currentMaterial.pricing.disposalTicket.overageThreshold} tons` : 'Not set'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium">Overage Fee:</span>
+                            <span>{currentMaterial ? `$${currentMaterial.pricing.disposalTicket.overageFee.toFixed(2)}` : 'Not set'}</span>
+                          </div>
+                        </>
+                      )}
+                      {!isPricingPerTon && (
+                        <div className="flex justify-between">
+                          <span className="font-medium">Container Rate:</span>
+                          <span>{currentMaterial ? `$${currentMaterial.pricing.disposalTicket.containerRate?.toFixed(2)}` : 'Not set'}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
