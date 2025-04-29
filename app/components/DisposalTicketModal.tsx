@@ -455,7 +455,7 @@ export default function DisposalTicketModal({
         </div>
 
         {/* Two Column Layout for Ticket Info and Image */}
-        <div className="bg-gray-50 p-8 rounded-lg mb-8">
+        <div className="bg-white p-8 rounded-lg mb-8">
           <div className="grid grid-cols-2 gap-12">
             {/* Left Column - Ticket Information */}
             <div>
@@ -595,7 +595,7 @@ export default function DisposalTicketModal({
                   </button>
                 )}
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center h-[calc(100%-4rem)]">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center h-[calc(100%-4rem)] bg-gray-50">
                 {ticketImage ? (
                   <div className="relative h-full flex items-center justify-center">
                     <img
@@ -629,8 +629,10 @@ export default function DisposalTicketModal({
           </div>
         </div>
 
+        <hr className="my-8 border-gray-200" />
+
         {/* Material & Fee Selection Section */}
-        <div className="bg-gray-50 p-8 rounded-lg mb-8">
+        <div className="bg-white p-8 rounded-lg mb-8">
           <h3 className="text-lg font-medium mb-4">Details</h3>
           
           <div className="grid grid-cols-2 gap-12">
@@ -1000,6 +1002,8 @@ export default function DisposalTicketModal({
           </div>
         </div>
 
+        <hr className="my-8 pb-3 border-gray-200" />
+
         {/* Move tipping fee section above disposal fee */}
         <div className="space-y-8">
           {/* Tipping Fee Section */}
@@ -1027,8 +1031,8 @@ export default function DisposalTicketModal({
           </div> */}
 
           {/* Disposal Fee Section */}
-          <div className={`p-6 rounded-lg bg-gray-50`}>
-            <div className="text-lg font-semibold mb-2">Disposal Fee (Customer Charge)</div>
+          <div className={`p-6 my-6 rounded-lg bg-gray-50`}>
+            <div className="text-lg font-semibold mb-2">Disposal Fee </div>
             <div className="text-2xl text-blue-600 mb-3">
               ${calculatedFeePrice.toFixed(2)}
             </div>
