@@ -455,174 +455,176 @@ export default function DisposalTicketModal({
         </div>
 
         {/* Two Column Layout for Ticket Info and Image */}
-        <div className="grid grid-cols-2 gap-8 mb-8">
-          {/* Left Column - Ticket Information */}
-          <div className="bg-gray-50 p-8 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-700 mb-4">Basic Information</h3>
-            
-            {/* Basic Info */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <div>
+        <div className="bg-gray-50 p-8 rounded-lg mb-8">
+          <div className="grid grid-cols-2 gap-12">
+            {/* Left Column - Ticket Information */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-700 mb-4">Basic Information</h3>
+              
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Ticket #
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded-lg px-4 py-2"
+                    value={ticketDetails.transactionNumber}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      transactionNumber: e.target.value
+                    }))}
+                    placeholder="Enter ticket number"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Date/Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="w-full border rounded-lg px-4 py-2"
+                    value={ticketDetails.dateTime.slice(0, 16)}
+                    onChange={(e) => setTicketDetails(prev => ({
+                      ...prev,
+                      dateTime: new Date(e.target.value).toISOString()
+                    }))}
+                  />
+                </div>
+              </div>
+
+              {/* Source Selector */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-600 mb-2">
+                  Source
+                </label>
+                <div className="flex space-x-6">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio text-blue-600"
+                      name="source"
+                      value="office"
+                      checked={ticketDetails.source === 'office'}
+                      onChange={(e) => setTicketDetails(prev => ({
+                        ...prev,
+                        source: 'office'
+                      }))}
+                    />
+                    <span className="ml-2">Office</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio text-blue-600"
+                      name="source"
+                      value="route"
+                      checked={ticketDetails.source === 'route'}
+                      onChange={(e) => setTicketDetails(prev => ({
+                        ...prev,
+                        source: 'route'
+                      }))}
+                    />
+                    <span className="ml-2">Route</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio text-blue-600"
+                      name="source"
+                      value="scale kiosk"
+                      checked={ticketDetails.source === 'scale kiosk'}
+                      onChange={(e) => setTicketDetails(prev => ({
+                        ...prev,
+                        source: 'scale kiosk'
+                      }))}
+                    />
+                    <span className="ml-2">Scale Kiosk</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Disposal Site */}
+              <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Ticket #
+                  Disposal site
+                </label>
+                <select
+                  className="w-full border rounded-lg px-4 py-2 text-gray-700"
+                  value={ticketDetails.disposalSite}
+                  onChange={(e) => setTicketDetails(prev => ({
+                    ...prev,
+                    disposalSite: e.target.value
+                  }))}
+                >
+                  <option value="">Select a disposal site</option>
+                  {disposalSites.map(site => (
+                    <option key={site} value={site}>{site}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Memo */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Memo
                 </label>
                 <input
                   type="text"
                   className="w-full border rounded-lg px-4 py-2"
-                  value={ticketDetails.transactionNumber}
+                  value={ticketDetails.memo}
                   onChange={(e) => setTicketDetails(prev => ({
                     ...prev,
-                    transactionNumber: e.target.value
-                  }))}
-                  placeholder="Enter ticket number"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Date/Time
-                </label>
-                <input
-                  type="datetime-local"
-                  className="w-full border rounded-lg px-4 py-2"
-                  value={ticketDetails.dateTime.slice(0, 16)}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    dateTime: new Date(e.target.value).toISOString()
+                    memo: e.target.value
                   }))}
                 />
               </div>
             </div>
 
-            {/* Source Selector */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Source
-              </label>
-              <div className="flex space-x-6">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-blue-600"
-                    name="source"
-                    value="office"
-                    checked={ticketDetails.source === 'office'}
-                    onChange={(e) => setTicketDetails(prev => ({
-                      ...prev,
-                      source: 'office'
-                    }))}
-                  />
-                  <span className="ml-2">Office</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-blue-600"
-                    name="source"
-                    value="route"
-                    checked={ticketDetails.source === 'route'}
-                    onChange={(e) => setTicketDetails(prev => ({
-                      ...prev,
-                      source: 'route'
-                    }))}
-                  />
-                  <span className="ml-2">Route</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-blue-600"
-                    name="source"
-                    value="scale kiosk"
-                    checked={ticketDetails.source === 'scale kiosk'}
-                    onChange={(e) => setTicketDetails(prev => ({
-                      ...prev,
-                      source: 'scale kiosk'
-                    }))}
-                  />
-                  <span className="ml-2">Scale Kiosk</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Disposal Site */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Disposal site
-              </label>
-              <select
-                className="w-full border rounded-lg px-4 py-2 text-gray-700"
-                value={ticketDetails.disposalSite}
-                onChange={(e) => setTicketDetails(prev => ({
-                  ...prev,
-                  disposalSite: e.target.value
-                }))}
-              >
-                <option value="">Select a disposal site</option>
-                {disposalSites.map(site => (
-                  <option key={site} value={site}>{site}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Memo */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Memo
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded-lg px-4 py-2"
-                value={ticketDetails.memo}
-                onChange={(e) => setTicketDetails(prev => ({
-                  ...prev,
-                  memo: e.target.value
-                }))}
-              />
-            </div>
-          </div>
-
-          {/* Right Column - Image Upload */}
-          <div className="bg-gray-50 p-8 rounded-lg">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">Disposal Ticket Image</h3>
-              {ticketImage && (
-                <button
-                  onClick={() => setTicketImage(null)}
-                  className="text-sm text-red-600 hover:text-red-700"
-                >
-                  Remove Image
-                </button>
-              )}
-            </div>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center h-[calc(100%-4rem)]">
-              {ticketImage ? (
-                <div className="relative h-full flex items-center justify-center">
-                  <img
-                    src={ticketImage}
-                    alt="Disposal Ticket"
-                    className="max-w-full max-h-full rounded object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="ticket-image-upload"
-                  />
-                  <label
-                    htmlFor="ticket-image-upload"
-                    className="cursor-pointer text-blue-600 hover:text-blue-700"
+            {/* Right Column - Image Upload */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                {/* <h3 className="text-sm font-medium">Disposal Ticket Image</h3> */}
+                {ticketImage && (
+                  <button
+                    onClick={() => setTicketImage(null)}
+                    className="text-sm text-red-600 hover:text-red-700"
                   >
-                    Upload Image
-                  </label>
-                  <p className="text-sm text-gray-500 mt-2">
-                    Click to upload or drag and drop
-                  </p>
-                </div>
-              )}
+                    Remove Image
+                  </button>
+                )}
+              </div>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center h-[calc(100%-4rem)]">
+                {ticketImage ? (
+                  <div className="relative h-full flex items-center justify-center">
+                    <img
+                      src={ticketImage}
+                      alt="Disposal Ticket"
+                      className="max-w-full max-h-full rounded object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="ticket-image-upload"
+                    />
+                    <label
+                      htmlFor="ticket-image-upload"
+                      className="cursor-pointer text-blue-600 hover:text-blue-700"
+                    >
+                      Upload Image
+                    </label>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Click to upload or drag and drop
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -631,7 +633,7 @@ export default function DisposalTicketModal({
         <div className="bg-gray-50 p-8 rounded-lg mb-8">
           <h3 className="text-lg font-medium mb-4">Details</h3>
           
-          <div className="grid grid-cols-2 space-x-8 gap-8">
+          <div className="grid grid-cols-2 gap-12">
             {/* Left Column - Material Selection */}
             <div className="space-y-6">
               <div>
@@ -826,7 +828,6 @@ export default function DisposalTicketModal({
               <div className="flex justify-between items-center mb-2">
                 <div>
                   <div className="text-sm font-semibold">Disposal Fee Settings</div>
-
                 </div>
                 <div className="relative group">
                   <button 
@@ -975,29 +976,27 @@ export default function DisposalTicketModal({
               </div>
               {/* <hr className="my-8"></hr> */}
               {/* Tipping Fee Section */}
-                <div className="pt-8 text-sm font-semibold mb-2">Tipping Fee</div>
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 bg-white rounded shadow-sm">
-                    <div className="space-y-1 text-gray-600">
-                      <div className="flex justify-between">
-                        <span>Net Weight:</span>
-                        <span>{actualTonnage.toFixed(2)} tons</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Disposal Site Rate:</span>
-                        <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
-                      </div>
-                      <div className="border-t border-gray-200 my-2"></div>
-                      <div className="flex justify-between font-medium">
-                        <span>Total Cost:</span>
-                        <span>${calculateTippingFee().toFixed(2)}</span>
-                      </div>
+              <div className="pt-8 text-sm font-semibold mb-2">Tipping Fee</div>
+              <div className="space-y-2 text-xs">
+                <div className="p-3 bg-white rounded shadow-sm">
+                  <div className="space-y-1 text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Net Weight:</span>
+                      <span>{actualTonnage.toFixed(2)} tons</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Disposal Site Rate:</span>
+                      <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
+                    </div>
+                    <div className="border-t border-gray-200 my-2"></div>
+                    <div className="flex justify-between font-medium">
+                      <span>Total Cost:</span>
+                      <span>${calculateTippingFee().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
-        
+              </div>
             </div>
-            
           </div>
         </div>
 
