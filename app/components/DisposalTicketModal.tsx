@@ -60,29 +60,29 @@ export default function DisposalTicketModal({
   disposalFees = [
     {
       id: 1,
-      name: "Standard C&D Disposal",
-      description: "Standard construction and demolition disposal fee",
+      name: "Standard MSW Disposal",
+      description: "Standard municipal solid waste disposal fee",
       rateStructure: "Per Ton",
-      rate: "$85.00",
-      minCharge: "$85.00",
-      businessLine: "Construction",
+      rate: "$95.00",
+      minCharge: "$95.00",
+      businessLine: "Residential",
       status: "Active",
-      material: "C&D",
+      material: "Municipal Solid Waste",
       includedTonnage: 1,
       glCode: "4000",
-      overageCharge: "$25.00",
+      overageCharge: "$35.00",
       overageThreshold: 1.5
     },
     {
       id: 2,
-      name: "Bulk MSW Container",
+      name: "MSW Container Rate",
       description: "Municipal solid waste container fee",
       rateStructure: "Per Container",
-      rate: "$150.00",
-      minCharge: "$150.00",
-      businessLine: "Residential",
+      rate: "$185.00",
+      minCharge: "$185.00",
+      businessLine: "Commercial",
       status: "Active",
-      material: "MSW",
+      material: "Municipal Solid Waste",
       includedTonnage: 0,
       glCode: "4001",
       overageCharge: "$0.00",
@@ -90,63 +90,93 @@ export default function DisposalTicketModal({
     },
     {
       id: 3,
-      name: "Commercial Organics",
-      description: "Commercial food waste and organics",
+      name: "Standard Green Waste",
+      description: "Yard waste and organic material disposal",
       rateStructure: "Per Ton",
+      rate: "$65.00",
+      minCharge: "$65.00",
+      businessLine: "Residential",
+      status: "Active",
+      material: "Green Waste",
+      includedTonnage: 2,
+      glCode: "4002",
+      overageCharge: "$25.00",
+      overageThreshold: 2.5
+    },
+    {
+      id: 4,
+      name: "Green Waste Container",
+      description: "Container rate for yard waste",
+      rateStructure: "Per Container",
+      rate: "$125.00",
+      minCharge: "$125.00",
+      businessLine: "Commercial",
+      status: "Active",
+      material: "Green Waste",
+      includedTonnage: 0,
+      glCode: "4003",
+      overageCharge: "$0.00",
+      overageThreshold: 0
+    },
+    {
+      id: 5,
+      name: "C&D Disposal",
+      description: "Construction and demolition waste disposal",
+      rateStructure: "Per Ton",
+      rate: "$110.00",
+      minCharge: "$110.00",
+      businessLine: "Construction",
+      status: "Active",
+      material: "Construction & Demolition",
+      includedTonnage: 1,
+      glCode: "4004",
+      overageCharge: "$50.00",
+      overageThreshold: 1.25
+    },
+    {
+      id: 6,
+      name: "Standard Recycling",
+      description: "Mixed recyclables processing fee",
+      rateStructure: "Per Ton",
+      rate: "$50.00",
+      minCharge: "$50.00",
+      businessLine: "Residential",
+      status: "Active",
+      material: "Recyclables",
+      includedTonnage: 1.5,
+      glCode: "4005",
+      overageCharge: "$20.00",
+      overageThreshold: 2
+    },
+    {
+      id: 7,
+      name: "Recycling Container",
+      description: "Container rate for recyclables",
+      rateStructure: "Per Container",
       rate: "$95.00",
       minCharge: "$95.00",
       businessLine: "Commercial",
       status: "Active",
-      material: "Food Waste",
-      includedTonnage: 0.5,
-      glCode: "4002",
-      overageCharge: "$30.00",
-      overageThreshold: 1
-    },
-    {
-      id: 4,
-      name: "Residential Green Waste",
-      description: "Residential yard waste disposal",
-      rateStructure: "Per Ton",
-      rate: "$65.00",
-      minCharge: "$45.00",
-      businessLine: "Residential",
-      status: "Active",
-      material: "Green Waste",
-      includedTonnage: 0.25,
-      glCode: "4003",
-      overageCharge: "$20.00",
-      overageThreshold: 0.75
-    },
-    {
-      id: 5,
-      name: "Archived C&D Rate",
-      description: "Old construction and demolition rate",
-      rateStructure: "Per Ton",
-      rate: "$75.00",
-      minCharge: "$75.00",
-      businessLine: "Construction",
-      status: "Inactive",
-      material: "C&D",
-      includedTonnage: 1,
-      glCode: "4000",
-      overageCharge: "$20.00",
-      overageThreshold: 1.5
-    },
-    {
-      id: 6,
-      name: "Special Waste Container",
-      description: "Special handling container fee",
-      rateStructure: "Per Container",
-      rate: "$250.00",
-      minCharge: "$250.00",
-      businessLine: "Industrial",
-      status: "Active",
-      material: "Special Waste",
+      material: "Recyclables",
       includedTonnage: 0,
-      glCode: "4004",
+      glCode: "4006",
       overageCharge: "$0.00",
       overageThreshold: 0
+    },
+    {
+      id: 8,
+      name: "Hazardous Waste Disposal",
+      description: "Special handling for hazardous materials",
+      rateStructure: "Per Ton",
+      rate: "$195.00",
+      minCharge: "$195.00",
+      businessLine: "Industrial",
+      status: "Active",
+      material: "Hazardous Waste",
+      includedTonnage: 0.5,
+      glCode: "4007",
+      overageCharge: "$100.00",
+      overageThreshold: 0.75
     }
   ]
 }: DisposalTicketModalProps) {
@@ -495,7 +525,7 @@ export default function DisposalTicketModal({
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <h3 className="text-lg font-medium mb-4">Material & Fee Details</h3>
           
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">
                 Material
@@ -542,35 +572,6 @@ export default function DisposalTicketModal({
                     </option>
                   ))}
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Unit of measure
-              </label>
-              <div className="flex gap-2">
-                <button
-                  className={`flex-1 px-4 py-2 rounded-lg ${
-                    isPricingPerTon
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}
-                  onClick={() => setIsPricingPerTon(true)}
-                >
-                  Per Ton
-                </button>
-                {currentMaterial?.allowPerContainer && (
-                  <button
-                    className={`flex-1 px-4 py-2 rounded-lg ${
-                      !isPricingPerTon
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
-                    onClick={() => setIsPricingPerTon(false)}
-                  >
-                    Per Container
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         </div>
