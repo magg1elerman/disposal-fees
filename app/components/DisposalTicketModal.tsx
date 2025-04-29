@@ -748,6 +748,14 @@ export default function DisposalTicketModal({
                       value={ticketDetails.weights.vehicleTare / 2000}
                       readOnly
                     />
+                    <div className="relative group ml-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        This value is preset and cannot be edited. Please contact an administrator if you need to request a change.
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -762,6 +770,14 @@ export default function DisposalTicketModal({
                       value={ticketDetails.weights.containerTare / 2000}
                       readOnly
                     />
+                    <div className="relative group ml-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        This value is preset and cannot be edited. Please contact an administrator if you need to request a change.
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -924,7 +940,7 @@ export default function DisposalTicketModal({
         {/* Pricing Calculations */}
         <div className="grid grid-cols-2 gap-8">
           <div className="p-6 bg-gray-50 rounded-lg">
-            <div className="text-lg font-semibold mb-2">Disposal Ticket (Hauler Cost)</div>
+            <div className="text-lg font-semibold mb-2">Tipping Fee</div>
             <div className="text-2xl text-blue-600 mb-3">
               ${calculatedTicketPrice.toFixed(2)}
             </div>
