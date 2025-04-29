@@ -79,16 +79,18 @@ export const materials: Material[] = [
         rate: 85.00,
         includedTonnage: 1,
         overageThreshold: 1.25,
-        overageFee: 35.00
+        overageFee: 35.00,
+        containerRate: 175.00
       },
       disposalFee: {
         rate: 110.00,
         includedTonnage: 1,
         overageThreshold: 1.25,
-        overageFee: 50.00
+        overageFee: 50.00,
+        containerRate: 225.00
       }
     },
-    allowPerContainer: false
+    allowPerContainer: true
   },
   {
     id: 'recyclables',
@@ -121,15 +123,17 @@ export const materials: Material[] = [
         rate: 150.00,
         includedTonnage: 0.5,
         overageThreshold: 0.75,
-        overageFee: 75.00
+        overageFee: 75.00,
+        containerRate: 295.00
       },
       disposalFee: {
         rate: 195.00,
         includedTonnage: 0.5,
         overageThreshold: 0.75,
-        overageFee: 100.00
+        overageFee: 100.00,
+        containerRate: 395.00
       }
     },
-    allowPerContainer: false
+    allowPerContainer: true
   }
 ]; 
