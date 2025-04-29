@@ -4,6 +4,20 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { materials, Material, MaterialPricing } from '@/app/config/materials';
 
+const materialColors: { [key: string]: string } = {
+  "MSW": "bg-blue-200",
+  "Recycling": "bg-green-200",
+  "C&D": "bg-cyan-100",
+  "Mattress": "bg-purple-200",
+  "Green Waste": "bg-green-100",
+  "Hazardous Waste": "bg-red-200",
+  "Tire": "bg-yellow-200",
+  "Brush": "bg-indigo-100",
+  "Shingles": "bg-gray-500",
+  "Friable Asbestos": "bg-yellow-100",
+  "Non-Friable Asbestos": "bg-yellow-200"
+};
+
 // Update the DisposalFee interface to match the pricing section
 interface DisposalFee {
   id: number;
@@ -794,7 +808,7 @@ export default function DisposalTicketModal({
             </div>
 
             {/* Right Column - Fee Details */}
-            <div className="p-6 bg-blue-50 rounded-lg">
+            <div className={`p-6 rounded-lg ${currentMaterial ? materialColors[currentMaterial.name] : 'bg-blue-50'}`}>
               <div className="flex justify-between items-center mb-2">
                 <div className="text-sm font-semibold">{currentMaterial ? `${currentMaterial.name} Disposal Fee` : 'Disposal Fee'}</div>
                 <div className="relative group">
@@ -997,7 +1011,7 @@ export default function DisposalTicketModal({
               </div>
             )}
           </div>
-          <div className="p-6 bg-blue-50 rounded-lg">
+          <div className={`p-6 rounded-lg ${currentMaterial ? materialColors[currentMaterial.name] : 'bg-blue-50'}`}>
             <div className="text-lg font-semibold mb-2">Disposal Fee (Customer Charge)</div>
             <div className="text-2xl text-blue-600 mb-3">
               ${calculatedFeePrice.toFixed(2)}
