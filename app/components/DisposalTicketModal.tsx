@@ -224,6 +224,8 @@ export default function DisposalTicketModal({
     overageFee: number;
     containerRate: number;
   } | null>(null);
+  const [isEditingNetWeight, setIsEditingNetWeight] = useState(false);
+  const [editedNetWeight, setEditedNetWeight] = useState<number | null>(null);
 
   // Update pricing when material is selected
   useEffect(() => {
@@ -388,6 +390,31 @@ export default function DisposalTicketModal({
     }
   };
 
+  const handleEditNetWeight = () => {
+    setEditedNetWeight(ticketDetails.weights.netTons);
+    setIsEditingNetWeight(true);
+  };
+
+  const handleSaveNetWeight = () => {
+    if (editedNetWeight !== null) {
+      setTicketDetails(prev => ({
+        ...prev,
+        weights: {
+          ...prev.weights,
+          netTons: editedNetWeight,
+          netWeight: editedNetWeight * 2000 // Convert tons to pounds
+        }
+      }));
+      setIsEditingNetWeight(false);
+      setEditedNetWeight(null);
+    }
+  };
+
+  const handleCancelNetWeight = () => {
+    setIsEditingNetWeight(false);
+    setEditedNetWeight(null);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -404,7 +431,7 @@ export default function DisposalTicketModal({
         <div className="grid grid-cols-2 gap-8 mb-8">
           {/* Left Column - Ticket Information */}
           <div className="bg-gray-50 p-8 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-700 mb-4">Ticket information</h3>
+            <h3 className="text-lg font-medium text-gray-700 mb-4">Basic Information</h3>
             
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4 mb-8">
@@ -575,7 +602,7 @@ export default function DisposalTicketModal({
 
         {/* Material & Fee Selection Section */}
         <div className="bg-gray-50 p-8 rounded-lg mb-8">
-          <h3 className="text-lg font-medium mb-4">Material & Fee Details</h3>
+          <h3 className="text-lg font-medium mb-4">Details</h3>
           
           <div className="grid grid-cols-2 gap-8">
             {/* Left Column - Material Selection */}
@@ -610,40 +637,137 @@ export default function DisposalTicketModal({
                 </select>
               </div>
 
-              {currentMaterial && (
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-gray-600">Pricing Type:</label>
                 <div className="flex items-center space-x-4">
-                  <label className="text-sm font-medium text-gray-600">Pricing Type:</label>
-                  <div className="flex items-center space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-blue-600"
-                        checked={isPricingPerTon}
-                        onChange={() => setIsPricingPerTon(true)}
-                        disabled={!currentMaterial.allowPerContainer}
-                      />
-                      <span className="ml-2">Per Ton</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-blue-600"
-                        checked={!isPricingPerTon}
-                        onChange={() => setIsPricingPerTon(false)}
-                        disabled={!currentMaterial.allowPerContainer}
-                      />
-                      <span className="ml-2">Per Container</span>
-                    </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio text-blue-600"
+                      checked={isPricingPerTon}
+                      onChange={() => setIsPricingPerTon(true)}
+                      disabled={!currentMaterial || !currentMaterial.allowPerContainer}
+                    />
+                    <span className="ml-2">Per Ton</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio text-blue-600"
+                      checked={!isPricingPerTon}
+                      onChange={() => setIsPricingPerTon(false)}
+                      disabled={!currentMaterial || !currentMaterial.allowPerContainer}
+                    />
+                    <span className="ml-2">Per Container</span>
+                  </label>
+                </div>
+               
+              </div>
+              <hr></hr>
+              <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Gross weight
+                  </label>
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
+                    <span className="text-gray-500 mr-2">Tons</span>
+                    <input
+                      type="number"
+                      className="w-full focus:outline-none"
+                      value={ticketDetails.weights.gross / 2000}
+                      onChange={(e) => setTicketDetails(prev => ({
+                        ...prev,
+                        weights: {
+                          ...prev.weights,
+                          gross: Number(e.target.value) * 2000
+                        }
+                      }))}
+                    />
                   </div>
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Net weight
+                  </label>
+                  <div className="flex items-center justify-between border rounded-lg px-4 py-2 bg-gray-50">
+                    <span className="text-gray-500 mr-2">Tons</span>
+                    {isEditingNetWeight ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={editedNetWeight || 0}
+                          onChange={(e) => setEditedNetWeight(parseFloat(e.target.value))}
+                          className="w-24 border rounded px-2 py-1 text-sm"
+                        />
+                        <button
+                          onClick={handleSaveNetWeight}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={handleCancelNetWeight}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between w-full">
+                        <div>{ticketDetails.weights.netTons.toFixed(2)}</div>
+                        <div className="relative group ml-2">
+                          <button 
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={handleEditNetWeight}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            Override net weight
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
             </div>
 
             {/* Right Column - Fee Details */}
             <div className="p-6 bg-blue-50 rounded-lg">
-              <div className="text-lg font-semibold mb-2">Fee Details</div>
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-sm font-semibold">{currentMaterial ? `${currentMaterial.name} Disposal Fee` : 'Disposal Fee'}</div>
+                <div className="relative group">
+                  <button 
+                    className="text-gray-500 hover:text-gray-700"
+                    onClick={() => {
+                      if (currentMaterial) {
+                        setEditedFee({
+                          rate: currentMaterial.pricing.disposalTicket.rate,
+                          includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
+                          overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
+                          overageFee: currentMaterial.pricing.disposalTicket.overageFee,
+                          containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
+                        });
+                        setIsEditingFee(true);
+                      }
+                    }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    Override disposal fee
+                  </div>
+                </div>
+              </div>
               <div className="mt-4">
-                {isEditingFee && editedFee ? (
+                {isEditingFee && editedFee && currentMaterial ? (
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Base Rate</label>
@@ -695,15 +819,26 @@ export default function DisposalTicketModal({
                         />
                       </div>
                     )}
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex justify-end space-x-2 mt-4">
                       <button
-                        onClick={handleCancelEdit}
-                        className="px-3 py-1 text-sm text-gray-700 hover:text-gray-900"
+                        onClick={() => {
+                          setIsEditingFee(false);
+                          setEditedFee(null);
+                        }}
+                        className="px-3 py-1 text-gray-700 hover:text-gray-900"
                       >
                         Cancel
                       </button>
                       <button
-                        onClick={handleSaveFee}
+                        onClick={() => {
+                          if (currentMaterial && editedFee) {
+                            currentMaterial.pricing.disposalTicket = {
+                              ...currentMaterial.pricing.disposalTicket,
+                              ...editedFee
+                            };
+                            setIsEditingFee(false);
+                          }
+                        }}
                         className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
                       >
                         Save
@@ -759,26 +894,7 @@ export default function DisposalTicketModal({
         <div className="bg-gray-50 p-8 rounded-lg mb-8">
           <h3 className="text-lg font-medium mb-4">Weight Details</h3>
           <div className="grid grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Gross weight
-              </label>
-              <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
-                <span className="text-gray-500 mr-2">Tons</span>
-                <input
-                  type="number"
-                  className="w-full focus:outline-none"
-                  value={ticketDetails.weights.gross / 2000}
-                  onChange={(e) => setTicketDetails(prev => ({
-                    ...prev,
-                    weights: {
-                      ...prev.weights,
-                      gross: Number(e.target.value) * 2000
-                    }
-                  }))}
-                />
-              </div>
-            </div>
+            
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">
                 Vehicle Tare
@@ -819,15 +935,7 @@ export default function DisposalTicketModal({
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Net weight
-              </label>
-              <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50">
-                <span className="text-gray-500 mr-2">Tons</span>
-                <div className="w-full">{ticketDetails.weights.netTons.toFixed(2)}</div>
-              </div>
-            </div>
+          
           </div>
         </div>
 
@@ -841,131 +949,40 @@ export default function DisposalTicketModal({
             {isPricingPerTon && (
               <div className="space-y-2 text-sm">
                 <div className="p-3 bg-white rounded shadow-sm">
-                  <h4 className="font-medium text-gray-700 mb-2">Cost Breakdown</h4>
                   <div className="space-y-1 text-gray-600">
                     <div className="flex justify-between">
-                      <span>Facility Base Rate:</span>
+                      <span>Net Rate:</span>
                       <span>${ticketPricing.rate}/ton</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Total Tonnage:</span>
-                      <span>{actualTonnage} tons</span>
+                      <span>Rate:</span>
+                      <span>${ticketPricing.rate}/ton</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Included Tonnage:</span>
-                      <span>{ticketPricing.includedTonnage} tons</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Chargeable Tonnage:</span>
-                      <span>{Math.max(0, actualTonnage - ticketPricing.includedTonnage)} tons</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between">
-                      <span>Base Charge:</span>
-                      <span>
-                        ${(ticketPricing.rate * 
-                          Math.max(0, actualTonnage - ticketPricing.includedTonnage)).toFixed(2)}
-                      </span>
-                    </div>
-                    {actualTonnage > ticketPricing.overageThreshold && (
-                      <>
-                        <div className="flex justify-between text-orange-600">
-                          <span>Overage Fee:</span>
-                          <span>+${ticketPricing.overageFee.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-xs">
-                            (Applied when tonnage exceeds {ticketPricing.overageThreshold} tons)
-                          </span>
-                        </div>
-                      </>
-                    )}
                     <div className="border-t border-gray-200 my-2"></div>
                     <div className="flex justify-between font-medium">
-                      <span>Total Facility Charge:</span>
+                      <span>Total Cost:</span>
                       <span>${calculatedTicketPrice.toFixed(2)}</span>
                     </div>
                   </div>
-                </div>
-
-                <div className="p-3 bg-white rounded shadow-sm">
-                  <h4 className="font-medium text-gray-700 mb-2">Profit Analysis</h4>
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Hauler Cost:</span>
-                      <span>${calculatedTicketPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Customer Charge:</span>
-                      <span>${calculatedFeePrice.toFixed(2)}</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between text-green-600 font-medium">
-                      <span>Gross Profit:</span>
-                      <span>${(calculatedFeePrice - calculatedTicketPrice).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Margin:</span>
-                      <span>
-                        {calculatedTicketPrice > 0 
-                          ? `${((calculatedFeePrice - calculatedTicketPrice) / calculatedFeePrice * 100).toFixed(1)}%`
-                          : 'N/A'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>
-                    Facility charges are based on tonnage beyond included amount, 
-                    plus any applicable overage fees
-                  </span>
                 </div>
               </div>
             )}
             {!isPricingPerTon && (
               <div className="space-y-2 text-sm">
                 <div className="p-3 bg-white rounded shadow-sm">
-                  <h4 className="font-medium text-gray-700 mb-2">Container Cost Breakdown</h4>
                   <div className="space-y-1 text-gray-600">
                     <div className="flex justify-between">
-                      <span>Facility Container Rate:</span>
+                      <span>Net Rate:</span>
+                      <span>${containerRate.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Rate:</span>
                       <span>${containerRate.toFixed(2)}</span>
                     </div>
                     <div className="border-t border-gray-200 my-2"></div>
                     <div className="flex justify-between font-medium">
-                      <span>Total Facility Charge:</span>
+                      <span>Total Cost:</span>
                       <span>${calculatedTicketPrice.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-white rounded shadow-sm">
-                  <h4 className="font-medium text-gray-700 mb-2">Profit Analysis</h4>
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Hauler Cost:</span>
-                      <span>${calculatedTicketPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Customer Charge:</span>
-                      <span>${calculatedFeePrice.toFixed(2)}</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between text-green-600 font-medium">
-                      <span>Gross Profit:</span>
-                      <span>${(calculatedFeePrice - calculatedTicketPrice).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Margin:</span>
-                      <span>
-                        {calculatedTicketPrice > 0 
-                          ? `${((calculatedFeePrice - calculatedTicketPrice) / calculatedFeePrice * 100).toFixed(1)}%`
-                          : 'N/A'}
-                      </span>
                     </div>
                   </div>
                 </div>
