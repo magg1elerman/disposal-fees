@@ -446,7 +446,7 @@ export default function DisposalTicketModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-[90vw] max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-semibold">Create Disposal Ticket</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -631,7 +631,7 @@ export default function DisposalTicketModal({
         <div className="bg-gray-50 p-8 rounded-lg mb-8">
           <h3 className="text-lg font-medium mb-4">Details</h3>
           
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 space-x-8 gap-8">
             {/* Left Column - Material Selection */}
             <div className="space-y-6">
               <div>
@@ -664,6 +664,8 @@ export default function DisposalTicketModal({
                 </select>
               </div>
 
+              {/* <hr className="my-4 border-gray-200" /> */}
+
               <div className="flex items-center space-x-4">
                 <label className="text-sm font-medium text-gray-600">Pricing Type:</label>
                 <div className="flex items-center space-x-4">
@@ -690,8 +692,7 @@ export default function DisposalTicketModal({
                 </div>
                
               </div>
-              <hr></hr>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Gross weight
@@ -821,11 +822,11 @@ export default function DisposalTicketModal({
             </div>
 
             {/* Right Column - Fee Details */}
-            <div className={`p-6 rounded-lg bg-gray-50`}>
+            <div className={`p-6 rounded-lg bg-gray-50 border border-gray-200`}>
               <div className="flex justify-between items-center mb-2">
                 <div>
-                  <div className="text-sm font-semibold">{currentMaterial ? currentMaterial.name : 'Select Material'}</div>
-                  <div className="text-xs text-gray-500">Disposal Fee Details</div>
+                  <div className="text-sm font-semibold">Disposal Fee Settings</div>
+
                 </div>
                 <div className="relative group">
                   <button 
@@ -932,7 +933,7 @@ export default function DisposalTicketModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-white rounded shadow-sm">
+                  <div className="text-xs p-3 bg-white rounded shadow-sm">
                     <div className="space-y-1 text-gray-600">
                       <div className="flex justify-between">
                         <span className="font-medium text-xs">Material:</span>
@@ -972,6 +973,29 @@ export default function DisposalTicketModal({
                   </div>
                 )}
               </div>
+              {/* <hr className="my-8"></hr> */}
+              {/* Tipping Fee Section */}
+                <div className="pt-8 text-sm font-semibold mb-2">Tipping Fee</div>
+                <div className="space-y-2 text-xs">
+                  <div className="p-3 bg-white rounded shadow-sm">
+                    <div className="space-y-1 text-gray-600">
+                      <div className="flex justify-between">
+                        <span>Net Weight:</span>
+                        <span>{actualTonnage.toFixed(2)} tons</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Disposal Site Rate:</span>
+                        <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
+                      </div>
+                      <div className="border-t border-gray-200 my-2"></div>
+                      <div className="flex justify-between font-medium">
+                        <span>Total Cost:</span>
+                        <span>${calculateTippingFee().toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        
             </div>
             
           </div>
@@ -980,11 +1004,8 @@ export default function DisposalTicketModal({
         {/* Move tipping fee section above disposal fee */}
         <div className="space-y-8">
           {/* Tipping Fee Section */}
-          <div className="p-6 bg-gray-50 rounded-lg">
-            <div className="text-lg font-semibold mb-2">Tipping Fee (Hauler Charge)</div>
-            <div className="text-2xl text-blue-600 mb-3">
-              ${calculateTippingFee().toFixed(2)}
-            </div>
+          {/* <div className="p-6 bg-gray-50 rounded-lg">
+            <div className="text-sm font-semibold mb-2">Tipping Fee </div>
             <div className="space-y-2 text-sm">
               <div className="p-3 bg-white rounded shadow-sm">
                 <div className="space-y-1 text-gray-600">
@@ -1004,7 +1025,7 @@ export default function DisposalTicketModal({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Disposal Fee Section */}
           <div className={`p-6 rounded-lg bg-gray-50`}>
