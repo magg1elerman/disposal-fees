@@ -232,7 +232,9 @@ export default function DisposalTicketModal({
   const [editedNetWeight, setEditedNetWeight] = useState<number | null>(null);
   const [isEditingField, setIsEditingField] = useState<string | null>(null);
   const [isEditingDisposalSite, setIsEditingDisposalSite] = useState(false);
+  const [isEditingMaterial, setIsEditingMaterial] = useState(false);
   const disposalSiteRef = useRef<HTMLSelectElement>(null);
+  const materialRef = useRef<HTMLSelectElement>(null);
   const [useGrossTare, setUseGrossTare] = useState(false);
 
   // Add effect to focus disposal site dropdown when editing
@@ -241,6 +243,13 @@ export default function DisposalTicketModal({
       disposalSiteRef.current.focus();
     }
   }, [isEditingDisposalSite]);
+
+  // Add effect to focus material dropdown when editing
+  useEffect(() => {
+    if (isEditingMaterial && materialRef.current) {
+      materialRef.current.focus();
+    }
+  }, [isEditingMaterial]);
 
   // Update pricing when material is selected
   useEffect(() => {
@@ -473,7 +482,7 @@ export default function DisposalTicketModal({
               {/* <h3 className="text-lg font-medium text-gray-700 mb-4">Basic Information</h3> */}
               
               {/* Basic Info */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Ticket #
@@ -506,7 +515,7 @@ export default function DisposalTicketModal({
               </div>
 
               {/* Source Selector and Disposal Site */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Source
@@ -533,7 +542,7 @@ export default function DisposalTicketModal({
                           setIsEditingDisposalSite(false);
                         }}
                       >
-                        <option value="">Select a disposal site</option>
+                        <option value="">Disposal site</option>
                         {disposalSites.map(site => (
                           <option key={site} value={site}>{site}</option>
                         ))}
@@ -608,75 +617,61 @@ export default function DisposalTicketModal({
           <div className="grid grid-cols-2 gap-12">
             {/* Left Column - Material Selection */}
             <div className="space-y-6">
-              <div>
+              <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-600 mb-1">
                   Material
                 </label>
                 <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                  <select
-                    className="w-full bg-transparent border-0 focus:outline-none text-gray-700"
-                    value={currentMaterial?.id || ''}
-                    onChange={(e) => {
-                      const material = materials.find((m: Material) => m.id === e.target.value);
-                      setCurrentMaterial(material || null);
-                      if (material) {
-                        setIsPricingPerTon(!material.allowPerContainer || true);
-                        setTicketPricing(material.pricing.disposalTicket);
-                        if (material.pricing.disposalTicket.containerRate) {
-                          setContainerRate(material.pricing.disposalTicket.containerRate);
+                  {isEditingMaterial ? (
+                    <select
+                      ref={materialRef}
+                      className="w-full bg-transparent border-0 focus:outline-none text-gray-700"
+                      value={currentMaterial?.id || ''}
+                      onChange={(e) => {
+                        const material = materials.find((m: Material) => m.id === e.target.value);
+                        setCurrentMaterial(material || null);
+                        if (material) {
+                          setIsPricingPerTon(!material.allowPerContainer || true);
+                          setTicketPricing(material.pricing.disposalTicket);
+                          if (material.pricing.disposalTicket.containerRate) {
+                            setContainerRate(material.pricing.disposalTicket.containerRate);
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <option value="">Select a material...</option>
-                    {materials.map((material: Material) => (
-                      <option key={material.id} value={material.id}>
-                        {material.name}
-                      </option>
-                    ))}
-                  </select>
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                        setIsEditingMaterial(false);
+                      }}
+                    >
+                      <option value="">Material</option>
+                      {materials.map((material: Material) => (
+                        <option key={material.id} value={material.id}>
+                          {material.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-gray-700">{currentMaterial?.name || 'Select a material...'}</span>
+                      <button
+                        onClick={() => setIsEditingMaterial(true)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* <hr className="my-4 border-gray-200" /> */}
-
-              <div className="flex items-center space-x-4">
-                <label className="text-sm font-medium text-gray-600">Pricing Type:</label>
-                <div className="flex items-center space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-blue-600"
-                      checked={isPricingPerTon}
-                      onChange={() => setIsPricingPerTon(true)}
-                      disabled={!currentMaterial || !currentMaterial.allowPerContainer}
-                    />
-                    <span className="ml-2">Per Ton</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-blue-600"
-                      checked={!isPricingPerTon}
-                      onChange={() => setIsPricingPerTon(false)}
-                      disabled={!currentMaterial || !currentMaterial.allowPerContainer}
-                    />
-                    <span className="ml-2">Per Container</span>
-                  </label>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Net weight
                   </label>
-                  <div className="flex items-top justify-between border rounded-lg px-4 py-2 bg-white">
+                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
                     <input
                       type="number"
-                      className="w-full focus:outline-none"
+                      className={`w-full focus:outline-none ${useGrossTare ? 'bg-gray-50' : ''}`}
                       value={ticketDetails.weights.netTons}
                       step="0.01"
                       onChange={(e) => {
@@ -691,6 +686,7 @@ export default function DisposalTicketModal({
                         }));
                         setActualTonnage(netTons);
                       }}
+                      disabled={useGrossTare}
                       readOnly={useGrossTare}
                     />
                     <div className="flex items-center">
@@ -759,32 +755,34 @@ export default function DisposalTicketModal({
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Right Column - Fee Details */}
-            <div className={`p-6 rounded-lg bg-gray-50 border border-gray-200`}>
               {/* Tipping Fee Section */}
-              <div className="pt-8 text-sm font-semibold mb-2">Tipping Fee</div>
-              <div className="space-y-2 text-xs">
-                <div className="p-3 bg-white rounded shadow-sm">
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Net Weight:</span>
-                      <span>{actualTonnage.toFixed(2)} tons</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Disposal Site Rate:</span>
-                      <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between font-medium">
-                      <span>Total Cost:</span>
-                      <span>${calculateTippingFee().toFixed(2)}</span>
+              <div className="mt-4">
+                <div className="text-gray-600 text-sm font-semibold mb-2">Tipping Fee</div>
+                <div className="space-y-2 text-xs">
+                  <div className="p-3 bg-white rounded shadow-sm border border-gray-200">
+                    <div className="space-y-1 text-gray-600">
+                      <div className="flex justify-between">
+                        <span>Net Weight:</span>
+                        <span>{actualTonnage.toFixed(2)} tons</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Disposal Site Rate:</span>
+                        <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
+                      </div>
+                      <div className="border-t border-gray-200 my-2"></div>
+                      <div className="flex justify-between font-medium">
+                        <span>Total Cost:</span>
+                        <span>${calculateTippingFee().toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
+            {/* Right Column - Fee Details */}
+            <div className={`p-6 rounded-lg bg-gray-50 border border-gray-200`}>
               {/* Disposal Fee Section */}
               <div className="mt-8">
                 <div className="flex justify-between items-center mb-2">
@@ -843,7 +841,7 @@ export default function DisposalTicketModal({
                       <div className="space-y-4">
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700">Base Rate</label>
+                            <label className="block text-sm font-medium text-gray-700">Rate</label>
                             <input
                               type="number"
                               value={editedFee.rate}
@@ -903,15 +901,15 @@ export default function DisposalTicketModal({
                         )}
                       </div>
                     );
-                  } else if (isPricingPerTon && currentMaterial) {
+                  } else {
                     return (
                       <div className="space-y-2 text-sm">
-                        <div className="p-3 bg-white rounded shadow-sm">
+                        <div className="p-3 bg-white rounded shadow-sm border border-gray-200">
                           <h4 className="font-medium text-gray-700 mb-2">Price Breakdown</h4>
                           <div className="space-y-1 text-gray-600">
                             <div className="flex justify-between">
-                              <span>Base Rate:</span>
-                              <span>${(currentMaterial.pricing.disposalTicket.rate).toFixed(2)}/ton</span>
+                              <span>Rate:</span>
+                              <span>${currentMaterial ? currentMaterial.pricing.disposalTicket.rate.toFixed(2) : '0.00'}/ton</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Total Tonnage:</span>
@@ -919,21 +917,13 @@ export default function DisposalTicketModal({
                             </div>
                             <div className="flex justify-between">
                               <span>Included Tonnage:</span>
-                              <span>{currentMaterial.pricing.disposalTicket.includedTonnage} tons</span>
+                              <span>{currentMaterial ? currentMaterial.pricing.disposalTicket.includedTonnage : '0'} tons</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Chargeable Tonnage:</span>
-                              <span>{Math.max(0, actualTonnage - currentMaterial.pricing.disposalTicket.includedTonnage)} tons</span>
+                              <span>{Math.max(0, actualTonnage - (currentMaterial ? currentMaterial.pricing.disposalTicket.includedTonnage : 0))} tons</span>
                             </div>
-                            <div className="border-t border-gray-200 my-2"></div>
-                            <div className="flex justify-between">
-                              <span>Base Charge:</span>
-                              <span>
-                                ${(currentMaterial.pricing.disposalTicket.rate * 1.10 * 
-                                  Math.max(0, actualTonnage - currentMaterial.pricing.disposalTicket.includedTonnage)).toFixed(2)}
-                              </span>
-                            </div>
-                            {actualTonnage > currentMaterial.pricing.disposalTicket.overageThreshold && (
+                            {currentMaterial && actualTonnage > currentMaterial.pricing.disposalTicket.overageThreshold && (
                               <>
                                 <div className="flex justify-between text-orange-600">
                                   <span>Overage Fee:</span>
@@ -948,12 +938,12 @@ export default function DisposalTicketModal({
                             )}
                             <div className="border-t border-gray-200 my-2"></div>
                             <div className="flex justify-between font-medium">
-                              <span>Total Customer Charge:</span>
+                              <span>Total:</span>
                               <span>${calculatedFeePrice.toFixed(2)}</span>
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                        {/* <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
@@ -961,30 +951,10 @@ export default function DisposalTicketModal({
                             Charges are calculated based on tonnage beyond included amount, 
                             plus any applicable overage fees
                           </span>
-                        </div>
-                      </div>
-                    );
-                  } else if (!isPricingPerTon && currentMaterial) {
-                    return (
-                      <div className="space-y-2 text-sm">
-                        <div className="p-3 bg-white rounded shadow-sm">
-                          <h4 className="font-medium text-gray-700 mb-2">Container Price Breakdown</h4>
-                          <div className="space-y-1 text-gray-600">
-                            <div className="flex justify-between">
-                              <span>Container Rate:</span>
-                              <span>${currentMaterial.pricing.disposalFee.containerRate?.toFixed(2)}</span>
-                            </div>
-                            <div className="border-t border-gray-200 my-2"></div>
-                            <div className="flex justify-between font-medium">
-                              <span>Total Customer Charge:</span>
-                              <span>${calculatedFeePrice.toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </div>
+                        </div> */}
                       </div>
                     );
                   }
-                  return null;
                 })()}
               </div>
             </div>
