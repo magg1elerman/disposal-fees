@@ -3,6 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { materials, Material, MaterialPricing } from '@/app/config/materials';
+import { MaterialChip } from "./MaterialChip";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Update the DisposalFee interface to match the pricing section
 interface DisposalFee {
@@ -60,6 +65,7 @@ export default function DisposalTicketModalV2({
   disposalFees = [],
   source = 'route'
 }: DisposalTicketModalProps) {
+  const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
   const [currentMaterial, setCurrentMaterial] = useState<Material | null>(() => {
     if (source === 'scale') {
       const mswMaterial = materials.find(m => m.name === 'MSW');
@@ -524,51 +530,10 @@ export default function DisposalTicketModalV2({
                     ) : null}
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Material
-                  </label>
-                  <div className="relative">
-                    <select
-                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                      value={currentMaterial?.id || ''}
-                      onChange={(e) => {
-                        const material = materials.find((m: Material) => m.id === e.target.value);
-                        setCurrentMaterial(material || null);
-                        if (material) {
-                          setIsPricingPerTon(!material.allowPerContainer || true);
-                          setTicketPricing({
-                            ...material.pricing.disposalTicket,
-                            overageThreshold: 5.00
-                          });
-                          if (material.pricing.disposalTicket.containerRate) {
-                            setContainerRate(material.pricing.disposalTicket.containerRate);
-                          }
-                        }
-                      }}
-                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                    >
-                      <option value="">Select Material</option>
-                      {materials.map((material: Material) => (
-                        <option key={material.id} value={material.id}>
-                          {material.name}
-                        </option>
-                      ))}
-                    </select>
-                    {(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
               </div>
 
               {/* Net Weight */}
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
                   <input
                     type="number"
@@ -594,96 +559,199 @@ export default function DisposalTicketModalV2({
                     <span className="text-gray-500 ml-2">Tons</span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              {source !== 'scale' && source !== 'mobile' && (
-                <div className="flex items-center space-x-4 mt-4">
-                  <label className="text-sm font-medium text-gray-600">Calculate using gross/tare:</label>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={useGrossTare}
-                      onChange={(e) => setUseGrossTare(e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              )}
-
-              {(source === 'scale' || source === 'mobile' || useGrossTare) && (
-                <div className="grid grid-cols-2 gap-6 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Gross weight
-                    </label>
-                    <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
-                      <input
-                        type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
-                        value={ticketDetails.weights.gross / 2000}
-                        step="0.01"
-                        onChange={(e) => setTicketDetails(prev => ({
-                          ...prev,
-                          weights: {
-                            ...prev.weights,
-                            gross: Number(e.target.value) * 2000
-                          }
-                        }))}
-                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                      />
-                      <span className="text-gray-500 ml-2">Tons</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Tare Weight
-                    </label>
-                    <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
-                      <input
-                        type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
-                        value={ticketDetails.weights.vehicleTare / 2000}
-                        step="0.01"
-                        onChange={(e) => setTicketDetails(prev => ({
-                          ...prev,
-                          weights: {
-                            ...prev.weights,
-                            vehicleTare: Number(e.target.value) * 2000
-                          }
-                        }))}
-                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                      />
-                      <div className="flex items-center">
-                        <span className="text-gray-500 ml-2">Tons</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Tipping Fee Section */}
+              {/* Materials Table */}
               <div className="mt-4">
-                <div className={`p-3 rounded shadow-sm border border-gray-200 ${(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="text-xs font-medium text-gray-700">Tipping Fee</div>
+                <div className="p-3 rounded shadow-sm border border-gray-200 bg-white">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="font-medium text-gray-700">Materials</div>
+                    {source !== 'scale' && source !== 'mobile' && (
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs font-medium text-gray-600">Calculate using gross/tare:</label>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={useGrossTare}
+                            onChange={(e) => setUseGrossTare(e.target.checked)}
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-1 text-xs text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Net Weight:</span>
-                      <span>{actualTonnage.toFixed(2)} tons</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Disposal Site Rate:</span>
-                      <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
-                    </div>
-                    <div className="border-t border-gray-200 my-2"></div>
-                    <div className="flex justify-between font-medium">
-                      <span>Total Cost:</span>
-                      <span>${calculateTippingFee().toFixed(2)}</span>
-                    </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-2 font-medium text-gray-600">Material</th>
+                          {useGrossTare && (
+                            <>
+                              <th className="text-right py-2 font-medium text-gray-600">Gross Weight</th>
+                              <th className="text-right py-2 font-medium text-gray-600">Tare Weight</th>
+                            </>
+                          )}
+                          <th className="text-right py-2 font-medium text-gray-600">Net Weight</th>
+                          <th className="text-right py-2 font-medium text-gray-600">Site Rate</th>
+                          <th className="text-right py-2 font-medium text-gray-600">Tipping Fee</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedMaterials.map((material) => (
+                          <tr key={material.id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-2">
+                              <MaterialChip
+                                name={material.name}
+                                color={
+                                  material.name === 'MSW' ? 'bg-blue-200 text-black' :
+                                  material.name === 'Recycling' ? 'bg-green-200 text-black' :
+                                  material.name === 'C&D' ? 'bg-cyan-100 text-black' :
+                                  'bg-gray-200 text-black'
+                                }
+                                onRemove={() => {
+                                  setSelectedMaterials(prev => prev.filter(m => m.id !== material.id));
+                                  if (currentMaterial?.id === material.id) {
+                                    setCurrentMaterial(null);
+                                    setTicketPricing({
+                                      rate: 0,
+                                      includedTonnage: 0,
+                                      overageThreshold: 0,
+                                      overageFee: 0
+                                    });
+                                    setContainerRate(0);
+                                  }
+                                }}
+                              />
+                            </td>
+                            {useGrossTare && (
+                              <>
+                                <td className="py-2">
+                                  <input
+                                    type="number"
+                                    className="w-full text-right focus:outline-none bg-transparent text-xs"
+                                    value={(ticketDetails.weights.gross / 2000).toFixed(2)}
+                                    step="0.01"
+                                    onChange={(e) => {
+                                      const grossTons = parseFloat(e.target.value);
+                                      setTicketDetails(prev => ({
+                                        ...prev,
+                                        weights: {
+                                          ...prev.weights,
+                                          gross: grossTons * 2000,
+                                          netWeight: (grossTons * 2000) - prev.weights.vehicleTare,
+                                          netTons: grossTons - (prev.weights.vehicleTare / 2000)
+                                        }
+                                      }));
+                                      setActualTonnage(grossTons - (ticketDetails.weights.vehicleTare / 2000));
+                                    }}
+                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                  />
+                                </td>
+                                <td className="py-2">
+                                  <input
+                                    type="number"
+                                    className="w-full text-right focus:outline-none bg-transparent text-xs"
+                                    value={(ticketDetails.weights.vehicleTare / 2000).toFixed(2)}
+                                    step="0.01"
+                                    onChange={(e) => {
+                                      const tareTons = parseFloat(e.target.value);
+                                      setTicketDetails(prev => ({
+                                        ...prev,
+                                        weights: {
+                                          ...prev.weights,
+                                          vehicleTare: tareTons * 2000,
+                                          netWeight: prev.weights.gross - (tareTons * 2000),
+                                          netTons: (prev.weights.gross / 2000) - tareTons
+                                        }
+                                      }));
+                                      setActualTonnage((ticketDetails.weights.gross / 2000) - tareTons);
+                                    }}
+                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                  />
+                                </td>
+                              </>
+                            )}
+                            <td className="py-2">
+                              <input
+                                type="number"
+                                className="w-full text-right focus:outline-none bg-transparent text-xs"
+                                value={actualTonnage.toFixed(2)}
+                                step="0.01"
+                                onChange={(e) => {
+                                  const netTons = parseFloat(e.target.value);
+                                  setTicketDetails(prev => ({
+                                    ...prev,
+                                    weights: {
+                                      ...prev.weights,
+                                      netTons,
+                                      netWeight: netTons * 2000
+                                    }
+                                  }));
+                                  setActualTonnage(netTons);
+                                }}
+                                disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                              />
+                            </td>
+                            <td className="py-2 text-right text-xs">${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</td>
+                            <td className="py-2 text-right text-xs">${(material.pricing.disposalFee.rate * 0.7 * actualTonnage).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                        <tr>
+                          <td className="py-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-full justify-start text-gray-900 hover:text-gray-700 hover:bg-transparent text-xs"
+                                >
+                                  Add Material +
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-[200px]">
+                                {materials
+                                  .filter(material => !selectedMaterials.some(m => m.id === material.id))
+                                  .map((material: Material) => (
+                                    <DropdownMenuItem
+                                      key={material.id}
+                                      onClick={() => {
+                                        setSelectedMaterials(prev => [...prev, material]);
+                                        setCurrentMaterial(material);
+                                        setIsPricingPerTon(!material.allowPerContainer || true);
+                                        setTicketPricing({
+                                          ...material.pricing.disposalTicket,
+                                          overageThreshold: 5.00
+                                        });
+                                        if (material.pricing.disposalTicket.containerRate) {
+                                          setContainerRate(material.pricing.disposalTicket.containerRate);
+                                        }
+                                      }}
+                                    >
+                                      <MaterialChip
+                                        name={material.name}
+                                        color={
+                                          material.name === 'MSW' ? 'bg-blue-200 text-black' :
+                                          material.name === 'Recycling' ? 'bg-green-200 text-black' :
+                                          material.name === 'C&D' ? 'bg-cyan-100 text-black' :
+                                          'bg-gray-200 text-black'
+                                        }
+                                      />
+                                    </DropdownMenuItem>
+                                  ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                          <td className="py-2"></td>
+                          <td className="py-2"></td>
+                          <td className="py-2"></td>
+                          <td className="py-2"></td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
