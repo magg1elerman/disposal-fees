@@ -368,18 +368,18 @@ export default function DisposalTicketModalV2({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold">Disposal Ticket v2b</h2>
+      <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[95vh] flex flex-col overflow-hidden">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Disposal Ticket v2b</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             ×
           </button>
         </div>
 
-        {/* Scrollable content area */}
-        <div className="flex overflow-y-auto pr-4">
+        {/* Content area */}
+        <div className="flex-1 overflow-y-auto pr-4">
           {/* Two Column Layout - 3/4 and 1/4 split */}
-          <div className="grid grid-cols-4 gap-12 h-full">
+          <div className="grid grid-cols-4 gap-12">
             {/* Left Column - Form Fields (3/4 width) */}
             <div className="col-span-3">
               {/* Basic Info */}
@@ -622,7 +622,7 @@ export default function DisposalTicketModalV2({
             </div>
 
             {/* Right Column - Image Upload and Disposal Fee (1/4 width) */}
-            <div className="col-span-1 flex flex-col h-full">
+            <div className="col-span-1 flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 {ticketImage && (
                   <button
