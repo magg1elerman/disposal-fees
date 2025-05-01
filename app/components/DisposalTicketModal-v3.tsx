@@ -436,6 +436,19 @@ export default function DisposalTicketModalV2({
           </button>
         </div>
 
+        {/* Source Tag */}
+        <div className="mb-6">
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+            source === 'scale' ? 'bg-blue-100 text-blue-800' :
+            source === 'mobile' ? 'bg-purple-100 text-purple-800' :
+            source === 'route' ? 'bg-green-100 text-green-800' :
+            source === 'office' ? 'bg-orange-100 text-orange-800' :
+            'bg-gray-100 text-gray-800'
+          }`}>
+            {source.charAt(0).toUpperCase() + source.slice(1)}
+          </span>
+        </div>
+
         {/* Content area */}
         <div className="flex-1 overflow-y-auto pr-4">
           {/* Two Column Layout - 3/4 and 1/4 split */}
@@ -479,16 +492,8 @@ export default function DisposalTicketModalV2({
                 </div>
               </div>
 
-              {/* Source Selector and Disposal Site */}
+              {/* Disposal Site and Material */}
               <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Source
-                  </label>
-                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                    <span className="text-gray-700">{source}</span>
-                  </div>
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Disposal site
@@ -519,10 +524,7 @@ export default function DisposalTicketModalV2({
                     ) : null}
                   </div>
                 </div>
-              </div>
 
-              {/* Material Selection and Net Weight */}
-              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Material
@@ -563,35 +565,33 @@ export default function DisposalTicketModalV2({
                     ) : null}
                   </div>
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Net weight
-                  </label>
-                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
-                    <input
-                      type="number"
-                      className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}
-                      value={ticketDetails.weights.netTons}
-                      step="0.01"
-                      onChange={(e) => {
-                        const netTons = parseFloat(e.target.value);
-                        setTicketDetails(prev => ({
-                          ...prev,
-                          weights: {
-                            ...prev.weights,
-                            netTons,
-                            netWeight: netTons * 2000
-                          }
-                        }));
-                        setActualTonnage(netTons);
-                      }}
-                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                    />
-                    <div className="flex items-center">
-                      <span className="text-gray-500 ml-2">Tons</span>
-                    </div>
+              {/* Net Weight */}
+              <div className="mt-4">
+                <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
+                  <input
+                    type="number"
+                    className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}
+                    value={ticketDetails.weights.netTons}
+                    step="0.01"
+                    onChange={(e) => {
+                      const netTons = parseFloat(e.target.value);
+                      setTicketDetails(prev => ({
+                        ...prev,
+                        weights: {
+                          ...prev.weights,
+                          netTons,
+                          netWeight: netTons * 2000
+                        }
+                      }));
+                      setActualTonnage(netTons);
+                    }}
+                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                  />
+                  <div className="flex items-center">
+                    <span className="text-gray-500 ml-2">Tons</span>
                   </div>
                 </div>
               </div>
