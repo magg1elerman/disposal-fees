@@ -23,7 +23,7 @@ interface DisposalFee {
 }
 
 interface DisposalTicket {
-  source: 'route' | 'office' | 'scale kiosk';
+  source: 'route' | 'office' | 'scale' | 'mobile';
   transactionNumber: string;
   dateTime: string;
   disposalSite: string;
@@ -49,161 +49,63 @@ interface DisposalTicketModalProps {
   workOrderId: string;
   onSave: (ticketData: any) => void;
   disposalFees?: DisposalFee[];
+  source?: 'route' | 'office' | 'scale' | 'mobile';
 }
 
-export default function DisposalTicketModal({ 
+export default function DisposalTicketModalV2({ 
   isOpen, 
   onClose, 
   workOrderId, 
   onSave,
-  disposalFees = [
-    {
-      id: 1,
-      name: "Standard MSW Disposal",
-      description: "Standard municipal solid waste disposal fee",
-      rateStructure: "Per Ton",
-      rate: "$95.00",
-      minCharge: "$95.00",
-      businessLine: "Residential",
-      status: "Active",
-      material: "Municipal Solid Waste",
-      includedTonnage: 1,
-      glCode: "4000",
-      overageCharge: "$35.00",
-      overageThreshold: 1.5
-    },
-    {
-      id: 2,
-      name: "MSW Container Rate",
-      description: "Municipal solid waste container fee",
-      rateStructure: "Per Container",
-      rate: "$185.00",
-      minCharge: "$185.00",
-      businessLine: "Commercial",
-      status: "Active",
-      material: "Municipal Solid Waste",
-      includedTonnage: 0,
-      glCode: "4001",
-      overageCharge: "$0.00",
-      overageThreshold: 0
-    },
-    {
-      id: 3,
-      name: "Standard Green Waste",
-      description: "Yard waste and organic material disposal",
-      rateStructure: "Per Ton",
-      rate: "$65.00",
-      minCharge: "$65.00",
-      businessLine: "Residential",
-      status: "Active",
-      material: "Green Waste",
-      includedTonnage: 2,
-      glCode: "4002",
-      overageCharge: "$25.00",
-      overageThreshold: 2.5
-    },
-    {
-      id: 4,
-      name: "Green Waste Container",
-      description: "Container rate for yard waste",
-      rateStructure: "Per Container",
-      rate: "$125.00",
-      minCharge: "$125.00",
-      businessLine: "Commercial",
-      status: "Active",
-      material: "Green Waste",
-      includedTonnage: 0,
-      glCode: "4003",
-      overageCharge: "$0.00",
-      overageThreshold: 0
-    },
-    {
-      id: 5,
-      name: "C&D Disposal",
-      description: "Construction and demolition waste disposal",
-      rateStructure: "Per Ton",
-      rate: "$110.00",
-      minCharge: "$110.00",
-      businessLine: "Construction",
-      status: "Active",
-      material: "Construction & Demolition",
-      includedTonnage: 1,
-      glCode: "4004",
-      overageCharge: "$50.00",
-      overageThreshold: 1.25
-    },
-    {
-      id: 6,
-      name: "Standard Recycling",
-      description: "Mixed recyclables processing fee",
-      rateStructure: "Per Ton",
-      rate: "$50.00",
-      minCharge: "$50.00",
-      businessLine: "Residential",
-      status: "Active",
-      material: "Recyclables",
-      includedTonnage: 1.5,
-      glCode: "4005",
-      overageCharge: "$20.00",
-      overageThreshold: 2
-    },
-    {
-      id: 7,
-      name: "Recycling Container",
-      description: "Container rate for recyclables",
-      rateStructure: "Per Container",
-      rate: "$95.00",
-      minCharge: "$95.00",
-      businessLine: "Commercial",
-      status: "Active",
-      material: "Recyclables",
-      includedTonnage: 0,
-      glCode: "4006",
-      overageCharge: "$0.00",
-      overageThreshold: 0
-    },
-    {
-      id: 8,
-      name: "Hazardous Waste Disposal",
-      description: "Special handling for hazardous materials",
-      rateStructure: "Per Ton",
-      rate: "$195.00",
-      minCharge: "$195.00",
-      businessLine: "Industrial",
-      status: "Active",
-      material: "Hazardous Waste",
-      includedTonnage: 0.5,
-      glCode: "4007",
-      overageCharge: "$100.00",
-      overageThreshold: 0.75
-    }
-  ]
+  disposalFees = [],
+  source = 'route'
 }: DisposalTicketModalProps) {
-  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(null);
+  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(() => {
+    if (source === 'scale') {
+      const mswMaterial = materials.find(m => m.name === 'MSW');
+      if (mswMaterial) {
+        return {
+          ...mswMaterial,
+          pricing: {
+            ...mswMaterial.pricing,
+            disposalTicket: {
+              ...mswMaterial.pricing.disposalTicket,
+              overageThreshold: 5.00
+            },
+            disposalFee: {
+              ...mswMaterial.pricing.disposalFee,
+              overageThreshold: 5.00
+            }
+          }
+        };
+      }
+    }
+    return null;
+  });
   const [isPricingPerTon, setIsPricingPerTon] = useState(true);
   const [ticketImage, setTicketImage] = useState<string | null>(null);
   const [ticketPricing, setTicketPricing] = useState<MaterialPricing['disposalTicket']>({
     rate: 75.00,
     includedTonnage: 1,
-    overageThreshold: 1.5,
+    overageThreshold: 5.00,
     overageFee: 25.00
   });
   const [tippingFeePricing, setTippingFeePricing] = useState<MaterialPricing['disposalTicket']>({
     rate: 65.00,
     includedTonnage: 1,
-    overageThreshold: 1.5,
+    overageThreshold: 5.00,
     overageFee: 20.00
   });
   const [containerRate, setContainerRate] = useState(150.00);
-  const [actualTonnage, setActualTonnage] = useState(0);
+  const [actualTonnage, setActualTonnage] = useState(source === 'scale' ? 2.00 : 0);
   const [calculatedTicketPrice, setCalculatedTicketPrice] = useState(0);
   const [calculatedFeePrice, setCalculatedFeePrice] = useState(0);
   const [selectedDisposalFee, setSelectedDisposalFee] = useState<DisposalFee | null>(null);
   const [ticketDetails, setTicketDetails] = useState<DisposalTicket>({
-    source: 'route',
+    source,
     transactionNumber: '',
     dateTime: new Date().toISOString(),
-    disposalSite: '',
+    disposalSite: source === 'scale' ? 'Disposal site 1' : '',
     vehicleId: '',
     containerType: '',
     product: '',
@@ -211,10 +113,10 @@ export default function DisposalTicketModal({
     driver: '',
     memo: '',
     weights: {
-      gross: 0.00,
-      vehicleTare: 0.00,
-      netWeight: 0.00,
-      netTons: 0.00
+      gross: source === 'scale' ? 6000 : 0.00, // 3 tons in pounds
+      vehicleTare: source === 'scale' ? 2000 : 0.00, // 1 ton in pounds
+      netWeight: source === 'scale' ? 4000 : 0.00, // 2 tons in pounds
+      netTons: source === 'scale' ? 2.00 : 0.00 // 2 tons
     }
   });
   const [disposalSites] = useState(['Disposal site 1', 'Disposal site 2', 'Disposal site 3']);
@@ -468,7 +370,7 @@ export default function DisposalTicketModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold">Create Disposal Ticket</h2>
+          <h2 className="text-2xl font-semibold">Disposal Ticket</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             ×
           </button>
@@ -518,105 +420,117 @@ export default function DisposalTicketModal({
                   Source
                 </label>
                 <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                  <span className="text-gray-700">Office</span>
+                  <span className="text-gray-700">{source}</span>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">
                   Disposal site
                 </label>
-                <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                  {isEditingDisposalSite ? (
-                    <select
-                      ref={disposalSiteRef}
-                      className="w-full rounded-lg px-4 py-2 text-gray-700 bg-gray-50 focus:outline-none"
-                      value={ticketDetails.disposalSite}
-                      onChange={(e) => {
-                        setTicketDetails(prev => ({
-                          ...prev,
-                          disposalSite: e.target.value
-                        }));
-                        setIsEditingDisposalSite(false);
-                      }}
-                    >
-                      <option value="">Disposal site</option>
-                      {disposalSites.map(site => (
-                        <option key={site} value={site}>{site}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-gray-700">{ticketDetails.disposalSite || 'Not set'}</span>
-                      <button
-                        onClick={() => setIsEditingDisposalSite(!isEditingDisposalSite)}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Material Selection */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Material
-              </label>
-              <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                {isEditingMaterial ? (
-                  <select
-                    ref={materialRef}
-                    className="w-full bg-transparent border-0 focus:outline-none text-gray-700"
-                    value={currentMaterial?.id || ''}
-                    onChange={(e) => {
-                      const material = materials.find((m: Material) => m.id === e.target.value);
-                      setCurrentMaterial(material || null);
-                      if (material) {
-                        setIsPricingPerTon(!material.allowPerContainer || true);
-                        setTicketPricing(material.pricing.disposalTicket);
-                        if (material.pricing.disposalTicket.containerRate) {
-                          setContainerRate(material.pricing.disposalTicket.containerRate);
-                        }
-                      }
-                      setIsEditingMaterial(false);
-                    }}
-                  >
-                    <option value="">Material</option>
-                    {materials.map((material: Material) => (
-                      <option key={material.id} value={material.id}>
-                        {material.name}
-                      </option>
-                    ))}
-                  </select>
+                {source === 'scale' ? (
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
+                    <span className="text-gray-700">Disposal site 1</span>
+                  </div>
                 ) : (
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-gray-700">{currentMaterial?.name || 'Select a material...'}</span>
-                    <button
-                      onClick={() => setIsEditingMaterial(true)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-white h-[42px]">
+                    {isEditingDisposalSite ? (
+                      <select
+                        ref={disposalSiteRef}
+                        className="w-full rounded-lg px-4 py-2 text-gray-700 bg-white focus:outline-none"
+                        value={ticketDetails.disposalSite}
+                        onChange={(e) => {
+                          setTicketDetails(prev => ({
+                            ...prev,
+                            disposalSite: e.target.value
+                          }));
+                          setIsEditingDisposalSite(false);
+                        }}
+                      >
+                        <option value="">Disposal site</option>
+                        {disposalSites.map(site => (
+                          <option key={site} value={site}>{site}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-gray-700">{ticketDetails.disposalSite || 'Not set'}</span>
+                        <button
+                          onClick={() => setIsEditingDisposalSite(!isEditingDisposalSite)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mt-4">
+            {/* Material Selection and Net Weight */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  Material
+                </label>
+                {source === 'scale' ? (
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
+                    <span className="text-gray-700">MSW</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-white h-[42px]">
+                    {isEditingMaterial ? (
+                      <select
+                        ref={materialRef}
+                        className="w-full bg-transparent border-0 focus:outline-none text-gray-700"
+                        value={currentMaterial?.id || ''}
+                        onChange={(e) => {
+                          const material = materials.find((m: Material) => m.id === e.target.value);
+                          setCurrentMaterial(material || null);
+                          if (material) {
+                            setIsPricingPerTon(!material.allowPerContainer || true);
+                            setTicketPricing(material.pricing.disposalTicket);
+                            if (material.pricing.disposalTicket.containerRate) {
+                              setContainerRate(material.pricing.disposalTicket.containerRate);
+                            }
+                          }
+                          setIsEditingMaterial(false);
+                        }}
+                      >
+                        <option value="">Material</option>
+                        {materials.map((material: Material) => (
+                          <option key={material.id} value={material.id}>
+                            {material.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-gray-700">{currentMaterial?.name || 'Select a material...'}</span>
+                        <button
+                          onClick={() => setIsEditingMaterial(true)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1">
                   Net weight
                 </label>
-                <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
+                <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
                   <input
                     type="number"
-                    className={`w-full focus:outline-none ${useGrossTare ? 'bg-gray-50' : ''}`}
+                    className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : ''}`}
                     value={ticketDetails.weights.netTons}
                     step="0.01"
                     onChange={(e) => {
@@ -631,8 +545,8 @@ export default function DisposalTicketModal({
                       }));
                       setActualTonnage(netTons);
                     }}
-                    disabled={useGrossTare}
-                    readOnly={useGrossTare}
+                    disabled={source === 'scale' || useGrossTare}
+                    readOnly={source === 'scale' || useGrossTare}
                   />
                   <div className="flex items-center">
                     <span className="text-gray-500 ml-2">Tons</span>
@@ -640,28 +554,32 @@ export default function DisposalTicketModal({
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4 mt-4">
-              <label className="text-sm font-medium text-gray-600">Calculate using gross/tare:</label>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={useGrossTare}
-                  onChange={(e) => setUseGrossTare(e.target.checked)}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-            {useGrossTare && (
+
+            {source !== 'scale' && (
+              <div className="flex items-center space-x-4 mt-4">
+                <label className="text-sm font-medium text-gray-600">Calculate using gross/tare:</label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={useGrossTare}
+                    onChange={(e) => setUseGrossTare(e.target.checked)}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            )}
+
+            {(source === 'scale' || useGrossTare) && (
               <div className="grid grid-cols-2 gap-6 mt-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Gross weight
                   </label>
-                  <div className="flex items-center border rounded-lg px-4 py-2 bg-white">
+                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50">
                     <input
                       type="number"
-                      className="w-full focus:outline-none"
+                      className="w-full focus:outline-none bg-gray-50"
                       value={ticketDetails.weights.gross / 2000}
                       step="0.01"
                       onChange={(e) => setTicketDetails(prev => ({
@@ -671,6 +589,8 @@ export default function DisposalTicketModal({
                           gross: Number(e.target.value) * 2000
                         }
                       }))}
+                      disabled={source === 'scale'}
+                      readOnly={source === 'scale'}
                     />
                     <span className="text-gray-500 ml-2">Tons</span>
                   </div>
@@ -679,10 +599,10 @@ export default function DisposalTicketModal({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Tare Weight
                   </label>
-                  <div className="flex items-top border rounded-lg px-4 py-2 bg-white">
+                  <div className="flex items-top border rounded-lg px-4 py-2 bg-gray-50">
                     <input
                       type="number"
-                      className="w-full focus:outline-none"
+                      className="w-full focus:outline-none bg-gray-50"
                       value={ticketDetails.weights.vehicleTare / 2000}
                       step="0.01"
                       onChange={(e) => setTicketDetails(prev => ({
@@ -692,6 +612,8 @@ export default function DisposalTicketModal({
                           vehicleTare: Number(e.target.value) * 2000
                         }
                       }))}
+                      disabled={source === 'scale'}
+                      readOnly={source === 'scale'}
                     />
                     <div className="flex items-center">
                       <span className="text-gray-500 ml-2">Tons</span>

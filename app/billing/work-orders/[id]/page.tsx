@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
-import DisposalTicketModal from '@/app/components/DisposalTicketModal';
+import DisposalTicketModalV2 from '@/app/components/DisposalTicketModal-v2';
 
 interface DisposalTicket {
   isPricingPerTon: boolean;
@@ -51,6 +51,8 @@ export default function WorkOrderDetailPage() {
   const { id } = params;
   const [workOrders, setWorkOrders] = useState(mockWorkOrders);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
+  const [isScaleModalOpen, setIsScaleModalOpen] = useState(false);
   
   const workOrder = workOrders.find((wo) => wo.id === id);
 
@@ -201,21 +203,53 @@ export default function WorkOrderDetailPage() {
           </div>
         ) : (
           <div className="border-t pt-6">
-            <button 
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Create Disposal Ticket
-            </button>
+            <h2 className="text-lg font-semibold mb-4">Disposal Ticket</h2>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Create Disposal Ticket
+              </button>
+              <button
+                onClick={() => setIsMobileModalOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Create Mobile Disposal Ticket
+              </button>
+              <button
+                onClick={() => setIsScaleModalOpen(true)}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              >
+                Create Scale Disposal Ticket
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      <DisposalTicketModal
+      <DisposalTicketModalV2
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         workOrderId={workOrder.id}
         onSave={handleSaveDisposalTicket}
+        source="office"
+      />
+
+      <DisposalTicketModalV2
+        isOpen={isMobileModalOpen}
+        onClose={() => setIsMobileModalOpen(false)}
+        workOrderId={workOrder.id}
+        onSave={handleSaveDisposalTicket}
+        source="mobile"
+      />
+
+      <DisposalTicketModalV2
+        isOpen={isScaleModalOpen}
+        onClose={() => setIsScaleModalOpen(false)}
+        workOrderId={workOrder.id}
+        onSave={handleSaveDisposalTicket}
+        source="scale"
       />
     </div>
   );
