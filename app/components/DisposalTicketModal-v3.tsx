@@ -48,6 +48,17 @@ interface DisposalTicket {
   };
 }
 
+interface MaterialWeight {
+  gross: number;
+  tare: number;
+  net: number;
+}
+
+interface MaterialWithWeights extends Material {
+  weights?: MaterialWeight;
+  isTaxable?: boolean;
+}
+
 interface DisposalTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -65,26 +76,51 @@ export default function DisposalTicketModalV2({
   disposalFees = [],
   source = 'route'
 }: DisposalTicketModalProps) {
-  const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([]);
-  const [currentMaterial, setCurrentMaterial] = useState<Material | null>(() => {
+  const [selectedMaterials, setSelectedMaterials] = useState<MaterialWithWeights[]>(() => {
     if (source === 'scale') {
       const mswMaterial = materials.find(m => m.name === 'MSW');
-      if (mswMaterial) {
-        return {
-          ...mswMaterial,
-          pricing: {
-            ...mswMaterial.pricing,
-            disposalTicket: {
-              ...mswMaterial.pricing.disposalTicket,
-              overageThreshold: 5.00
-            },
-            disposalFee: {
-              ...mswMaterial.pricing.disposalFee,
-              overageThreshold: 5.00
-            }
-          }
-        };
-      }
+      return mswMaterial ? [{
+        ...mswMaterial,
+        weights: {
+          gross: 6000,
+          tare: 2000,
+          net: 4000
+        }
+      }] : [];
+    } else if (source === 'mobile') {
+      const recyclingMaterial = materials.find(m => m.name === 'Recycling');
+      return recyclingMaterial ? [{
+        ...recyclingMaterial,
+        weights: {
+          gross: 8000,
+          tare: 3000,
+          net: 5000
+        }
+      }] : [];
+    }
+    return [];
+  });
+  const [currentMaterial, setCurrentMaterial] = useState<MaterialWithWeights | null>(() => {
+    if (source === 'scale') {
+      const mswMaterial = materials.find(m => m.name === 'MSW');
+      return mswMaterial ? {
+        ...mswMaterial,
+        weights: {
+          gross: 6000,
+          tare: 2000,
+          net: 4000
+        }
+      } : null;
+    } else if (source === 'mobile') {
+      const recyclingMaterial = materials.find(m => m.name === 'Recycling');
+      return recyclingMaterial ? {
+        ...recyclingMaterial,
+        weights: {
+          gross: 8000,
+          tare: 3000,
+          net: 5000
+        }
+      } : null;
     }
     return null;
   });
@@ -146,6 +182,7 @@ export default function DisposalTicketModalV2({
   const disposalSiteRef = useRef<HTMLSelectElement>(null);
   const materialRef = useRef<HTMLSelectElement>(null);
   const [useGrossTare, setUseGrossTare] = useState(false);
+  const [isTaxable, setIsTaxable] = useState(false);
 
   // Add effect to focus disposal site dropdown when editing
   useEffect(() => {
@@ -331,7 +368,7 @@ export default function DisposalTicketModalV2({
     }
   };
 
-  const handleEditFee = (material: Material) => {
+  const handleEditFee = (material: MaterialWithWeights) => {
     setEditedFee({
       rate: material.pricing.disposalTicket.rate,
       includedTonnage: material.pricing.disposalTicket.includedTonnage || 0,
@@ -395,7 +432,7 @@ export default function DisposalTicketModalV2({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[95vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-lg p-8 min-w-[90vw] max-h-[95vh] flex flex-col overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-semibold">Disposal Ticket v3</h2>
@@ -437,9 +474,24 @@ export default function DisposalTicketModalV2({
               </div>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            ×
-          </button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Is Taxable</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isTaxable}
+                  onChange={(e) => setIsTaxable(e.target.checked)}
+                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                />
+                <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              ×
+            </button>
+          </div>
         </div>
 
         {/* Source Tag */}
@@ -457,257 +509,373 @@ export default function DisposalTicketModalV2({
 
         {/* Content area */}
         <div className="flex-1 overflow-y-auto pr-4">
-          {/* Two Column Layout - 3/4 and 1/4 split */}
-          <div className="grid grid-cols-4 gap-12">
-            {/* Left Column - Form Fields (3/4 width) */}
-            <div className="col-span-3">
-              {/* Basic Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Ticket #
-                  </label>
-                  <input
-                    type="text"
-                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
-                    value={ticketDetails.transactionNumber}
-                    onChange={(e) => setTicketDetails(prev => ({
-                      ...prev,
-                      transactionNumber: e.target.value
-                    }))}
-                    placeholder="Enter ticket number"
-                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Date/Time
-                  </label>
-                  <input
-                    type="datetime-local"
-                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
-                    value={ticketDetails.dateTime.slice(0, 16)}
-                    onChange={(e) => setTicketDetails(prev => ({
-                      ...prev,
-                      dateTime: new Date(e.target.value).toISOString()
-                    }))}
-                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                  />
-                </div>
-              </div>
-
-              {/* Disposal Site and Material */}
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Disposal site
-                  </label>
-                  <div className="relative">
-                    <select
-                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                      value={ticketDetails.disposalSite}
-                      onChange={(e) => {
-                        setTicketDetails(prev => ({
-                          ...prev,
-                          disposalSite: e.target.value
-                        }));
-                      }}
-                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                    >
-                      <option value="">Select Disposal Site</option>
-                      {disposalSites.map(site => (
-                        <option key={site} value={site}>{site}</option>
-                      ))}
-                    </select>
-                    {(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-
-              {/* Net Weight */}
-              {/* <div className="mt-4">
-                <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
-                  <input
-                    type="number"
-                    className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}
-                    value={ticketDetails.weights.netTons}
-                    step="0.01"
-                    onChange={(e) => {
-                      const netTons = parseFloat(e.target.value);
-                      setTicketDetails(prev => ({
+          {/* Four Column Layout - 1/4 + 1/4 + 1/4 + 1/4 split */}
+          <div className="grid grid-cols-4 gap-6">
+            {/* Left Two Columns */}
+            <div className="col-span-2 space-y-6">
+              {/* Top Row - Basic Info and Image side by side */}
+              <div className="grid grid-cols-2 gap-6">
+                {/* Basic Info - Left Column */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Ticket #
+                    </label>
+                    <input
+                      type="text"
+                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                      value={ticketDetails.transactionNumber}
+                      onChange={(e) => setTicketDetails(prev => ({
                         ...prev,
-                        weights: {
-                          ...prev.weights,
-                          netTons,
-                          netWeight: netTons * 2000
-                        }
-                      }));
-                      setActualTonnage(netTons);
-                    }}
-                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                  />
-                  <div className="flex items-center">
-                    <span className="text-gray-500 ml-2">Tons</span>
+                        transactionNumber: e.target.value
+                      }))}
+                      placeholder="Enter ticket number"
+                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Date/Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                      value={ticketDetails.dateTime.slice(0, 16)}
+                      onChange={(e) => setTicketDetails(prev => ({
+                        ...prev,
+                        dateTime: new Date(e.target.value).toISOString()
+                      }))}
+                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Disposal site
+                    </label>
+                    <div className="relative">
+                      <select
+                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
+                        value={ticketDetails.disposalSite}
+                        onChange={(e) => {
+                          setTicketDetails(prev => ({
+                            ...prev,
+                            disposalSite: e.target.value
+                          }));
+                        }}
+                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                      >
+                        <option value="">Select Disposal Site</option>
+                        {disposalSites.map(site => (
+                          <option key={site} value={site}>{site}</option>
+                        ))}
+                      </select>
+                      {(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
-              </div> */}
 
-              {/* Materials Table */}
-              <div className="mt-4">
-                <div className="p-3 rounded shadow-sm border border-gray-200 bg-white">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="font-medium text-gray-700">Materials</div>
-                    {source !== 'scale' && source !== 'mobile' && (
-                      <div className="flex items-center space-x-2">
-                        <label className="text-xs font-medium text-gray-600">Calculate using gross/tare:</label>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={useGrossTare}
-                            onChange={(e) => setUseGrossTare(e.target.checked)}
-                          />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    )}
+                {/* Image Upload - Right Column */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50">
+                  {ticketImage ? (
+                    <div className="relative flex items-center justify-center h-full">
+                      <img
+                        src={ticketImage}
+                        alt="Disposal Ticket"
+                        className="max-w-full max-h-full rounded object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="ticket-image-upload"
+                      />
+                      <label
+                        htmlFor="ticket-image-upload"
+                        className="cursor-pointer text-blue-600 hover:text-blue-700"
+                      >
+                        Upload Image
+                      </label>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Click to upload or drag and drop
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Materials Table - Full Width */}
+              <div className="col-span-2">
+                <div className={`p-2 rounded shadow-sm border border-gray-200 ${(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium text-gray-700 text-sm">Materials</div>
+                    <div className="flex items-center space-x-2">
+                      <label className="text-xs font-medium text-gray-600">Gross/Tare</label>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={useGrossTare}
+                          onChange={(e) => setUseGrossTare(e.target.checked)}
+                        />
+                        <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-2 font-medium text-gray-600">Material</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 w-24">Material</th>
                           {useGrossTare && (
                             <>
-                              <th className="text-right py-2 font-medium text-gray-600">Gross Weight</th>
-                              <th className="text-right py-2 font-medium text-gray-600">Tare Weight</th>
+                              <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Gross</th>
+                              <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Tare</th>
                             </>
                           )}
-                          <th className="text-right py-2 font-medium text-gray-600">Net Weight</th>
-                          <th className="text-right py-2 font-medium text-gray-600">Site Rate</th>
-                          <th className="text-right py-2 font-medium text-gray-600">Tipping Fee</th>
+                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Net</th>
+                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Rate</th>
+                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Fee</th>
                         </tr>
                       </thead>
                       <tbody>
                         {selectedMaterials.map((material) => (
                           <tr key={material.id} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-2">
-                              <MaterialChip
-                                name={material.name}
-                                color={
-                                  material.name === 'MSW' ? 'bg-blue-200 text-black' :
-                                  material.name === 'Recycling' ? 'bg-green-200 text-black' :
-                                  material.name === 'C&D' ? 'bg-cyan-100 text-black' :
-                                  'bg-gray-200 text-black'
-                                }
-                                onRemove={() => {
-                                  setSelectedMaterials(prev => prev.filter(m => m.id !== material.id));
-                                  if (currentMaterial?.id === material.id) {
-                                    setCurrentMaterial(null);
-                                    setTicketPricing({
-                                      rate: 0,
-                                      includedTonnage: 0,
-                                      overageThreshold: 0,
-                                      overageFee: 0
-                                    });
-                                    setContainerRate(0);
-                                  }
-                                }}
-                              />
+                            <td className="py-1 px-2">
+                              <div className="flex items-center gap-1">
+                                <span className={`text-xs font-medium ${
+                                  material.name === 'MSW' ? 'text-blue-700' :
+                                  material.name === 'Recycling' ? 'text-green-700' :
+                                  material.name === 'C&D' ? 'text-cyan-700' :
+                                  'text-gray-700'
+                                }`}>
+                                  {material.name}
+                                </span>
+                                {!((source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)) && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMaterials(prev => prev.filter(m => m.id !== material.id));
+                                      if (currentMaterial?.id === material.id) {
+                                        setCurrentMaterial(null);
+                                        setTicketPricing({
+                                          rate: 0,
+                                          includedTonnage: 0,
+                                          overageThreshold: 0,
+                                          overageFee: 0
+                                        });
+                                        setContainerRate(0);
+                                      }
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600"
+                                  >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
                             </td>
                             {useGrossTare && (
                               <>
-                                <td className="py-2">
-                                  <input
-                                    type="number"
-                                    className="w-full text-right focus:outline-none bg-transparent text-xs"
-                                    value={(ticketDetails.weights.gross / 2000).toFixed(2)}
-                                    step="0.01"
-                                    onChange={(e) => {
-                                      const grossTons = parseFloat(e.target.value);
-                                      setTicketDetails(prev => ({
-                                        ...prev,
-                                        weights: {
-                                          ...prev.weights,
-                                          gross: grossTons * 2000,
-                                          netWeight: (grossTons * 2000) - prev.weights.vehicleTare,
-                                          netTons: grossTons - (prev.weights.vehicleTare / 2000)
-                                        }
-                                      }));
-                                      setActualTonnage(grossTons - (ticketDetails.weights.vehicleTare / 2000));
-                                    }}
-                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                  />
+                                <td className="py-1 px-2">
+                                  <div className={`flex items-center rounded border border-gray-200 ${
+                                    (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                      ? 'bg-transparent border-transparent'
+                                      : 'bg-white'
+                                  }`}>
+                                    <input
+                                      type="number"
+                                      className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                      value={(material.weights?.gross || 0) / 2000}
+                                      step="0.01"
+                                      onChange={(e) => {
+                                        const grossTons = parseFloat(e.target.value);
+                                        setSelectedMaterials(prev => prev.map(m => 
+                                          m.id === material.id 
+                                            ? {
+                                                ...m,
+                                                weights: {
+                                                  gross: grossTons * 2000,
+                                                  tare: m.weights?.tare || 0,
+                                                  net: grossTons * 2000 - (m.weights?.tare || 0)
+                                                }
+                                              }
+                                            : m
+                                        ));
+                                      }}
+                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    />
+                                    <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                                  </div>
                                 </td>
-                                <td className="py-2">
-                                  <input
-                                    type="number"
-                                    className="w-full text-right focus:outline-none bg-transparent text-xs"
-                                    value={(ticketDetails.weights.vehicleTare / 2000).toFixed(2)}
-                                    step="0.01"
-                                    onChange={(e) => {
-                                      const tareTons = parseFloat(e.target.value);
-                                      setTicketDetails(prev => ({
-                                        ...prev,
-                                        weights: {
-                                          ...prev.weights,
-                                          vehicleTare: tareTons * 2000,
-                                          netWeight: prev.weights.gross - (tareTons * 2000),
-                                          netTons: (prev.weights.gross / 2000) - tareTons
-                                        }
-                                      }));
-                                      setActualTonnage((ticketDetails.weights.gross / 2000) - tareTons);
-                                    }}
-                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                  />
+                                <td className="py-1 px-2">
+                                  <div className={`flex items-center rounded border border-gray-200 ${
+                                    (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                      ? 'bg-transparent border-transparent'
+                                      : 'bg-white'
+                                  }`}>
+                                    <input
+                                      type="number"
+                                      className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                      value={(material.weights?.tare || 0) / 2000}
+                                      step="0.01"
+                                      onChange={(e) => {
+                                        const tareTons = parseFloat(e.target.value);
+                                        setSelectedMaterials(prev => prev.map(m => 
+                                          m.id === material.id 
+                                            ? {
+                                                ...m,
+                                                weights: {
+                                                  gross: m.weights?.gross || 0,
+                                                  tare: tareTons * 2000,
+                                                  net: m.weights?.gross || 0 - (tareTons * 2000)
+                                                }
+                                              }
+                                            : m
+                                        ));
+                                      }}
+                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    />
+                                    <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                                  </div>
                                 </td>
                               </>
                             )}
-                            <td className="py-2">
-                              <input
-                                type="number"
-                                className="w-full text-right focus:outline-none bg-transparent text-xs"
-                                value={actualTonnage.toFixed(2)}
-                                step="0.01"
-                                onChange={(e) => {
-                                  const netTons = parseFloat(e.target.value);
-                                  setTicketDetails(prev => ({
-                                    ...prev,
-                                    weights: {
-                                      ...prev.weights,
-                                      netTons,
-                                      netWeight: netTons * 2000
-                                    }
-                                  }));
-                                  setActualTonnage(netTons);
-                                }}
-                                disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                                readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                              />
+                            <td className="py-1 px-2">
+                              <div className={`flex items-center rounded border border-gray-200 ${
+                                (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                  ? 'bg-transparent border-transparent'
+                                  : 'bg-white'
+                              }`}>
+                                <input
+                                  type="number"
+                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                  value={(material.weights?.net || 0) / 2000}
+                                  step="0.01"
+                                  onChange={(e) => {
+                                    const netTons = parseFloat(e.target.value);
+                                    setSelectedMaterials(prev => prev.map(m => 
+                                      m.id === material.id 
+                                        ? {
+                                            ...m,
+                                            weights: {
+                                              gross: netTons * 2000 + (m.weights?.tare || 0),
+                                              tare: m.weights?.tare || 0,
+                                              net: netTons * 2000
+                                            }
+                                          }
+                                        : m
+                                    ));
+                                  }}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                  readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                />
+                                <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                              </div>
                             </td>
-                            <td className="py-2 text-right text-xs">${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</td>
-                            <td className="py-2 text-right text-xs">${(material.pricing.disposalFee.rate * 0.7 * actualTonnage).toFixed(2)}</td>
+                            <td className="py-1 px-2">
+                              <div className={`flex items-center rounded border border-gray-200 ${
+                                (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                  ? 'bg-transparent border-transparent'
+                                  : 'bg-white'
+                              }`}>
+                                <span className="text-xs text-gray-500 px-1 shrink-0">$</span>
+                                <input
+                                  type="number"
+                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                  value={(material.pricing.disposalFee.rate * 0.7).toFixed(2)}
+                                  step="0.01"
+                                  onChange={(e) => {
+                                    if ((source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)) return;
+                                    const newRate = parseFloat(e.target.value);
+                                    const updatedMaterial = {
+                                      ...material,
+                                      pricing: {
+                                        ...material.pricing,
+                                        disposalFee: {
+                                          ...material.pricing.disposalFee,
+                                          rate: newRate / 0.7
+                                        }
+                                      }
+                                    };
+                                    setSelectedMaterials(prev => 
+                                      prev.map(m => m.id === material.id ? updatedMaterial : m)
+                                    );
+                                    if (currentMaterial?.id === material.id) {
+                                      setCurrentMaterial(updatedMaterial);
+                                    }
+                                  }}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                  readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                />
+                              </div>
+                            </td>
+                            <td className="py-1 px-2">
+                              <div className={`flex items-center rounded border border-gray-200 ${
+                                (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                  ? 'bg-transparent border-transparent'
+                                  : 'bg-white'
+                              }`}>
+                                <span className="text-xs text-gray-500 px-1 shrink-0">$</span>
+                                <input
+                                  type="number"
+                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                  value={(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}
+                                  step="0.01"
+                                  onChange={(e) => {
+                                    if ((source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)) return;
+                                    const newTippingFee = parseFloat(e.target.value);
+                                    const newRate = newTippingFee / (material.weights?.net || 0) / 0.7;
+                                    const updatedMaterial = {
+                                      ...material,
+                                      pricing: {
+                                        ...material.pricing,
+                                        disposalFee: {
+                                          ...material.pricing.disposalFee,
+                                          rate: newRate
+                                        }
+                                      }
+                                    };
+                                    setSelectedMaterials(prev => 
+                                      prev.map(m => m.id === material.id ? updatedMaterial : m)
+                                    );
+                                    if (currentMaterial?.id === material.id) {
+                                      setCurrentMaterial(updatedMaterial);
+                                    }
+                                  }}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                  readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                />
+                              </div>
+                            </td>
                           </tr>
                         ))}
                         <tr>
-                          <td className="py-2">
+                          <td className="py-1 px-2" colSpan={useGrossTare ? 6 : 4}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-full justify-start text-gray-900 hover:text-gray-700 hover:bg-transparent text-xs"
+                                  className={`h-6 w-full justify-start text-xs ${
+                                    (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                      ? 'text-gray-400 cursor-not-allowed'
+                                      : 'text-gray-900 hover:text-gray-700 hover:bg-transparent'
+                                  }`}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                 >
                                   Add Material +
                                 </Button>
@@ -731,24 +899,19 @@ export default function DisposalTicketModalV2({
                                         }
                                       }}
                                     >
-                                      <MaterialChip
-                                        name={material.name}
-                                        color={
-                                          material.name === 'MSW' ? 'bg-blue-200 text-black' :
-                                          material.name === 'Recycling' ? 'bg-green-200 text-black' :
-                                          material.name === 'C&D' ? 'bg-cyan-100 text-black' :
-                                          'bg-gray-200 text-black'
-                                        }
-                                      />
+                                      <span className={`text-xs font-medium ${
+                                        material.name === 'MSW' ? 'text-blue-700' :
+                                        material.name === 'Recycling' ? 'text-green-700' :
+                                        material.name === 'C&D' ? 'text-cyan-700' :
+                                        'text-gray-700'
+                                      }`}>
+                                        {material.name}
+                                      </span>
                                     </DropdownMenuItem>
                                   ))}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </td>
-                          <td className="py-2"></td>
-                          <td className="py-2"></td>
-                          <td className="py-2"></td>
-                          <td className="py-2"></td>
                         </tr>
                       </tbody>
                     </table>
@@ -757,196 +920,196 @@ export default function DisposalTicketModalV2({
               </div>
             </div>
 
-            {/* Right Column - Image Upload and Disposal Fee (1/4 width) */}
-            <div className="col-span-1 flex flex-col">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 flex-1">
-                {ticketImage ? (
-                  <div className="relative flex items-center justify-center h-full">
-                    <img
-                      src={ticketImage}
-                      alt="Disposal Ticket"
-                      className="max-w-full max-h-full rounded object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="ticket-image-upload"
-                    />
-                    <label
-                      htmlFor="ticket-image-upload"
-                      className="cursor-pointer text-blue-600 hover:text-blue-700"
-                    >
-                      Upload Image
-                    </label>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Click to upload or drag and drop
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Disposal Fee Section */}
-              <div className="mt-4">
-                {(() => {
-                  if (isEditingFee && editedFee && currentMaterial) {
-                    return (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700">Rate</label>
-                            <input
-                              type="number"
-                              value={editedFee.rate}
-                              onChange={(e) => handleInputChange('rate', parseFloat(e.target.value))}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                            />
-                          </div>
+            {/* Right Two Columns - Disposal Fee */}
+            <div className="col-span-2 space-y-2 text-sm">
+              {(() => {
+                if (isEditingFee && editedFee && currentMaterial) {
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-gray-700">Rate</label>
+                          <input
+                            type="number"
+                            value={editedFee.rate}
+                            onChange={(e) => handleInputChange('rate', parseFloat(e.target.value))}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                          />
                         </div>
-                        {isPricingPerTon ? (
-                          <>
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700">Included Tonnage</label>
-                                <input
-                                  type="number"
-                                  value={editedFee.includedTonnage}
-                                  onChange={(e) => handleInputChange('includedTonnage', parseFloat(e.target.value))}
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700">Overage Threshold</label>
-                                <input
-                                  type="number"
-                                  value={editedFee.overageThreshold}
-                                  onChange={(e) => handleInputChange('overageThreshold', parseFloat(e.target.value))}
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700">Overage Fee</label>
-                                <input
-                                  type="number"
-                                  value={editedFee.overageFee}
-                                  onChange={(e) => handleInputChange('overageFee', parseFloat(e.target.value))}
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                />
-                              </div>
-                            </div>
-                          </>
-                        ) : (
+                      </div>
+                      {isPricingPerTon ? (
+                        <>
                           <div className="flex items-center gap-2">
                             <div className="flex-1">
-                              <label className="block text-sm font-medium text-gray-700">Container Rate</label>
+                              <label className="block text-sm font-medium text-gray-700">Included Tonnage</label>
                               <input
                                 type="number"
-                                value={editedFee.containerRate}
-                                onChange={(e) => handleInputChange('containerRate', parseFloat(e.target.value))}
+                                value={editedFee.includedTonnage}
+                                onChange={(e) => handleInputChange('includedTonnage', parseFloat(e.target.value))}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                               />
                             </div>
                           </div>
-                        )}
-                        <div className="flex justify-end gap-2 mt-4">
-                          <button
-                            onClick={handleCancelEdit}
-                            className="px-3 py-1 text-gray-600 hover:text-gray-700"
-                          >
-                            Cancel Edit
-                          </button>
-                          <button
-                            onClick={handleSaveFee}
-                            className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                          >
-                            Save Edit
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <label className="block text-sm font-medium text-gray-700">Overage Threshold</label>
+                              <input
+                                type="number"
+                                value={editedFee.overageThreshold}
+                                onChange={(e) => handleInputChange('overageThreshold', parseFloat(e.target.value))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <label className="block text-sm font-medium text-gray-700">Overage Fee</label>
+                              <input
+                                type="number"
+                                value={editedFee.overageFee}
+                                onChange={(e) => handleInputChange('overageFee', parseFloat(e.target.value))}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                              />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700">Container Rate</label>
+                            <input
+                              type="number"
+                              value={editedFee.containerRate}
+                              onChange={(e) => handleInputChange('containerRate', parseFloat(e.target.value))}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            />
+                          </div>
                         </div>
+                      )}
+                      <div className="flex justify-end gap-2 mt-4">
+                        <button
+                          onClick={handleCancelEdit}
+                          className="px-3 py-1 text-gray-600 hover:text-gray-700"
+                        >
+                          Cancel Edit
+                        </button>
+                        <button
+                          onClick={handleSaveFee}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Save Edit
+                        </button>
                       </div>
-                    );
-                  } else {
-                    return (
-                      <div className="space-y-2 text-sm">
-                        <div className={`p-3 rounded shadow-sm border border-gray-200 ${(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-medium text-blue-500">Disposal Fee</h4>
-                            {!((source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)) && (
-                              <div className="relative group">
-                                <button 
-                                  className="text-gray-500 hover:text-gray-700"
-                                  onClick={() => {
-                                    if (currentMaterial) {
-                                      setEditedFee({
-                                        rate: currentMaterial.pricing.disposalTicket.rate,
-                                        includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
-                                        overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
-                                        overageFee: currentMaterial.pricing.disposalTicket.overageFee,
-                                        containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
-                                      });
-                                      setIsEditingFee(true);
-                                    }
-                                  }}
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                  </svg>
-                                </button>
-                                <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                  Edit disposal fee
-                                </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="space-y-2 text-sm">
+                      <div className={`p-3 rounded shadow-sm border border-gray-200 ${(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-medium text-gray-700">Disposal Fee</h4>
+                          {!((source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)) && (
+                            <div className="relative group">
+                              <button 
+                                className="text-gray-500 hover:text-gray-700"
+                                onClick={() => {
+                                  if (currentMaterial) {
+                                    setEditedFee({
+                                      rate: currentMaterial.pricing.disposalTicket.rate,
+                                      includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
+                                      overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
+                                      overageFee: currentMaterial.pricing.disposalTicket.overageFee,
+                                      containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
+                                    });
+                                    setIsEditingFee(true);
+                                  }
+                                }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                Edit disposal fee
                               </div>
-                            )}
-                          </div>
-                          <div className="space-y-1 text-xs text-gray-600">
-                            <div className="flex justify-between">
-                              <span>Rate:</span>
-                              <span>${currentMaterial ? currentMaterial.pricing.disposalTicket.rate.toFixed(2) : '0.00'}/ton</span>
                             </div>
-                            <div className="flex justify-between">
-                              <span>Total Tonnage:</span>
-                              <span>{actualTonnage} tons</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Included Tonnage:</span>
-                              <span>{currentMaterial ? currentMaterial.pricing.disposalTicket.includedTonnage : '0'} tons</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Chargeable Tonnage:</span>
-                              <span>{Math.max(0, actualTonnage - (currentMaterial ? currentMaterial.pricing.disposalTicket.includedTonnage : 0))} tons</span>
-                            </div>
-                            {currentMaterial && actualTonnage > currentMaterial.pricing.disposalTicket.overageThreshold && (
-                              <>
-                                <div className="flex justify-between text-orange-600">
-                                  <span>Overage Fee:</span>
-                                  <span>+${currentMaterial.pricing.disposalTicket.overageFee.toFixed(2)}</span>
+                          )}
+                        </div>
+                        <div className="space-y-2 text-xs">
+                          {selectedMaterials.map((material, index) => (
+                            <div key={material.id} className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-xs font-medium ${
+                                  material.name === 'MSW' ? 'text-blue-700' :
+                                  material.name === 'Recycling' ? 'text-green-700' :
+                                  material.name === 'C&D' ? 'text-cyan-700' :
+                                  'text-gray-700'
+                                }`}>
+                                  {material.name}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Rate:</span>
+                                <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Total Tonnage:</span>
+                                <span>{(material.weights?.net || 0) / 2000} tons</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Included Tonnage:</span>
+                                <span>{material.pricing.disposalFee.includedTonnage} tons</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Chargeable Tonnage:</span>
+                                <span>{Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} tons</span>
+                              </div>
+                              {(material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold && (
+                                <>
+                                  <div className="flex justify-between text-orange-600">
+                                    <span>Overage Fee:</span>
+                                    <span>+${material.pricing.disposalFee.overageFee.toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-xs">
+                                      (Applied when tonnage exceeds {material.pricing.disposalFee.overageThreshold} tons)
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                              <div className="flex justify-between text-xs text-gray-800">
+                                <span>Subtotal:</span>
+                                <span>${(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}</span>
+                              </div>
+                              {isTaxable && (
+                                <div className="flex justify-between text-xs text-gray-600">
+                                  <span>Tax (8.25%):</span>
+                                  <span>+${((material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000) * 0.0825).toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                  <span className="text-xs">
-                                    (Applied when tonnage exceeds {currentMaterial.pricing.disposalTicket.overageThreshold} tons)
-                                  </span>
-                                </div>
-                              </>
-                            )}
-                            <div className="border-t border-gray-200 my-2"></div>
-                            <div className="flex justify-between font-medium">
-                              <span className="text-gray-700 font-bold">Total:</span>
-                              <span className="text-gray-700 font-bold">${calculatedFeePrice.toFixed(2)}</span>
+                              )}
+                              {index < selectedMaterials.length - 1 && (
+                                <div className="border-t border-gray-100 my-2"></div>
+                              )}
                             </div>
+                          ))}
+                          <div className="border-t border-gray-200 mt-4 pt-2"></div>
+                          <div className="flex justify-between">
+                            <span className="text-lg font-semibold text-blue-600">Total:</span>
+                            <span className="text-lg font-semibold text-blue-600">
+                              ${selectedMaterials.reduce((total, material) => {
+                                const subtotal = material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000;
+                                const tax = isTaxable ? subtotal * 0.0825 : 0;
+                                const overage = (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold ? material.pricing.disposalFee.overageFee : 0;
+                                return total + subtotal + tax + overage;
+                              }, 0).toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       </div>
-                    );
-                  }
-                })()}
-              </div>
+                    </div>
+                  );
+                }
+              })()}
             </div>
           </div>
         </div>
