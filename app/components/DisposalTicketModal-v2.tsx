@@ -103,7 +103,7 @@ export default function DisposalTicketModalV2({
   const [selectedDisposalFee, setSelectedDisposalFee] = useState<DisposalFee | null>(null);
   const [ticketDetails, setTicketDetails] = useState<DisposalTicket>({
     source,
-    transactionNumber: '',
+    transactionNumber: source === 'scale' ? '140430097' : '',
     dateTime: new Date().toISOString(),
     disposalSite: source === 'scale' ? 'Disposal site 1' : '',
     vehicleId: '',
@@ -388,13 +388,15 @@ export default function DisposalTicketModalV2({
                 </label>
                 <input
                   type="text"
-                  className="w-full border rounded-lg px-4 py-2"
+                  className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
                   value={ticketDetails.transactionNumber}
                   onChange={(e) => setTicketDetails(prev => ({
                     ...prev,
                     transactionNumber: e.target.value
                   }))}
                   placeholder="Enter ticket number"
+                  disabled={source === 'scale'}
+                  readOnly={source === 'scale'}
                 />
               </div>
               <div>
@@ -403,12 +405,14 @@ export default function DisposalTicketModalV2({
                 </label>
                 <input
                   type="datetime-local"
-                  className="w-full border rounded-lg px-4 py-2"
+                  className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
                   value={ticketDetails.dateTime.slice(0, 16)}
                   onChange={(e) => setTicketDetails(prev => ({
                     ...prev,
                     dateTime: new Date(e.target.value).toISOString()
                   }))}
+                  disabled={source === 'scale'}
+                  readOnly={source === 'scale'}
                 />
               </div>
             </div>
