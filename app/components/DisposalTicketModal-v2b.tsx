@@ -377,11 +377,11 @@ export default function DisposalTicketModalV2({
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto pr-4">
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-2 gap-12 items-start">
-            {/* Left Column */}
-            <div>
+        <div className="flex overflow-y-auto pr-4">
+          {/* Two Column Layout - 3/4 and 1/4 split */}
+          <div className="grid grid-cols-4 gap-12 h-full">
+            {/* Left Column - Form Fields (3/4 width) */}
+            <div className="col-span-3">
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -621,8 +621,8 @@ export default function DisposalTicketModalV2({
               </div>
             </div>
 
-            {/* Right Column - Image Upload and Disposal Fee */}
-            <div>
+            {/* Right Column - Image Upload and Disposal Fee (1/4 width) */}
+            <div className="col-span-1 flex flex-col h-full">
               <div className="flex items-center justify-between mb-4">
                 {ticketImage && (
                   <button
@@ -633,17 +633,17 @@ export default function DisposalTicketModalV2({
                   </button>
                 )}
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center h-1/2 bg-gray-50">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 flex-1">
                 {ticketImage ? (
-                  <div className="relative h-full flex items-center justify-center">
+                  <div className="relative flex items-center justify-center h-full">
                     <img
                       src={ticketImage}
                       alt="Disposal Ticket"
-                      className="max-w-full max-h-[90%] rounded object-contain"
+                      className="max-w-full max-h-full rounded object-contain"
                     />
                   </div>
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center justify-center h-full">
                     <input
                       type="file"
                       accept="image/*"
