@@ -103,9 +103,9 @@ export default function DisposalTicketModalV2({
   const [selectedDisposalFee, setSelectedDisposalFee] = useState<DisposalFee | null>(null);
   const [ticketDetails, setTicketDetails] = useState<DisposalTicket>({
     source,
-    transactionNumber: source === 'scale' ? '140430097' : '',
+    transactionNumber: source === 'scale' ? '140430097' : source === 'mobile' ? '140430098' : '',
     dateTime: new Date().toISOString(),
-    disposalSite: source === 'scale' ? 'Disposal site 1' : '',
+    disposalSite: source === 'scale' ? 'Disposal site 1' : source === 'mobile' ? 'Disposal site 2' : '',
     vehicleId: '',
     containerType: '',
     product: '',
@@ -113,10 +113,10 @@ export default function DisposalTicketModalV2({
     driver: '',
     memo: '',
     weights: {
-      gross: source === 'scale' ? 6000 : 0.00, // 3 tons in pounds
-      vehicleTare: source === 'scale' ? 2000 : 0.00, // 1 ton in pounds
-      netWeight: source === 'scale' ? 4000 : 0.00, // 2 tons in pounds
-      netTons: source === 'scale' ? 2.00 : 0.00 // 2 tons
+      gross: source === 'scale' ? 6000 : source === 'mobile' ? 8000 : 0.00, // 4 tons in pounds
+      vehicleTare: source === 'scale' ? 2000 : source === 'mobile' ? 3000 : 0.00, // 1.5 tons in pounds
+      netWeight: source === 'scale' ? 4000 : source === 'mobile' ? 5000 : 0.00, // 2.5 tons in pounds
+      netTons: source === 'scale' ? 2.00 : source === 'mobile' ? 2.50 : 0.00 // 2.5 tons
     }
   });
   const [disposalSites] = useState(['Disposal site 1', 'Disposal site 2', 'Disposal site 3']);
@@ -188,6 +188,55 @@ export default function DisposalTicketModalV2({
     }
   }, [isPricingPerTon, ticketPricing, containerRate, actualTonnage, currentMaterial]);
 
+  // Add effect to set material when source is scale or mobile
+  useEffect(() => {
+    if (source === 'scale' || source === 'mobile') {
+      const material = materials.find(m => source === 'scale' ? m.name === 'MSW' : m.name === 'Recycling');
+      if (material) {
+        setCurrentMaterial({
+          ...material,
+          pricing: {
+            ...material.pricing,
+            disposalTicket: {
+              ...material.pricing.disposalTicket,
+              overageThreshold: 5.00
+            },
+            disposalFee: {
+              ...material.pricing.disposalFee,
+              overageThreshold: 5.00
+            }
+          }
+        });
+        // Set initial pricing for scale/mobile
+        setTicketPricing({ ...material.pricing.disposalFee });
+        setTippingFeePricing({
+          rate: material.pricing.disposalFee.rate * 0.85,
+          includedTonnage: material.pricing.disposalTicket.includedTonnage,
+          overageThreshold: material.pricing.disposalTicket.overageThreshold,
+          overageFee: material.pricing.disposalTicket.overageFee
+        });
+        if (material.pricing.disposalTicket.containerRate) {
+          setContainerRate(material.pricing.disposalTicket.containerRate);
+        }
+        setIsPricingPerTon(true);
+        
+        // Set actual tonnage for mobile/scale
+        if (source === 'mobile') {
+          setActualTonnage(2.50); // 2.5 tons
+        } else if (source === 'scale') {
+          setActualTonnage(2.00); // 2 tons
+        }
+      }
+    }
+  }, [source]);
+
+  // Add effect to set example image when source is scale or mobile
+  useEffect(() => {
+    if (source === 'scale' || source === 'mobile') {
+      setTicketImage('/disposal-ticket-example.png');
+    }
+  }, [source]);
+
   // Update the useEffect for disposal fee selection
   useEffect(() => {
     if (selectedDisposalFee && currentMaterial) {
@@ -210,60 +259,7 @@ export default function DisposalTicketModalV2({
       // When no disposal fee is selected, calculate both prices normally
       calculatePrices();
     }
-  }, [selectedDisposalFee, actualTonnage]);
-
-  // Add effect to calculate net weight and tons
-  useEffect(() => {
-    if (useGrossTare) {
-      const netWeight = ticketDetails.weights.gross - ticketDetails.weights.vehicleTare;
-      const netTons = netWeight / 2000; // Convert lbs to tons
-      setTicketDetails(prev => ({
-        ...prev,
-        weights: {
-          ...prev.weights,
-          netWeight,
-          netTons
-        }
-      }));
-      setActualTonnage(netTons);
-    }
-  }, [ticketDetails.weights.gross, ticketDetails.weights.vehicleTare, useGrossTare]);
-
-  // Update edited fee when current material changes
-  useEffect(() => {
-    if (currentMaterial) {
-      setEditedFee({
-        rate: currentMaterial.pricing.disposalTicket.rate,
-        includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
-        overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
-        overageFee: currentMaterial.pricing.disposalTicket.overageFee,
-        containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
-      });
-    }
-  }, [currentMaterial]);
-
-  // Add effect to set example image when source is scale or mobile
-  useEffect(() => {
-    if (source === 'scale' || source === 'mobile') {
-      setTicketImage('/disposal-ticket-example.png');
-    }
-  }, [source]);
-
-  // Separate ticket price calculation
-  const calculateTicketPrice = () => {
-    if (!currentMaterial) return 0;
-
-    if (isPricingPerTon) {
-      const chargeableTonnage = Math.max(0, actualTonnage - ticketPricing.includedTonnage);
-      let price = ticketPricing.rate * chargeableTonnage;
-      if (actualTonnage > ticketPricing.overageThreshold) {
-        price += ticketPricing.overageFee;
-      }
-      return price;
-    } else {
-      return containerRate;
-    }
-  };
+  }, [selectedDisposalFee, actualTonnage, currentMaterial]);
 
   // Update the main price calculation function
   const calculatePrices = () => {
@@ -286,6 +282,22 @@ export default function DisposalTicketModalV2({
       } else {
         setCalculatedFeePrice(currentMaterial.pricing.disposalFee.containerRate || 0);
       }
+    }
+  };
+
+  // Separate ticket price calculation
+  const calculateTicketPrice = () => {
+    if (!currentMaterial) return 0;
+
+    if (isPricingPerTon) {
+      const chargeableTonnage = Math.max(0, actualTonnage - ticketPricing.includedTonnage);
+      let price = ticketPricing.rate * chargeableTonnage;
+      if (actualTonnage > ticketPricing.overageThreshold) {
+        price += ticketPricing.overageFee;
+      }
+      return price;
+    } else {
+      return containerRate;
     }
   };
 
@@ -440,9 +452,9 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Disposal site
                   </label>
-                  {source === 'scale' ? (
+                  {source === 'scale' || source === 'mobile' ? (
                     <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                      <span className="text-gray-700">Disposal site 1</span>
+                      <span className="text-gray-700">{source === 'scale' ? 'Disposal site 1' : 'Disposal site 2'}</span>
                     </div>
                   ) : (
                     <select
@@ -470,9 +482,9 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Material
                   </label>
-                  {source === 'scale' ? (
+                  {source === 'scale' || source === 'mobile' ? (
                     <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                      <span className="text-gray-700">MSW</span>
+                      <span className="text-gray-700">{source === 'scale' ? 'MSW' : 'Recycling'}</span>
                     </div>
                   ) : (
                     <select
@@ -507,10 +519,10 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Net weight
                   </label>
-                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
+                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
                     <input
                       type="number"
-                      className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : ''}`}
+                      className={`w-full focus:outline-none ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : ''}`}
                       value={ticketDetails.weights.netTons}
                       step="0.01"
                       onChange={(e) => {
@@ -525,8 +537,8 @@ export default function DisposalTicketModalV2({
                         }));
                         setActualTonnage(netTons);
                       }}
-                      disabled={source === 'scale' || useGrossTare}
-                      readOnly={source === 'scale' || useGrossTare}
+                      disabled={source === 'scale' || source === 'mobile' || useGrossTare}
+                      readOnly={source === 'scale' || source === 'mobile' || useGrossTare}
                     />
                     <div className="flex items-center">
                       <span className="text-gray-500 ml-2">Tons</span>
@@ -535,7 +547,7 @@ export default function DisposalTicketModalV2({
                 </div>
               </div>
 
-              {source !== 'scale' && (
+              {source !== 'scale' && source !== 'mobile' && (
                 <div className="flex items-center space-x-4 mt-4">
                   <label className="text-sm font-medium text-gray-600">Calculate using gross/tare:</label>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -550,16 +562,16 @@ export default function DisposalTicketModalV2({
                 </div>
               )}
 
-              {(source === 'scale' || useGrossTare) && (
+              {(source === 'scale' || source === 'mobile' || useGrossTare) && (
                 <div className="grid grid-cols-2 gap-6 mt-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                       Gross weight
                     </label>
-                    <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}>
+                    <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : 'bg-white'}`}>
                       <input
                         type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
+                        className={`w-full focus:outline-none ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : 'bg-white'}`}
                         value={ticketDetails.weights.gross / 2000}
                         step="0.01"
                         onChange={(e) => setTicketDetails(prev => ({
@@ -569,8 +581,8 @@ export default function DisposalTicketModalV2({
                             gross: Number(e.target.value) * 2000
                           }
                         }))}
-                        disabled={source === 'scale'}
-                        readOnly={source === 'scale'}
+                        disabled={source === 'scale' || source === 'mobile'}
+                        readOnly={source === 'scale' || source === 'mobile'}
                       />
                       <span className="text-gray-500 ml-2">Tons</span>
                     </div>
@@ -579,10 +591,10 @@ export default function DisposalTicketModalV2({
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                       Tare Weight
                     </label>
-                    <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}>
+                    <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : 'bg-white'}`}>
                       <input
                         type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
+                        className={`w-full focus:outline-none ${source === 'scale' || source === 'mobile' ? 'bg-gray-50' : 'bg-white'}`}
                         value={ticketDetails.weights.vehicleTare / 2000}
                         step="0.01"
                         onChange={(e) => setTicketDetails(prev => ({
@@ -592,8 +604,8 @@ export default function DisposalTicketModalV2({
                             vehicleTare: Number(e.target.value) * 2000
                           }
                         }))}
-                        disabled={source === 'scale'}
-                        readOnly={source === 'scale'}
+                        disabled={source === 'scale' || source === 'mobile'}
+                        readOnly={source === 'scale' || source === 'mobile'}
                       />
                       <div className="flex items-center">
                         <span className="text-gray-500 ml-2">Tons</span>
