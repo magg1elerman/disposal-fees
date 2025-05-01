@@ -242,6 +242,13 @@ export default function DisposalTicketModalV2({
     }
   }, [currentMaterial]);
 
+  // Add effect to set example image when source is scale or mobile
+  useEffect(() => {
+    if (source === 'scale' || source === 'mobile') {
+      setTicketImage('/disposal-ticket-example.png');
+    }
+  }, [source]);
+
   // Separate ticket price calculation
   const calculateTicketPrice = () => {
     if (!currentMaterial) return 0;
@@ -623,16 +630,6 @@ export default function DisposalTicketModalV2({
 
             {/* Right Column - Image Upload and Disposal Fee (1/4 width) */}
             <div className="col-span-1 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                {ticketImage && (
-                  <button
-                    onClick={() => setTicketImage(null)}
-                    className="text-sm text-red-600 hover:text-red-700"
-                  >
-                    Remove Image
-                  </button>
-                )}
-              </div>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 flex-1">
                 {ticketImage ? (
                   <div className="relative flex items-center justify-center h-full">
