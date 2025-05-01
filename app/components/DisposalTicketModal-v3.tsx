@@ -79,14 +79,29 @@ export default function DisposalTicketModalV2({
   const [selectedMaterials, setSelectedMaterials] = useState<MaterialWithWeights[]>(() => {
     if (source === 'scale') {
       const mswMaterial = materials.find(m => m.name === 'MSW');
-      return mswMaterial ? [{
-        ...mswMaterial,
-        weights: {
-          gross: 6000,
-          tare: 2000,
-          net: 4000
-        }
-      }] : [];
+      const cdMaterial = materials.find(m => m.name === 'C&D');
+      const initialMaterials = [];
+      if (mswMaterial) {
+        initialMaterials.push({
+          ...mswMaterial,
+          weights: {
+            gross: 6000,
+            tare: 2000,
+            net: 4000
+          }
+        });
+      }
+      if (cdMaterial) {
+        initialMaterials.push({
+          ...cdMaterial,
+          weights: {
+            gross: 8000,
+            tare: 3000,
+            net: 5000
+          }
+        });
+      }
+      return initialMaterials;
     } else if (source === 'mobile') {
       const recyclingMaterial = materials.find(m => m.name === 'Recycling');
       return recyclingMaterial ? [{
