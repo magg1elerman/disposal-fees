@@ -207,7 +207,7 @@ export default function WorkOrderDetailPage() {
         ) : (
           <div className="space-y-6">
             <div className="border-t pt-6">
-              <h2 className="text-lg font-semibold mb-4">Disposal Ticket 2</h2>
+              <h2 className="text-lg font-semibold mb-4">Disposal Ticket v2</h2>
               <div className="flex gap-4">
                 <button
                   onClick={() => setIsModalOpen(true)}
@@ -231,7 +231,7 @@ export default function WorkOrderDetailPage() {
             </div>
 
             <div className="border-t pt-6">
-              <h2 className="text-lg font-semibold mb-4">Disposal Ticket 2b</h2>
+              <h2 className="text-lg font-semibold mb-4">Disposal Ticket v2b</h2>
               <div className="flex gap-4">
                 <button
                   onClick={() => setIsModal2bOpen(true)}
