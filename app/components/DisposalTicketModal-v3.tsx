@@ -450,15 +450,15 @@ export default function DisposalTicketModalV2({
                   </label>
                   <input
                     type="text"
-                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
                     value={ticketDetails.transactionNumber}
                     onChange={(e) => setTicketDetails(prev => ({
                       ...prev,
                       transactionNumber: e.target.value
                     }))}
                     placeholder="Enter ticket number"
-                    disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                    readOnly={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
+                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                   />
                 </div>
                 <div>
@@ -467,14 +467,14 @@ export default function DisposalTicketModalV2({
                   </label>
                   <input
                     type="datetime-local"
-                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                    className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
                     value={ticketDetails.dateTime.slice(0, 16)}
                     onChange={(e) => setTicketDetails(prev => ({
                       ...prev,
                       dateTime: new Date(e.target.value).toISOString()
                     }))}
-                    disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                    readOnly={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
+                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                   />
                 </div>
               </div>
@@ -493,61 +493,31 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Disposal site
                   </label>
-                  {source === 'scale' ? (
-                    <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                      <span className="text-gray-700">Disposal site 1</span>
-                    </div>
-                  ) : source === 'mobile' ? (
-                    <div className="relative">
-                      <select
-                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                        value={ticketDetails.disposalSite}
-                        onChange={(e) => {
-                          setTicketDetails(prev => ({
-                            ...prev,
-                            disposalSite: e.target.value
-                          }));
-                        }}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                      >
-                        <option value="">Select Disposal Site</option>
-                        {disposalSites.map(site => (
-                          <option key={site} value={site}>{site}</option>
-                        ))}
-                      </select>
-                      {source === 'mobile' && !isMobileUnlocked && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <select
-                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                        value={ticketDetails.disposalSite}
-                        onChange={(e) => {
-                          setTicketDetails(prev => ({
-                            ...prev,
-                            disposalSite: e.target.value
-                          }));
-                        }}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                      >
-                        <option value="">Select Disposal Site</option>
-                        {disposalSites.map(site => (
-                          <option key={site} value={site}>{site}</option>
-                        ))}
-                      </select>
+                  <div className="relative">
+                    <select
+                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
+                      value={ticketDetails.disposalSite}
+                      onChange={(e) => {
+                        setTicketDetails(prev => ({
+                          ...prev,
+                          disposalSite: e.target.value
+                        }));
+                      }}
+                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    >
+                      <option value="">Select Disposal Site</option>
+                      {disposalSites.map(site => (
+                        <option key={site} value={site}>{site}</option>
+                      ))}
+                    </select>
+                    {(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -557,91 +527,51 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Material
                   </label>
-                  {source === 'scale' ? (
-                    <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50 h-[42px]">
-                      <span className="text-gray-700">MSW</span>
-                    </div>
-                  ) : source === 'mobile' ? (
-                    <div className="relative">
-                      <select
-                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                        value={currentMaterial?.id || ''}
-                        onChange={(e) => {
-                          const material = materials.find((m: Material) => m.id === e.target.value);
-                          setCurrentMaterial(material || null);
-                          if (material) {
-                            setIsPricingPerTon(!material.allowPerContainer || true);
-                            setTicketPricing({
-                              ...material.pricing.disposalTicket,
-                              overageThreshold: 5.00
-                            });
-                            if (material.pricing.disposalTicket.containerRate) {
-                              setContainerRate(material.pricing.disposalTicket.containerRate);
-                            }
+                  <div className="relative">
+                    <select
+                      className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
+                      value={currentMaterial?.id || ''}
+                      onChange={(e) => {
+                        const material = materials.find((m: Material) => m.id === e.target.value);
+                        setCurrentMaterial(material || null);
+                        if (material) {
+                          setIsPricingPerTon(!material.allowPerContainer || true);
+                          setTicketPricing({
+                            ...material.pricing.disposalTicket,
+                            overageThreshold: 5.00
+                          });
+                          if (material.pricing.disposalTicket.containerRate) {
+                            setContainerRate(material.pricing.disposalTicket.containerRate);
                           }
-                        }}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                      >
-                        <option value="">Select Material</option>
-                        {materials.map((material: Material) => (
-                          <option key={material.id} value={material.id}>
-                            {material.name}
-                          </option>
-                        ))}
-                      </select>
-                      {source === 'mobile' && !isMobileUnlocked && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <select
-                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
-                        value={currentMaterial?.id || ''}
-                        onChange={(e) => {
-                          const material = materials.find((m: Material) => m.id === e.target.value);
-                          setCurrentMaterial(material || null);
-                          if (material) {
-                            setIsPricingPerTon(!material.allowPerContainer || true);
-                            setTicketPricing({
-                              ...material.pricing.disposalTicket,
-                              overageThreshold: 5.00
-                            });
-                            if (material.pricing.disposalTicket.containerRate) {
-                              setContainerRate(material.pricing.disposalTicket.containerRate);
-                            }
-                          }
-                        }}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                      >
-                        <option value="">Select Material</option>
-                        {materials.map((material: Material) => (
-                          <option key={material.id} value={material.id}>
-                            {material.name}
-                          </option>
-                        ))}
-                      </select>
+                        }
+                      }}
+                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                    >
+                      <option value="">Select Material</option>
+                      {materials.map((material: Material) => (
+                        <option key={material.id} value={material.id}>
+                          {material.name}
+                        </option>
+                      ))}
+                    </select>
+                    {(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Net weight
                   </label>
-                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
+                  <div className={`flex items-top justify-between border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}>
                     <input
                       type="number"
-                      className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : ''}`}
+                      className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : useGrossTare ? 'bg-gray-50' : 'bg-white'}`}
                       value={ticketDetails.weights.netTons}
                       step="0.01"
                       onChange={(e) => {
@@ -656,8 +586,8 @@ export default function DisposalTicketModalV2({
                         }));
                         setActualTonnage(netTons);
                       }}
-                      disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                      readOnly={source === 'scale' || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
                     />
                     <div className="flex items-center">
                       <span className="text-gray-500 ml-2">Tons</span>
@@ -687,10 +617,10 @@ export default function DisposalTicketModalV2({
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                       Gross weight
                     </label>
-                    <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
+                    <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
                       <input
                         type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                        className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
                         value={ticketDetails.weights.gross / 2000}
                         step="0.01"
                         onChange={(e) => setTicketDetails(prev => ({
@@ -700,8 +630,8 @@ export default function DisposalTicketModalV2({
                             gross: Number(e.target.value) * 2000
                           }
                         }))}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                        readOnly={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
+                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                       />
                       <span className="text-gray-500 ml-2">Tons</span>
                     </div>
@@ -710,10 +640,10 @@ export default function DisposalTicketModalV2({
                     <label className="block text-sm font-medium text-gray-600 mb-1">
                       Tare Weight
                     </label>
-                    <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
+                    <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
                       <input
                         type="number"
-                        className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
+                        className={`w-full focus:outline-none ${source === 'scale' && !isScaleUnlocked ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}
                         value={ticketDetails.weights.vehicleTare / 2000}
                         step="0.01"
                         onChange={(e) => setTicketDetails(prev => ({
@@ -723,8 +653,8 @@ export default function DisposalTicketModalV2({
                             vehicleTare: Number(e.target.value) * 2000
                           }
                         }))}
-                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
-                        readOnly={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
+                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                       />
                       <div className="flex items-center">
                         <span className="text-gray-500 ml-2">Tons</span>
@@ -736,7 +666,7 @@ export default function DisposalTicketModalV2({
 
               {/* Tipping Fee Section */}
               <div className="mt-4">
-                <div className={`p-3 rounded shadow-sm border border-gray-200 ${source === 'scale' || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
+                <div className={`p-3 rounded shadow-sm border border-gray-200 ${(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) ? 'bg-gray-50' : 'bg-white'}`}>
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-xs font-medium text-gray-700">Tipping Fee</div>
                   </div>
