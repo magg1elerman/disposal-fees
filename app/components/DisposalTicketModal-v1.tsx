@@ -23,7 +23,7 @@ interface DisposalFee {
 }
 
 interface DisposalTicket {
-  source: 'route' | 'office' | 'scale kiosk';
+  source: 'route' | 'office' | 'scale';
   transactionNumber: string;
   dateTime: string;
   disposalSite: string;
@@ -51,7 +51,7 @@ interface DisposalTicketModalProps {
   disposalFees?: DisposalFee[];
 }
 
-export default function DisposalTicketModal({ 
+export default function DisposalTicketModalV1({ 
   isOpen, 
   onClose, 
   workOrderId, 
