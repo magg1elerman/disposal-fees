@@ -453,7 +453,7 @@ export default function DisposalTicketModalV2({
                       </select>
                     ) : (
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-gray-700">{ticketDetails.disposalSite || 'Not set'}</span>
+                        <span className="text-gray-700">{ticketDetails.disposalSite || 'Select Disposal Site'}</span>
                         <button
                           onClick={() => setIsEditingDisposalSite(!isEditingDisposalSite)}
                           className="text-gray-500 hover:text-gray-700"
@@ -508,7 +508,7 @@ export default function DisposalTicketModalV2({
                       </select>
                     ) : (
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-gray-700">{currentMaterial?.name || 'Select a material...'}</span>
+                        <span className="text-gray-700">{currentMaterial?.name || 'Select Material'}</span>
                         <button
                           onClick={() => setIsEditingMaterial(true)}
                           className="text-gray-500 hover:text-gray-700"
@@ -576,10 +576,10 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Gross weight
                   </label>
-                  <div className="flex items-center border rounded-lg px-4 py-2 bg-gray-50">
+                  <div className={`flex items-center border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}>
                     <input
                       type="number"
-                      className="w-full focus:outline-none bg-gray-50"
+                      className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
                       value={ticketDetails.weights.gross / 2000}
                       step="0.01"
                       onChange={(e) => setTicketDetails(prev => ({
@@ -599,10 +599,10 @@ export default function DisposalTicketModalV2({
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     Tare Weight
                   </label>
-                  <div className="flex items-top border rounded-lg px-4 py-2 bg-gray-50">
+                  <div className={`flex items-top border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}>
                     <input
                       type="number"
-                      className="w-full focus:outline-none bg-gray-50"
+                      className={`w-full focus:outline-none ${source === 'scale' ? 'bg-gray-50' : 'bg-white'}`}
                       value={ticketDetails.weights.vehicleTare / 2000}
                       step="0.01"
                       onChange={(e) => setTicketDetails(prev => ({
