@@ -519,7 +519,7 @@ export default function DisposalTicketModalV2({
                   ) : (
                     <div className="relative">
                       <select
-                        className="w-full border rounded-lg px-4 py-2 bg-white h-[42px] appearance-none"
+                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
                         value={ticketDetails.disposalSite}
                         onChange={(e) => {
                           setTicketDetails(prev => ({
@@ -527,6 +527,7 @@ export default function DisposalTicketModalV2({
                             disposalSite: e.target.value
                           }));
                         }}
+                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
                       >
                         <option value="">Select Disposal Site</option>
                         {disposalSites.map(site => (
@@ -572,7 +573,7 @@ export default function DisposalTicketModalV2({
                             }
                           }
                         }}
-                        disabled={!isMobileUnlocked}
+                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
                       >
                         <option value="">Select Material</option>
                         {materials.map((material: Material) => (
@@ -592,7 +593,7 @@ export default function DisposalTicketModalV2({
                   ) : (
                     <div className="relative">
                       <select
-                        className="w-full border rounded-lg px-4 py-2 bg-white h-[42px] appearance-none"
+                        className={`w-full border rounded-lg px-4 py-2 ${source === 'scale' ? 'bg-gray-50' : source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'} h-[42px] appearance-none`}
                         value={currentMaterial?.id || ''}
                         onChange={(e) => {
                           const material = materials.find((m: Material) => m.id === e.target.value);
@@ -608,6 +609,7 @@ export default function DisposalTicketModalV2({
                             }
                           }
                         }}
+                        disabled={source === 'scale' || (source === 'mobile' && !isMobileUnlocked)}
                       >
                         <option value="">Select Material</option>
                         {materials.map((material: Material) => (
@@ -727,23 +729,23 @@ export default function DisposalTicketModalV2({
 
               {/* Tipping Fee Section */}
               <div className="mt-4">
-                <div className="text-gray-600 text-sm font-semibold mb-2">Tipping Fee</div>
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 bg-white rounded shadow-sm border border-gray-200">
-                    <div className="space-y-1 text-gray-600">
-                      <div className="flex justify-between">
-                        <span>Net Weight:</span>
-                        <span>{actualTonnage.toFixed(2)} tons</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Disposal Site Rate:</span>
-                        <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
-                      </div>
-                      <div className="border-t border-gray-200 my-2"></div>
-                      <div className="flex justify-between font-medium">
-                        <span>Total Cost:</span>
-                        <span>${calculateTippingFee().toFixed(2)}</span>
-                      </div>
+                <div className={`p-3 rounded shadow-sm border border-gray-200 ${source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="text-xs font-medium text-gray-700">Tipping Fee</div>
+                  </div>
+                  <div className="space-y-1 text-xs text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Net Weight:</span>
+                      <span>{actualTonnage.toFixed(2)} tons</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Disposal Site Rate:</span>
+                      <span>${tippingFeePricing.rate.toFixed(2)}/ton</span>
+                    </div>
+                    <div className="border-t border-gray-200 my-2"></div>
+                    <div className="flex justify-between font-medium">
+                      <span>Total Cost:</span>
+                      <span>${calculateTippingFee().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -785,9 +787,7 @@ export default function DisposalTicketModalV2({
 
               {/* Disposal Fee Section */}
               <div className="mt-4">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm font-semibold">Disposal Fee</div>
-                </div>
+              
                 {(() => {
                   if (isEditingFee && editedFee && currentMaterial) {
                     return (
@@ -871,35 +871,37 @@ export default function DisposalTicketModalV2({
                   } else {
                     return (
                       <div className="space-y-2 text-sm">
-                        <div className="p-3 bg-white rounded shadow-sm border border-gray-200">
+                        <div className={`p-3 rounded shadow-sm border border-gray-200 ${source === 'mobile' && !isMobileUnlocked ? 'bg-gray-50' : 'bg-white'}`}>
                           <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-medium text-gray-700">Price Breakdown</h4>
-                            <div className="relative group">
-                              <button 
-                                className="text-gray-500 hover:text-gray-700"
-                                onClick={() => {
-                                  if (currentMaterial) {
-                                    setEditedFee({
-                                      rate: currentMaterial.pricing.disposalTicket.rate,
-                                      includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
-                                      overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
-                                      overageFee: currentMaterial.pricing.disposalTicket.overageFee,
-                                      containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
-                                    });
-                                    setIsEditingFee(true);
-                                  }
-                                }}
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                              <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                Edit disposal fee
+                            <h4 className="font-medium text-blue-500">Disposal Fee</h4>
+                            {!(source === 'mobile' && !isMobileUnlocked) && (
+                              <div className="relative group">
+                                <button 
+                                  className="text-gray-500 hover:text-gray-700"
+                                  onClick={() => {
+                                    if (currentMaterial) {
+                                      setEditedFee({
+                                        rate: currentMaterial.pricing.disposalTicket.rate,
+                                        includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
+                                        overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
+                                        overageFee: currentMaterial.pricing.disposalTicket.overageFee,
+                                        containerRate: currentMaterial.pricing.disposalTicket.containerRate || 0
+                                      });
+                                      setIsEditingFee(true);
+                                    }
+                                  }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <div className="absolute right-0 top-6 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                  Edit disposal fee
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
-                          <div className="space-y-1 text-gray-600">
+                          <div className="space-y-1 text-xs text-gray-600">
                             <div className="flex justify-between">
                               <span>Rate:</span>
                               <span>${currentMaterial ? currentMaterial.pricing.disposalTicket.rate.toFixed(2) : '0.00'}/ton</span>
@@ -931,8 +933,8 @@ export default function DisposalTicketModalV2({
                             )}
                             <div className="border-t border-gray-200 my-2"></div>
                             <div className="flex justify-between font-medium">
-                              <span>Total:</span>
-                              <span>${calculatedFeePrice.toFixed(2)}</span>
+                              <span className="text-gray-700 font-bold">Total:</span>
+                              <span className="text-gray-700 font-bold">${calculatedFeePrice.toFixed(2)}</span>
                             </div>
                           </div>
                         </div>
