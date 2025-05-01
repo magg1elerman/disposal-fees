@@ -85,9 +85,9 @@ export default function DisposalTicketModalV2({
         initialMaterials.push({
           ...mswMaterial,
           weights: {
-            gross: 6000,
+            gross: 5000,
             tare: 2000,
-            net: 4000
+            net: 3000
           }
         });
       }
@@ -95,9 +95,9 @@ export default function DisposalTicketModalV2({
         initialMaterials.push({
           ...cdMaterial,
           weights: {
-            gross: 8000,
+            gross: 6000,
             tare: 3000,
-            net: 5000
+            net: 3000
           }
         });
       }
@@ -197,7 +197,7 @@ export default function DisposalTicketModalV2({
   const disposalSiteRef = useRef<HTMLSelectElement>(null);
   const materialRef = useRef<HTMLSelectElement>(null);
   const [useGrossTare, setUseGrossTare] = useState(false);
-  const [isTaxable, setIsTaxable] = useState(false);
+  const [isTaxable, setIsTaxable] = useState(source === 'mobile');
 
   // Add effect to focus disposal site dropdown when editing
   useEffect(() => {
@@ -503,9 +503,6 @@ export default function DisposalTicketModalV2({
                 <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              ×
-            </button>
           </div>
         </div>
 
