@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import DisposalTicketModalV2 from '@/app/components/DisposalTicketModal-v2';
-import DisposalTicketModalV2b from '@/app/components/DisposalTicketModal-v2b';
+import DisposalTicketModalV3 from '@/app/components/DisposalTicketModal-v3';
 
 interface DisposalTicket {
   isPricingPerTon: boolean;
@@ -232,7 +232,7 @@ export default function WorkOrderDetailPage() {
             </div>
 
             <div className="border-t pt-6">
-              <h2 className="text-lg font-semibold mb-4">Disposal Ticket v2b</h2>
+              <h2 className="text-lg font-semibold mb-4">Disposal Ticket v3</h2>
               <div className="flex gap-4">
                 <button
                   onClick={() => setIsModal2bOpen(true)}
@@ -283,7 +283,7 @@ export default function WorkOrderDetailPage() {
           source="scale"
         />
 
-        <DisposalTicketModalV2b
+        <DisposalTicketModalV3
           isOpen={isModal2bOpen}
           onClose={() => setIsModal2bOpen(false)}
           workOrderId={workOrder.id}
@@ -291,7 +291,7 @@ export default function WorkOrderDetailPage() {
           source="office"
         />
 
-        <DisposalTicketModalV2b
+        <DisposalTicketModalV3
           isOpen={isMobileModal2bOpen}
           onClose={() => setIsMobileModal2bOpen(false)}
           workOrderId={workOrder.id}
@@ -299,7 +299,7 @@ export default function WorkOrderDetailPage() {
           source="mobile"
         />
 
-        <DisposalTicketModalV2b
+        <DisposalTicketModalV3
           isOpen={isScaleModal2bOpen}
           onClose={() => setIsScaleModal2bOpen(false)}
           workOrderId={workOrder.id}

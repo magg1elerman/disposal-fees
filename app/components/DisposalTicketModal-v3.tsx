@@ -391,7 +391,7 @@ export default function DisposalTicketModalV2({
       <div className="bg-white rounded-lg p-8 max-w-[80vw] max-h-[95vh] flex flex-col overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">Disposal Ticket v2b</h2>
+            <h2 className="text-xl font-semibold">Disposal Ticket v3</h2>
             {source === 'mobile' && (
               <div className="relative group">
                 <button
