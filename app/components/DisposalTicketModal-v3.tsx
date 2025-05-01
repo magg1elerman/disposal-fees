@@ -794,9 +794,6 @@ export default function DisposalTicketModalV2({
 
               {/* Disposal Fee Section */}
               <div className="mt-4">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm font-semibold">Disposal Fee</div>
-                </div>
                 {(() => {
                   if (isEditingFee && editedFee && currentMaterial) {
                     return (
@@ -910,7 +907,7 @@ export default function DisposalTicketModalV2({
                               </div>
                             )}
                           </div>
-                          <div className="space-y-1 text-gray-600">
+                          <div className="space-y-1 text-xs text-gray-600">
                             <div className="flex justify-between">
                               <span>Rate:</span>
                               <span>${currentMaterial ? currentMaterial.pricing.disposalTicket.rate.toFixed(2) : '0.00'}/ton</span>
@@ -942,8 +939,8 @@ export default function DisposalTicketModalV2({
                             )}
                             <div className="border-t border-gray-200 my-2"></div>
                             <div className="flex justify-between font-medium">
-                              <span>Total:</span>
-                              <span>${calculatedFeePrice.toFixed(2)}</span>
+                              <span className="text-gray-700 font-bold">Total:</span>
+                              <span className="text-gray-700 font-bold">${calculatedFeePrice.toFixed(2)}</span>
                             </div>
                           </div>
                         </div>
