@@ -649,22 +649,22 @@ export default function DisposalTicketModalV2({
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-1 px-2 font-medium text-gray-600 w-24">Material</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 w-24 border-r border-gray-100">Material</th>
                           {useGrossTare && (
                             <>
-                              <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Gross</th>
-                              <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Tare</th>
+                              <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Gross Weight</th>
+                              <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Tare Weight</th>
                             </>
                           )}
-                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Net</th>
-                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Rate</th>
-                          <th className="text-right py-1 px-2 font-medium text-gray-600 w-20">Fee</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Net Weight</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Site Rate</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600">Tipping Fee</th>
                         </tr>
                       </thead>
                       <tbody>
                         {selectedMaterials.map((material) => (
                           <tr key={material.id} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-2 border-r border-gray-100">
                               <div className="flex items-center gap-1">
                                 <span className={`text-xs font-medium ${
                                   material.name === 'MSW' ? 'text-blue-700' :
@@ -700,114 +700,120 @@ export default function DisposalTicketModalV2({
                             </td>
                             {useGrossTare && (
                               <>
-                                <td className="py-1 px-2">
+                                <td className="py-1 px-2 border-r border-gray-100">
                                   <div className={`flex items-center rounded border border-gray-200 ${
                                     (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
                                       ? 'bg-transparent border-transparent'
                                       : 'bg-white'
                                   }`}>
-                                    <input
-                                      type="number"
-                                      className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
-                                      value={(material.weights?.gross || 0) / 2000}
-                                      step="0.01"
-                                      onChange={(e) => {
-                                        const grossTons = parseFloat(e.target.value);
-                                        setSelectedMaterials(prev => prev.map(m => 
-                                          m.id === material.id 
-                                            ? {
-                                                ...m,
-                                                weights: {
-                                                  gross: grossTons * 2000,
-                                                  tare: m.weights?.tare || 0,
-                                                  net: grossTons * 2000 - (m.weights?.tare || 0)
+                                    <div className="flex items-center">
+                                      <input
+                                        type="number"
+                                        className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
+                                        value={(material.weights?.gross || 0) / 2000}
+                                        step="0.01"
+                                        onChange={(e) => {
+                                          const grossTons = parseFloat(e.target.value);
+                                          setSelectedMaterials(prev => prev.map(m => 
+                                            m.id === material.id 
+                                              ? {
+                                                  ...m,
+                                                  weights: {
+                                                    gross: grossTons * 2000,
+                                                    tare: m.weights?.tare || 0,
+                                                    net: grossTons * 2000 - (m.weights?.tare || 0)
+                                                  }
                                                 }
-                                              }
-                                            : m
-                                        ));
-                                      }}
-                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                    />
-                                    <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                                              : m
+                                          ));
+                                        }}
+                                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      />
+                                      <span className="text-xs text-gray-500 ">tons</span>
+                                    </div>
                                   </div>
                                 </td>
-                                <td className="py-1 px-2">
+                                <td className="py-1 px-2 border-r border-gray-100">
                                   <div className={`flex items-center rounded border border-gray-200 ${
                                     (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
                                       ? 'bg-transparent border-transparent'
                                       : 'bg-white'
                                   }`}>
-                                    <input
-                                      type="number"
-                                      className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
-                                      value={(material.weights?.tare || 0) / 2000}
-                                      step="0.01"
-                                      onChange={(e) => {
-                                        const tareTons = parseFloat(e.target.value);
-                                        setSelectedMaterials(prev => prev.map(m => 
-                                          m.id === material.id 
-                                            ? {
-                                                ...m,
-                                                weights: {
-                                                  gross: m.weights?.gross || 0,
-                                                  tare: tareTons * 2000,
-                                                  net: m.weights?.gross || 0 - (tareTons * 2000)
+                                    <div className="flex items-center">
+                                      <input
+                                        type="number"
+                                        className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
+                                        value={(material.weights?.tare || 0) / 2000}
+                                        step="0.01"
+                                        onChange={(e) => {
+                                          const tareTons = parseFloat(e.target.value);
+                                          setSelectedMaterials(prev => prev.map(m => 
+                                            m.id === material.id 
+                                              ? {
+                                                  ...m,
+                                                  weights: {
+                                                    gross: m.weights?.gross || 0,
+                                                    tare: tareTons * 2000,
+                                                    net: m.weights?.gross || 0 - (tareTons * 2000)
+                                                  }
                                                 }
-                                              }
-                                            : m
-                                        ));
-                                      }}
-                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                                    />
-                                    <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                                              : m
+                                          ));
+                                        }}
+                                        disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                        readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      />
+                                      <span className="text-xs text-gray-500 pl-0.5">tons</span>
+                                    </div>
                                   </div>
                                 </td>
                               </>
                             )}
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-2 border-r border-gray-100">
                               <div className={`flex items-center rounded border border-gray-200 ${
                                 (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
                                   ? 'bg-transparent border-transparent'
                                   : 'bg-white'
                               }`}>
-                                <input
-                                  type="number"
-                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
-                                  value={(material.weights?.net || 0) / 2000}
-                                  step="0.01"
-                                  onChange={(e) => {
-                                    const netTons = parseFloat(e.target.value);
-                                    setSelectedMaterials(prev => prev.map(m => 
-                                      m.id === material.id 
-                                        ? {
-                                            ...m,
-                                            weights: {
-                                              gross: netTons * 2000 + (m.weights?.tare || 0),
-                                              tare: m.weights?.tare || 0,
-                                              net: netTons * 2000
+                                <div className="flex items-center">
+                                  <input
+                                    type="number"
+                                    className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
+                                    value={(material.weights?.net || 0) / 2000}
+                                    step="0.01"
+                                    onChange={(e) => {
+                                      const netTons = parseFloat(e.target.value);
+                                      setSelectedMaterials(prev => prev.map(m => 
+                                        m.id === material.id 
+                                          ? {
+                                              ...m,
+                                              weights: {
+                                                gross: netTons * 2000 + (m.weights?.tare || 0),
+                                                tare: m.weights?.tare || 0,
+                                                net: netTons * 2000
+                                              }
                                             }
-                                          }
-                                        : m
-                                    ));
-                                  }}
-                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                                  readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                                />
-                                <span className="text-xs text-gray-500 px-1 shrink-0">t</span>
+                                          : m
+                                      ));
+                                    }}
+                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                  />
+                                  <span className="text-xs text-gray-500">tons</span>
+                                </div>
                               </div>
                             </td>
-                            <td className="py-1 px-2">
+                            <td className="py-1 px-2 border-r border-gray-100">
                               <div className={`flex items-center rounded border border-gray-200 ${
                                 (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
                                   ? 'bg-transparent border-transparent'
                                   : 'bg-white'
                               }`}>
-                                <span className="text-xs text-gray-500 px-1 shrink-0">$</span>
+                                <span className="text-xs text-gray-500 pl-1 pr-0.5 shrink-0">$</span>
                                 <input
                                   type="number"
-                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                  className="w-2/3 text-left focus:outline-none text-xs px-1 py-0.5"
                                   value={(material.pricing.disposalFee.rate * 0.7).toFixed(2)}
                                   step="0.01"
                                   onChange={(e) => {
@@ -841,10 +847,10 @@ export default function DisposalTicketModalV2({
                                   ? 'bg-transparent border-transparent'
                                   : 'bg-white'
                               }`}>
-                                <span className="text-xs text-gray-500 px-1 shrink-0">$</span>
+                                <span className="text-xs text-gray-500 pl-1 pr-0.5 shrink-0">$</span>
                                 <input
                                   type="number"
-                                  className="w-full text-right focus:outline-none text-xs px-1 py-0.5"
+                                  className="w-2/3 text-left focus:outline-none text-xs px-1 py-0.5"
                                   value={(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}
                                   step="0.01"
                                   onChange={(e) => {
@@ -1091,12 +1097,12 @@ export default function DisposalTicketModalV2({
                               )}
                               <div className="flex justify-between text-xs text-gray-800">
                                 <span>Subtotal:</span>
-                                <span>${(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}</span>
+                                <span className="text-left">${(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}</span>
                               </div>
                               {isTaxable && (
                                 <div className="flex justify-between text-xs text-gray-600">
                                   <span>Tax (8.25%):</span>
-                                  <span>+${((material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000) * 0.0825).toFixed(2)}</span>
+                                  <span className="text-left">+${((material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000) * 0.0825).toFixed(2)}</span>
                                 </div>
                               )}
                               {index < selectedMaterials.length - 1 && (
