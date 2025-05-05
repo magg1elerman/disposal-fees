@@ -365,17 +365,21 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
   }
 
   return (
-    <div className="">
+    <div className="space-y-6">
       <div className="p-6 flex items-center justify-between">
-        <h2 className="text-xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee (V2)"}</h2>
+        <h2 className="text-2xl font-bold">{initialFee ? "Edit Disposal Fee" : "Create Disposal Fee (V2)"}</h2>
       </div>
 
-      <div className="px-6">
+      <div className="p-6">
         {/* Basic Information Section */}
         <Card className="border-0 shadow-none">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="col-span-1">
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>Enter the basic details for this disposal fee</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="col-span-2 space-y-2">
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
                   id="fee-name"
@@ -394,18 +398,34 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                 </div>
               </div>
 
-              <div className="col-span-1">
-              <Label htmlFor="fee-name">Description</Label>
-                <Input
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="fee-description">Description</Label>
+                <Textarea
                   id="fee-description"
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  onBlur={() => handleBlur("description")}
                   placeholder="Enter a description for this disposal fee"
-                  className="h-10"
+                  rows={3}
                 />
-               
-               
+                {showDescriptionSuggestions && (
+                  <div className="mt-2 border rounded-sm p-2 bg-slate-50">
+                    <p className="text-xs text-muted-foreground mb-2">Select a template:</p>
+                    <div className="space-y-1">
+                      {descriptionTemplates.map((template) => (
+                        <Button
+                          key={template.id}
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-left text-xs h-auto py-1"
+                          onClick={() => applyDescriptionTemplate(template.text)}
+                        >
+                          {template.text}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fee-business-line">Business Line</Label>
@@ -491,11 +511,14 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
 
         {/* Materials & Pricing Section */}
         <Card className="border-0 shadow-none">
-       
+          <CardHeader>
+            <CardTitle>Pricing</CardTitle>
+            <CardDescription>Define the pricing structure</CardDescription>
+          </CardHeader>
           <CardContent className="space-y-6">
             {/* Materials Selection Section - Only show when rateStructure is not "Per Container" */}
             {formData.rateStructure !== "Per Container" && (
-              <div className="">
+              <div className="space-y-4 p-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-1">Materials</Label>
