@@ -38,9 +38,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeForm } from "./disposal-fee-form"
-import { Input } from "@/components/ui/input"
 import { DisposalFeeFormV2 } from "./disposal-fee-form-v2"
+import { Input } from "@/components/ui/input"
+import { DisposalFeeFormV3 } from "./disposal-fee-form-v3"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -83,144 +83,160 @@ export function DisposalFees() {
   const [disposalFees, setDisposalFees] = useState<DisposalFee[]>([
     {
       id: 1,
-      name: "MSW Disposal Fee",
-      description: "Standard disposal fee for municipal solid waste",
-      rateStructure: "Flat Rate",
-      rate: "85.00",
-      minCharge: "100.00",
-      businessLine: "Waste",
+      name: "Standard Disposal Fee",
+      description: "Standard disposal fee for MSW waste",
+      rateStructure: "Per Ton",
+      rate: "$45.00",
+      minCharge: "$25.00",
+      businessLine: "Residential",
       status: "Active",
-      locations: 5,
+      locations: 3,
       linkedServices: 12,
       material: "MSW",
+      materials: ["MSW", "Recycling"],
       includedTonnage: 5,
-      glCode: "4010",
-      overageCharge: "95.00",
-      overageThreshold: 10,
+      minChargedTonnage: 0,
+      glCode: "4100-DISP",
+      overageCharge: "$50.00",
+      overageThreshold: 5,
       tiers: [
-        { id: 1, from: 0, to: 5, rate: 85 },
-        { id: 2, from: 6, to: 10, rate: 80 },
-        { id: 3, from: 11, to: null, rate: 75 }
-      ]
+        { id: 1, from: 0, to: 5, rate: 45 },
+        { id: 2, from: 5, to: 10, rate: 40 },
+        { id: 3, from: 10, to: null, rate: 35 },
+      ],
     },
     {
       id: 2,
-      name: "C&D Disposal Fee",
-      description: "Disposal fee for construction and demolition waste",
-      rateStructure: "Tiered",
-      rate: "95.00",
-      minCharge: "150.00",
-      businessLine: "Construction",
+      name: "Commercial Disposal Fee",
+      description: "Commercial waste disposal fee",
+      rateStructure: "Per Ton",
+      rate: "$55.00",
+      minCharge: "$35.00",
+      businessLine: "Commercial",
       status: "Active",
-      locations: 3,
+      locations: 5,
       linkedServices: 8,
-      material: "C&D",
+      material: "MSW",
+      materials: ["MSW", "C&D"],
       includedTonnage: 3,
-      glCode: "4020",
-      overageCharge: "105.00",
-      overageThreshold: 8,
+      minChargedTonnage: 0,
+      glCode: "4100-DISP",
+      overageCharge: "$60.00",
+      overageThreshold: 3,
       tiers: [
-        { id: 1, from: 0, to: 5, rate: 95 },
-        { id: 2, from: 6, to: 10, rate: 90 },
-        { id: 3, from: 11, to: null, rate: 85 }
-      ]
+        { id: 1, from: 0, to: 3, rate: 55 },
+        { id: 2, from: 3, to: 6, rate: 50 },
+        { id: 3, from: 6, to: null, rate: 45 },
+      ],
     },
     {
       id: 3,
-      name: "Residential Waste Disposal Fee",
-      description: "Standard residential waste disposal service",
-      rateStructure: "Flat Rate",
-      rate: "45.00",
-      minCharge: "45.00",
-      businessLine: "Residential",
+      name: "Hazardous Waste Fee",
+      description: "Special handling fee for hazardous materials",
+      rateStructure: "Per Ton",
+      rate: "$150.00",
+      minCharge: "$100.00",
+      businessLine: "Commercial",
       status: "Active",
-      locations: 15,
+      locations: 2,
       linkedServices: 3,
-      material: "MSW",
+      material: "Hazardous",
+      materials: ["Hazardous"],
       includedTonnage: 1,
-      glCode: "4031",
-      overageCharge: "50.00",
+      minChargedTonnage: 0,
+      glCode: "4100-DISP-HZ",
+      overageCharge: "$175.00",
       overageThreshold: 1,
       tiers: [],
     },
     {
       id: 4,
-      name: "Commercial Waste Disposal Fee",
-      description: "Disposal fee for commercial waste accounts",
+      name: "Recycling Processing Fee",
+      description: "Processing fee for recyclable materials",
       rateStructure: "Per Ton",
-      rate: "70.00",
-      minCharge: "70.00",
-      businessLine: "Commercial",
+      rate: "$35.00",
+      minCharge: "$20.00",
+      businessLine: "Residential",
       status: "Active",
-      locations: 10,
-      linkedServices: 6,
-      material: "MSW",
+      locations: 4,
+      linkedServices: 15,
+      material: "Recycling",
+      materials: ["Recycling", "No Sort Recycle"],
       includedTonnage: 2,
-      glCode: "4032",
-      overageCharge: "75.00",
+      minChargedTonnage: 0,
+      glCode: "4100-DISP-REC",
+      overageCharge: "$40.00",
       overageThreshold: 2,
       tiers: [
-        { id: 1, from: 0, to: 2, rate: 70 },
-        { id: 2, from: 3, to: null, rate: 65 }
+        { id: 1, from: 0, to: 2, rate: 35 },
+        { id: 2, from: 2, to: 5, rate: 30 },
+        { id: 3, from: 5, to: null, rate: 25 },
       ],
     },
     {
       id: 5,
-      name: "Roll-off Container Disposal Fee",
-      description: "Fee for roll-off container waste disposal",
-      rateStructure: "Per Container",
-      rate: "200.00",
-      minCharge: "200.00",
-      businessLine: "Roll-off",
+      name: "C&D Disposal Fee",
+      description: "Construction and demolition waste disposal",
+      rateStructure: "Per Ton",
+      rate: "$65.00",
+      minCharge: "$40.00",
+      businessLine: "Commercial",
       status: "Active",
-      locations: 7,
-      linkedServices: 5,
-      material: "MSW",
+      locations: 3,
+      linkedServices: 6,
+      material: "C&D",
+      materials: ["C&D"],
       includedTonnage: 4,
-      glCode: "4033",
-      overageCharge: "60.00",
+      minChargedTonnage: 0,
+      glCode: "4100-DISP-CD",
+      overageCharge: "$70.00",
       overageThreshold: 4,
-      tiers: [],
+      tiers: [
+        { id: 1, from: 0, to: 4, rate: 65 },
+        { id: 2, from: 4, to: 8, rate: 60 },
+        { id: 3, from: 8, to: null, rate: 55 },
+      ],
     },
     {
       id: 6,
-      name: "Residential Bulk Item Disposal",
-      description: "Disposal for bulk residential items",
-      rateStructure: "Flat Rate",
-      rate: "30.00",
-      minCharge: "30.00",
+      name: "Yard Waste Fee",
+      description: "Processing fee for yard waste materials",
+      rateStructure: "Per Ton",
+      rate: "$30.00",
+      minCharge: "$15.00",
       businessLine: "Residential",
       status: "Active",
-      locations: 12,
-      linkedServices: 2,
-      material: "Bulky",
+      locations: 2,
+      linkedServices: 10,
+      material: "Yard Waste",
+      materials: ["Yard Waste"],
       includedTonnage: 0,
-      glCode: "4034",
-      overageCharge: "35.00",
+      minChargedTonnage: 0,
+      glCode: "4100-DISP-YW",
+      overageCharge: "$35.00",
       overageThreshold: 0,
       tiers: [],
     },
     {
       id: 7,
-      name: "Commercial Recycling Disposal Fee",
-      description: "Fee for recycling disposal for commercial businesses",
-      rateStructure: "Per Ton",
-      rate: "55.00",
-      minCharge: "55.00",
-      businessLine: "Commercial",
+      name: "Roll-off Container Fee",
+      description: "Fee for roll-off container services",
+      rateStructure: "Per Container",
+      rate: "$200.00",
+      minCharge: "$200.00",
+      businessLine: "Roll-off",
       status: "Active",
-      locations: 8,
-      linkedServices: 4,
-      material: "Recycling",
+      locations: 6,
+      linkedServices: 20,
+      material: "MSW",
+      materials: ["MSW", "C&D"],
       includedTonnage: 1,
-      glCode: "4035",
-      overageCharge: "60.00",
+      minChargedTonnage: 0,
+      glCode: "4200-ROLL-RENT",
+      overageCharge: "$225.00",
       overageThreshold: 1,
-      tiers: [
-        { id: 1, from: 0, to: 1, rate: 55 },
-        { id: 2, from: 2, to: null, rate: 50 }
-      ],
-    }
+      tiers: [],
+    },
   ])
 
   const linkedFees = [
@@ -435,24 +451,15 @@ export function DisposalFees() {
   })
 
   const renderTierBreakdown = () => {
-    if (!selectedFee?.tiers) return null;
-    
+    if (!selectedFee || !selectedFee.tiers || selectedFee.tiers.length === 0) return null;
+
     const tiers = selectedFee.tiers;
-    if (!tiers || tiers.length === 0) return null;
-
-    // Type guard to ensure we only work with valid tiers
-    const isValidTier = (tier: typeof tiers[0]): tier is typeof tier & { to: number } => {
-      return typeof tier.to === 'number' && tier.to > tier.from;
-    };
-
-    const validTiers = tiers.filter(isValidTier);
-    if (validTiers.length === 0) return null;
-
-    const totalTons = validTiers.reduce((sum, tier) => 
+    
+    const totalTons = tiers.reduce((sum, tier) => 
       sum + (tier.to - tier.from), 0
     );
 
-    const totalCost = validTiers.reduce((sum, tier) => 
+    const totalCost = tiers.reduce((sum, tier) => 
       sum + tier.rate * (tier.to - tier.from), 0
     );
 
@@ -473,7 +480,7 @@ export function DisposalFees() {
           </div>
         </div>
         <div className="space-y-2">
-          {validTiers.map((tier, index) => {
+          {tiers.map((tier, index) => {
             const tierTons = tier.to - tier.from;
             const tierCost = tier.rate * tierTons;
             return (
@@ -1341,7 +1348,10 @@ export function DisposalFees() {
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeForm
+          <DialogHeader>
+            <DialogTitle className="text-white">Edit Disposal Fee</DialogTitle>
+          </DialogHeader>
+          <DisposalFeeFormV2
             initialFee={selectedFee || undefined}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialog(false)}
@@ -1352,7 +1362,10 @@ export function DisposalFees() {
       {/* Edit Dialog V2 */}
       <Dialog open={showEditDialogV2} onOpenChange={setShowEditDialogV2}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV2
+          <DialogHeader>
+            <DialogTitle>Edit Disposal Fee</DialogTitle>
+          </DialogHeader>
+          <DisposalFeeFormV3
             initialFee={selectedFee || undefined}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialogV2(false)}

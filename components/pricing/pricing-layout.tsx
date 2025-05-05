@@ -9,7 +9,7 @@ import { Fees } from "@/components/pricing/fees"
 import { DisposalFees } from "@/components/pricing/disposal-fees"
 import { Services } from "@/components/pricing/services"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { DisposalFeeFormV2 } from "@/components/pricing/disposal-fee-form-v2"
+import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v3"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
@@ -82,7 +82,7 @@ export function PricingLayout() {
                     }
                   }}
                 >
-                  v1
+                  A
                   {/* <Plus className="h-5 w-5" /> */}
                 </Button>
              
@@ -91,7 +91,7 @@ export function PricingLayout() {
                   size="icon"
                   onClick={() => setShowFormV2(true)}
                 >
-                  v2
+                  B
                   {/* <Plus className="h-5 w-5" /> */}
 
                 </Button>
@@ -109,7 +109,7 @@ export function PricingLayout() {
 
       <Dialog open={showFormV2} onOpenChange={setShowFormV2}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV2
+          <DisposalFeeFormV3
             onSave={handleSaveV2}
             onCancel={() => setShowFormV2(false)}
           />

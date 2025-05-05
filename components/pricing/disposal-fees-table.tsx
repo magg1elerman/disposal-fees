@@ -14,6 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, Edit, Eye, MoreHorizontal, Trash2, Copy } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -137,6 +138,20 @@ export function DisposalFeesTable({ data, onViewFee, onEditFee, activeTab }: Dis
       header: () => <div className="text-right">Min Charge</div>,
       cell: ({ row }) => {
         return <div className="text-right">{row.getValue("minCharge")}</div>
+      },
+    },
+    {
+      accessorKey: "includedTonnage",
+      header: () => <div className="text-right">Free Tonnage</div>,
+      cell: ({ row }) => {
+        return <div className="text-right">{row.getValue("includedTonnage")}</div>
+      },
+    },
+    {
+      accessorKey: "minChargedTonnage",
+      header: () => <div className="text-right">Minimum Charged Tonnage</div>,
+      cell: ({ row }) => {
+        return <div className="text-right">{row.getValue("minChargedTonnage") || 0}</div>
       },
     },
     {

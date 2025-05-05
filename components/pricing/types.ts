@@ -7,6 +7,7 @@ export interface MaterialPricing {
   overageThreshold?: number
   overageCharge?: string
   includedTonnage?: number
+  minChargedTonnage?: number
   materialType: string
   freeTonnageUnits?: string
   defaultRate?: string
@@ -27,6 +28,7 @@ export type DisposalFee = {
   material?: string
   materials?: string[]
   includedTonnage: number
+  minChargedTonnage: number
   glCode: string
   linkedServices?: number
   tiers?: { id: number; from: number; to: number | null; rate: number }[]

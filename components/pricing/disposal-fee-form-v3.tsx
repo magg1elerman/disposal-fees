@@ -112,7 +112,7 @@ const businessLines = [
   { id: 4, name: "All", description: "All business lines" },
 ]
 
-export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
+export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
     initialFee || {
@@ -368,7 +368,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
   return (
     <div className="">
       <div className="p-6 flex items-center justify-between">
-     <h2 className="text-xl font-bold">Create Disposal Fee A</h2>
+      <h2 className="text-xl font-bold">Create Disposal Fee B</h2>
       </div>
 
       <div className="px-6">
@@ -511,7 +511,8 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                               <TableRow>
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
-                                <TableHead className="w-[220px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Free Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Minimum Charged Tonnage</TableHead>
                                 <TableHead className="w-[220px]">Overage Threshold</TableHead>
                                 <TableHead className="w-[220px]">Overage Fee</TableHead>
                               </TableRow>
@@ -608,6 +609,55 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                                         newPricing[material] = {
                                                           ...newPricing[material],
                                                           includedTonnage: firstMaterialIncludedTonnage
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="w-[220px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative w-[120px]">
+                                          <Input
+                                            id={`${material.name}-min-charged-tonnage`}
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            value={materialPricing[material.name]?.minChargedTonnage || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "minChargedTonnage", Number.parseFloat(e.target.value) || 0)}
+                                            className="pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialMinChargedTonnage = materialPricing[firstMaterial]?.minChargedTonnage || 0
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          minChargedTonnage: firstMaterialMinChargedTonnage
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
