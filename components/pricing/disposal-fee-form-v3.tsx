@@ -512,7 +512,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
                                 <TableHead className="w-[220px]">Free Tonnage</TableHead>
-                                <TableHead className="w-[220px]">Minimum Charged Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Min. Charge</TableHead>
                                 <TableHead className="w-[220px]">Overage Threshold</TableHead>
                                 <TableHead className="w-[220px]">Overage Fee</TableHead>
                               </TableRow>

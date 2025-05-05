@@ -512,6 +512,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
                                 <TableHead className="w-[220px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[150px]">Is Chargeable</TableHead>
                                 <TableHead className="w-[220px]">Overage Threshold</TableHead>
                                 <TableHead className="w-[220px]">Overage Fee</TableHead>
                               </TableRow>
@@ -625,6 +626,18 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                         )}
                                       </div>
                                     </TableCell>
+                                    <TableCell className="w-[150px]">
+                                      <div className="flex items-center gap-2">
+                                        <Switch
+                                          id={`${material.name}-is-chargeable`}
+                                          checked={materialPricing[material.name]?.isChargeable ?? true}
+                                          onCheckedChange={(checked) => handleMaterialPricingChange(material.name, "isChargeable", checked)}
+                                        />
+                                        <Label htmlFor={`${material.name}-is-chargeable`} className="text-sm">
+                                          {materialPricing[material.name]?.isChargeable ?? true ? "Yes" : "No"}
+                                        </Label>
+                                      </div>
+                                    </TableCell>
                                     <TableCell className="w-[220px]">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
@@ -724,7 +737,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                 )
                               })}
                               <TableRow>
-                                <TableCell colSpan={5}>
+                                <TableCell colSpan={6}>
                                   <Select
                                     onValueChange={(value) => {
                                       if (!selectedMaterials.includes(value)) {

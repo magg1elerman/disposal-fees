@@ -6,6 +6,7 @@ export interface MaterialPricing {
   rateStructure?: string
   overageThreshold?: number
   overageCharge?: string
+  isChargeable?: boolean
   includedTonnage?: number
   minChargedTonnage?: number
   materialType: string
