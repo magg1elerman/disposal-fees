@@ -383,7 +383,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
         {/* Basic Information Section */}
         <Card className="border-0 shadow-none">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
               <div className="col-span-1">
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
@@ -490,7 +490,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                     <Label htmlFor="per-container">Per Container</Label>
                   </div>
                 </RadioGroup>
-                <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
+                {/* ÷<p className="text-xs text-muted-foreground">How this fee is measured and charged</p> */}
               </div>
             </div>
           </CardContent>

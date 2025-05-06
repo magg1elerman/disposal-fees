@@ -380,10 +380,10 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
             </ul>
             </CardDescription>
           </CardHeader> 
-          <CardContent className="px-6 ">
+          <CardContent className="px-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="col-span-2 flex gap-4">
-                <div className="flex-1">
+              <div className="col-span-2 flex gap-x-4">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-name">Fee Name</Label>
                   <Input
                     id="fee-name"
@@ -401,7 +401,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     )}
                   </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-description">Description</Label>
                   <Input
                     id="fee-description"
@@ -412,8 +412,8 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   />
                 </div>
               </div>
-              <div className="col-span-2 flex gap-4">
-                <div className="flex-1">
+              <div className="col-span-2 flex gap-x-4">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-business-line">Business Line</Label>
                   <Select
                     value={formData.businessLine}
@@ -442,7 +442,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     )}
                   </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-gl-code">General Ledger</Label>
                   <Select
                     value={formData.glCode}
@@ -472,9 +472,9 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 flex gap-4">
-                <div className="flex-1">
-                  <Label>Fee Structure</Label>
+              <div className="col-span-2 flex gap-x-4">
+                <div className="flex-1 space-y-1">
+                  <Label className="mb-2">Fee Structure</Label>
                   <RadioGroup
                     value={formData.rateStructure}
                     onValueChange={(value) => handleChange("rateStructure", value)}
@@ -491,7 +491,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                   </RadioGroup>
                   {/* <p className="text-xs text-muted-foreground">How this fee is measured and charged</p> */}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
                   <div className="relative">
                     <Input
@@ -507,7 +507,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                     <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                   </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-1">
                   <Label htmlFor="fee-overage-charge">Overage Fee</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
