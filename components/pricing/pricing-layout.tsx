@@ -12,6 +12,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v02a"
 import { DisposalFeeFormV3 as DisposalFeeFormV4 } from "@/components/pricing/disposal-fee-form-v02b"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Input } from "@/components/ui/input"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
@@ -20,6 +23,11 @@ export function PricingLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
   const [showFormV2b, setShowFormV2b] = useState(false)
+  const [formData, setFormData] = useState({
+    rateStructure: "Per Ton",
+    overageThreshold: 0,
+    overageCharge: 0
+  })
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed)
@@ -33,6 +41,10 @@ export function PricingLayout() {
   const handleSaveV2b = (fee: any) => {
     // Handle saving the fee
     setShowFormV2b(false)
+  }
+
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const renderView = () => {

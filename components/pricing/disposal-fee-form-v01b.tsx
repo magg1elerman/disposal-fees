@@ -489,37 +489,40 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                       <Label htmlFor="per-container">Per Container</Label>
                     </div>
                   </RadioGroup>
-                  {/* <p className="text-xs text-muted-foreground">How this fee is measured and charged</p> */}
                 </div>
-                <div className="flex-1 space-y-1">
-                  <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
-                  <div className="relative">
-                    <Input
-                      id="fee-overage-threshold"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={formData.overageThreshold}
-                      onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
-                      className="h-10"
-                    />
-                    <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
-                  </div>
-                </div>
-                <div className="flex-1 space-y-1">
-                  <Label htmlFor="fee-overage-charge">Overage Fee</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
-                    <Input
-                      id="fee-overage-charge"
-                      value={formData.overageCharge}
-                      onChange={(e) => handleChange("overageCharge", e.target.value)}
-                      className="pl-7 h-10"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
+                {formData.rateStructure === "Per Ton" && (
+                  <>
+                    <div className="flex-1 space-y-1">
+                      <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
+                      <div className="relative">
+                        <Input
+                          id="fee-overage-threshold"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={formData.overageThreshold}
+                          onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+                          className="h-10"
+                        />
+                        <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <Label htmlFor="fee-overage-charge">Overage Fee</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
+                        <Input
+                          id="fee-overage-charge"
+                          value={formData.overageCharge}
+                          onChange={(e) => handleChange("overageCharge", e.target.value)}
+                          className="pl-7 h-10"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
         
