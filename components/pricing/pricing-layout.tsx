@@ -161,7 +161,7 @@ export function PricingLayout() {
                           Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
                               set per material
                               </span>
-                              .</p>
+                        .</p>
 
                       </Button>
 
@@ -190,7 +190,10 @@ export function PricingLayout() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Version 2</CardTitle>
-                    <CardDescription>Enhanced disposal fee forms with advanced material pricing and container support</CardDescription>
+                    <CardDescription>
+                      <span className="line-through">Included Tonnage</span> <span className="font-semibold text-blue-500">Free Tonnage</span> and <span className="font-semibold text-blue-500">
+                        Min. Charge</span>
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
@@ -199,16 +202,24 @@ export function PricingLayout() {
                         className="h-auto py-4 flex flex-col items-start"
                         onClick={() => setShowFormV2(true)}
                       >
-                        <span className="font-semibold">v02a</span>
-                        <span className="text-sm text-muted-foreground text-left mt-1">Free Tonnage with Min Charge</span>
+                        <p className="font-semibold">v02a </p>
+                        <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
+                          Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                              set per material
+                              </span>
+                        .</p>
                       </Button>
                       <Button 
                         variant="outline"
                         className="h-auto py-4 flex flex-col items-start"
                         onClick={() => setShowFormV2b(true)}
                       >
-                        <span className="font-semibold">v02b</span>
-                        <span className="text-sm text-muted-foreground text-left mt-1">Global Overage Threshold and Fee</span>
+                               <span className="font-semibold">v02b</span>
+                        <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
+                        Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                         set globally.
+                              </span>
+                          </span>
                       </Button>
                     </div>
                   </CardContent>
