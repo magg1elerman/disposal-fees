@@ -90,54 +90,13 @@ export function PricingLayout() {
           <div className="flex items-center space-x-4">
             {activeView === "disposal" && (
               <>
-                <div className="flex items-center space-x-2 border-r pr-4 bg-gray-50 rounded-md p-1 border border-gray-200">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      // This will be handled by the DisposalFees component
-                      const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                      if (disposalFeesComponent) {
-                        const event = new CustomEvent("add-disposal-fee")
-                        disposalFeesComponent.dispatchEvent(event)
-                      }
-                    }}
-                  >
-                    v01a
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                      if (disposalFeesComponent) {
-                        const event = new CustomEvent("add-disposal-fee-v1")
-                        disposalFeesComponent.dispatchEvent(event)
-                      }
-                    }}
-                  >
-                    v01b
-                  </Button>
-                </div>
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-gray-200">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => setShowFormV2(true)}
-                  >
-                    v02a
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => setShowFormV2b(true)}
-                  >
-                    v02b
-                  </Button>
+               
+                  
+                 
                   <Button variant="ghost" size="icon">
                     <MoreVertical className="h-5 w-5" />
                   </Button>
-                </div>
+           
               </>
             )}
           </div>
