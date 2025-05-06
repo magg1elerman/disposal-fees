@@ -11,6 +11,7 @@ import { Services } from "@/components/pricing/services"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v02a"
 import { DisposalFeeFormV3 as DisposalFeeFormV4 } from "@/components/pricing/disposal-fee-form-v02b"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
@@ -129,8 +130,93 @@ export function PricingLayout() {
             )}
           </div>
         </div>
-        <div className="bg-white m-4  shadow-sm">
-          <div className="p-4">{renderView()}</div>
+        <div className="bg-white m-4 shadow-sm">
+          <div className="p-4">
+            {activeView === "disposal" && (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Version 1</CardTitle>
+                    <CardDescription>
+                    Included Tonnage with <span className="font-semibold text-blue-500">
+                    Chargeable/Not Chargeable Toggle 
+                              </span>            
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        variant="outline"
+                        className="h-auto py-4 flex flex-col items-start"
+                        onClick={() => {
+                          const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                          if (disposalFeesComponent) {
+                            const event = new CustomEvent("add-disposal-fee")
+                            disposalFeesComponent.dispatchEvent(event)
+                          }
+                        }}
+                      >
+                        <p className="font-semibold">v01a </p>
+                        <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
+                          Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                              set per material
+                              </span>
+                              .</p>
+
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="h-auto py-4 flex flex-col items-start"
+                        onClick={() => {
+                          const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                          if (disposalFeesComponent) {
+                            const event = new CustomEvent("add-disposal-fee-v1")
+                            disposalFeesComponent.dispatchEvent(event)
+                          }
+                        }}
+                      >
+                        <span className="font-semibold">v01b</span>
+                        <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
+                        Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                         set globally.
+                              </span>
+                          </span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Version 2</CardTitle>
+                    <CardDescription>Enhanced disposal fee forms with advanced material pricing and container support</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button 
+                        variant="outline"
+                        className="h-auto py-4 flex flex-col items-start"
+                        onClick={() => setShowFormV2(true)}
+                      >
+                        <span className="font-semibold">v02a</span>
+                        <span className="text-sm text-muted-foreground text-left mt-1">Free Tonnage with Min Charge</span>
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        className="h-auto py-4 flex flex-col items-start"
+                        onClick={() => setShowFormV2b(true)}
+                      >
+                        <span className="font-semibold">v02b</span>
+                        <span className="text-sm text-muted-foreground text-left mt-1">Global Overage Threshold and Fee</span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            {renderView()}
+          </div>
         </div>
       </div>
 

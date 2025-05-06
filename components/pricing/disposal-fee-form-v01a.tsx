@@ -367,7 +367,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
 
   return (
     <div className="">
-      <div className="p-6 justify-left">
+      <div className="px-6 justify-left">
      <h2 className="text-xl font-bold">Disposal Fee - v01A</h2>
      <p className="text-sm text-muted-foreground">
       <ul className="list-disc list-inside px-2">
@@ -381,8 +381,8 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
       <div className="px-6">
         {/* Basic Information Section */}
         <Card className="border-0 shadow-none">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <CardContent className="px-6">
+            <div className="grid grid-cols-1 pt-4 gap-x-4 md:grid-cols-2">
               <div className="col-span-1">
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
@@ -489,27 +489,21 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                     <Label htmlFor="per-container">Per Container</Label>
                   </div>
                 </RadioGroup>
-                <p className="text-xs text-muted-foreground">How this fee is measured and charged</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* <Separator className="my-4" /> */}
-
-        {/* Materials & Pricing Section */}
-        <Card className="border-0 shadow-none">
        
-          <CardContent className="space-y-6">
+   
+       
+          <div className="pt-4">
             {/* Materials Selection Section - Only show when rateStructure is not "Per Container" */}
             {formData.rateStructure !== "Per Container" && (
               <div className="">
-                <div className="space-y-4">
+                <div className="">
                   <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-1">Materials</Label>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="">
                     <div className={isFieldInvalid("materials") ? "border border-red-500 rounded-sm p-3" : ""}>
                       <div className="space-y-4">
                         <div className="space-y-2">
@@ -954,6 +948,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                 )}
               </div>
             )}
+          </div>
           </CardContent>
         </Card>
 
