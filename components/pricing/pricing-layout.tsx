@@ -9,7 +9,8 @@ import { Fees } from "@/components/pricing/fees"
 import { DisposalFees } from "@/components/pricing/disposal-fees"
 import { Services } from "@/components/pricing/services"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v3"
+import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v02a"
+import { DisposalFeeFormV3 as DisposalFeeFormV4 } from "@/components/pricing/disposal-fee-form-v02b"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
@@ -17,6 +18,7 @@ export function PricingLayout() {
   const [activeView, setActiveView] = useState<ActiveView>("disposal")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
+  const [showFormV2b, setShowFormV2b] = useState(false)
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed)
@@ -25,6 +27,11 @@ export function PricingLayout() {
   const handleSaveV2 = (fee: any) => {
     // Handle saving the fee
     setShowFormV2(false)
+  }
+
+  const handleSaveV2b = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV2b(false)
   }
 
   const renderView = () => {
@@ -67,48 +74,57 @@ export function PricingLayout() {
               {activeView === "taxes" && "Taxes"}
             </h1>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             {activeView === "disposal" && (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                    if (disposalFeesComponent) {
-                      const event = new CustomEvent("add-disposal-fee-v1")
-                      disposalFeesComponent.dispatchEvent(event)
-                    }
-                  }}
-                >
-                  v01
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    // This will be handled by the DisposalFees component
-                    const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                    if (disposalFeesComponent) {
-                      const event = new CustomEvent("add-disposal-fee")
-                      disposalFeesComponent.dispatchEvent(event)
-                    }
-                  }}
-                >
-                  v02A
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => setShowFormV2(true)}
-                >
-                  v02B
-                  {/* <Plus className="h-5 w-5" /> */}
-
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
+                <div className="flex items-center space-x-2 border-r pr-4 bg-gray-50 rounded-md p-1 border border-gray-200">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      // This will be handled by the DisposalFees component
+                      const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                      if (disposalFeesComponent) {
+                        const event = new CustomEvent("add-disposal-fee")
+                        disposalFeesComponent.dispatchEvent(event)
+                      }
+                    }}
+                  >
+                    v01a
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                      if (disposalFeesComponent) {
+                        const event = new CustomEvent("add-disposal-fee-v1")
+                        disposalFeesComponent.dispatchEvent(event)
+                      }
+                    }}
+                  >
+                    v01b
+                  </Button>
+                </div>
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-gray-200">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowFormV2(true)}
+                  >
+                    v02a
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowFormV2b(true)}
+                  >
+                    v02b
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -123,6 +139,15 @@ export function PricingLayout() {
           <DisposalFeeFormV3
             onSave={handleSaveV2}
             onCancel={() => setShowFormV2(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV2b} onOpenChange={setShowFormV2b}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeFormV4
+            onSave={handleSaveV2b}
+            onCancel={() => setShowFormV2b(false)}
           />
         </DialogContent>
       </Dialog>

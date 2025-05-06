@@ -161,6 +161,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               freeTonnage: mp.freeTonnage,
               rateStructure: mp.rateStructure || formData.rateStructure,
               overageCharge: mp.overageCharge,
+              chargeable: mp.chargeable || false,
             }
           }
         })
@@ -175,6 +176,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
               includedTonnage: initialFee.includedTonnage,
               rateStructure: initialFee.rateStructure,
               overageCharge: initialFee.overageCharge,
+              chargeable: initialFee.chargeable || false,
             }
           }
         })
@@ -227,7 +229,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
   const handleMaterialPricingChange = (
     material: string,
     field: string,
-    value: string | number,
+    value: string | number | boolean,
   ) => {
     setMaterialPricing((prev) => ({
       ...prev,
@@ -329,6 +331,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
           freeTonnage: materialPricing[material]?.freeTonnage || 0,
           rateStructure: materialPricing[material]?.rateStructure || formData.rateStructure,
           overageCharge: materialPricing[material]?.overageCharge || "",
+          chargeable: materialPricing[material]?.chargeable || false,
         }))
       }
 
@@ -369,8 +372,14 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
         {/* Basic Information Section */}
         <Card className="border-0 shadow-none">
           <CardHeader>
-            <CardTitle>Create Disposal Fee</CardTitle>
-          </CardHeader>
+            <CardTitle>Disposal Fee - v01B</CardTitle>
+            <CardDescription>
+            <ul className="list-disc list-inside px-2">
+              <li>Included Tonnage with Chargeable/Not Chargeable Toggle</li>
+             <li>Overage Threshold and Overage Fee set globally.</li>
+            </ul>
+            </CardDescription>
+          </CardHeader> 
           <CardContent className="px-6 ">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="col-span-2 flex gap-4">
@@ -530,9 +539,10 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[180px]">Material</TableHead>
-                                <TableHead className="w-[200px]">Rate</TableHead>
-                                <TableHead className="w-[200px]">Included Tonnage</TableHead>
+                                <TableHead className="w-[180px] text-left">Material</TableHead>
+                                <TableHead className="w-[200px] text-left">Rate</TableHead>
+                                <TableHead className="w-[200px] text-left">Included Tonnage</TableHead>
+                                <TableHead className="w-[150px] pl-0 text-left">Chargeable</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -541,14 +551,14 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                 if (!material) return null
                                 return (
                                   <TableRow key={material.id}>
-                                    <TableCell className="w-[180px]">
+                                    <TableCell className="w-[180px] text-left">
                                       <MaterialChip
                                         name={material.name}
                                         color={material.color}
                                         onRemove={() => handleMaterialToggle(material.name)}
                                       />
                                     </TableCell>
-                                    <TableCell className="w-[200px]">
+                                    <TableCell className="w-[200px] text-left">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
                                           <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
@@ -595,7 +605,7 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                         )}
                                       </div>
                                     </TableCell>
-                                    <TableCell className="w-[200px]">
+                                    <TableCell className="w-[200px] text-left">
                                       <div className="relative flex items-center gap-2">
                                         <div className="relative w-[120px]">
                                           <Input
@@ -642,6 +652,18 @@ export function DisposalFeeForm({ initialFee, onSave, onCancel }: DisposalFeeFor
                                             </Tooltip>
                                           </TooltipProvider>
                                         )}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="w-[150px] pl-0 text-left">
+                                      <div className="flex items-center gap-2">
+                                        <Switch
+                                          id={`${material.name}-chargeable`}
+                                          checked={materialPricing[material.name]?.chargeable || false}
+                                          onCheckedChange={(checked) => handleMaterialPricingChange(material.name, "chargeable", checked)}
+                                        />
+                                        <Label htmlFor={`${material.name}-chargeable`} className="text-xm text-muted-foreground">
+                                          {materialPricing[material.name]?.chargeable ? "Yes" : "No"}
+                                        </Label>
                                       </div>
                                     </TableCell>
                                   </TableRow>

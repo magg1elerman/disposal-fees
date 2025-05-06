@@ -13,6 +13,7 @@ export interface MaterialPricing {
   freeTonnageUnits?: string
   defaultRate?: string
   tiers?: { id: number; from: number; to: number | null; rate: number }[]
+  chargeable: boolean
 }
 
 // Define the DisposalFee type

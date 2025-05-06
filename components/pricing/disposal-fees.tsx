@@ -37,9 +37,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeFormV2 } from "./disposal-fee-form-v2"
-import { DisposalFeeFormV3 } from "./disposal-fee-form-v3"
-import { DisposalFeeForm } from "./disposal-fee-form"
+import { DisposalFeeFormV2 } from "./disposal-fee-form-v01a"
+import { DisposalFeeFormV3 } from "./disposal-fee-form-v02a"
+import { DisposalFeeForm } from "./disposal-fee-form-v01b"
 import { Input } from "@/components/ui/input"
 
 // Interface for autolinked services

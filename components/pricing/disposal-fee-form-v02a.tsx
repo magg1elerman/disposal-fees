@@ -112,7 +112,7 @@ const businessLines = [
   { id: 4, name: "All", description: "All business lines" },
 ]
 
-export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
+export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
     initialFee || {
@@ -367,15 +367,23 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
 
   return (
     <div className="">
-      <div className="p-6 flex items-center justify-between">
-     <h2 className="text-xl font-bold">Create Disposal Fee A</h2>
+      <div className="p-6">
+        <h2 className="text-xl font-bold">Disposal Fee v02a</h2>
+        <div>
+            <ul className="list-disc list-inside px-2 text-sm">
+                <li>Included Tonnage changed to Free Tonnage</li>
+                <li>Min Charge column added instead of Chargeable colummn</li>
+                <li>Overage Threshold and Overage Fee set on a per material basis</li>
+                </ul>
+        </div>
+            
       </div>
 
       <div className="px-6">
         {/* Basic Information Section */}
         <Card className="border-0 shadow-none">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-2">
               <div className="col-span-1">
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
@@ -511,8 +519,8 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                               <TableRow>
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
-                                <TableHead className="w-[220px]">Included Tonnage</TableHead>
-                                <TableHead className="w-[150px]">Is Chargeable</TableHead>
+                                <TableHead className="w-[220px]">Free Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Min. Charge</TableHead>
                                 <TableHead className="w-[220px]">Overage Threshold</TableHead>
                                 <TableHead className="w-[220px]">Overage Fee</TableHead>
                               </TableRow>
@@ -626,16 +634,53 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                         )}
                                       </div>
                                     </TableCell>
-                                    <TableCell className="w-[150px]">
-                                      <div className="flex items-center gap-2">
-                                        <Switch
-                                          id={`${material.name}-is-chargeable`}
-                                          checked={materialPricing[material.name]?.isChargeable ?? true}
-                                          onCheckedChange={(checked) => handleMaterialPricingChange(material.name, "isChargeable", checked)}
-                                        />
-                                        <Label htmlFor={`${material.name}-is-chargeable`} className="text-sm">
-                                          {materialPricing[material.name]?.isChargeable ?? true ? "Yes" : "No"}
-                                        </Label>
+                                    <TableCell className="w-[220px]">
+                                      <div className="relative flex items-center gap-2">
+                                        <div className="relative w-[120px]">
+                                          <Input
+                                            id={`${material.name}-min-charged-tonnage`}
+                                            type="number"
+                                            min="0"
+                                            step="0.1"
+                                            value={materialPricing[material.name]?.minChargedTonnage || ""}
+                                            onChange={(e) => handleMaterialPricingChange(material.name, "minChargedTonnage", Number.parseFloat(e.target.value) || 0)}
+                                            className="pr-10 h-10"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                        </div>
+                                        {index === 0 && selectedMaterials.length > 1 && (
+                                          <TooltipProvider delayDuration={100}>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="shrink-0 p-2"
+                                                  onClick={() => {
+                                                    if (selectedMaterials.length > 0) {
+                                                      const firstMaterial = selectedMaterials[0]
+                                                      const firstMaterialMinChargedTonnage = materialPricing[firstMaterial]?.minChargedTonnage || 0
+                                                      const newPricing = { ...materialPricing }
+                                                      selectedMaterials.forEach(material => {
+                                                        newPricing[material] = {
+                                                          ...newPricing[material],
+                                                          minChargedTonnage: firstMaterialMinChargedTonnage
+                                                        }
+                                                      })
+                                                      setMaterialPricing(newPricing)
+                                                    }
+                                                  }}
+                                                >
+                                                  <Copy className="h-4 w-4" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <p>Copy this value to all materials</p>
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                        )}
                                       </div>
                                     </TableCell>
                                     <TableCell className="w-[220px]">
@@ -737,7 +782,7 @@ export function DisposalFeeFormV2({ initialFee, onSave, onCancel }: DisposalFeeF
                                 )
                               })}
                               <TableRow>
-                                <TableCell colSpan={6}>
+                                <TableCell colSpan={5}>
                                   <Select
                                     onValueChange={(value) => {
                                       if (!selectedMaterials.includes(value)) {
