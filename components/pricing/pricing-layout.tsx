@@ -74,6 +74,19 @@ export function PricingLayout() {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
+                    const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                    if (disposalFeesComponent) {
+                      const event = new CustomEvent("add-disposal-fee-v1")
+                      disposalFeesComponent.dispatchEvent(event)
+                    }
+                  }}
+                >
+                  v01
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
                     // This will be handled by the DisposalFees component
                     const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
                     if (disposalFeesComponent) {
@@ -82,16 +95,14 @@ export function PricingLayout() {
                     }
                   }}
                 >
-                  A
-                  {/* <Plus className="h-5 w-5" /> */}
+                  v02A
                 </Button>
-             
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={() => setShowFormV2(true)}
                 >
-                  B
+                  v02B
                   {/* <Plus className="h-5 w-5" /> */}
 
                 </Button>

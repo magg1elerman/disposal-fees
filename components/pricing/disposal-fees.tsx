@@ -32,15 +32,15 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-// Removed DropdownMenu import as it's no longer used
 import { DisposalFeesTable } from "./disposal-fees-table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DisposalFeeFormV2 } from "./disposal-fee-form-v2"
-import { Input } from "@/components/ui/input"
 import { DisposalFeeFormV3 } from "./disposal-fee-form-v3"
+import { DisposalFeeForm } from "./disposal-fee-form"
+import { Input } from "@/components/ui/input"
 
 // Interface for autolinked services
 interface AutolinkedService {
@@ -65,6 +65,7 @@ export function DisposalFees() {
   const [selectedFee, setSelectedFee] = useState<DisposalFee | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showEditDialogV2, setShowEditDialogV2] = useState(false)
+  const [showEditDialogV1, setShowEditDialogV1] = useState(false)
   const [showAutolinkSettingsDialog, setShowAutolinkSettingsDialog] = useState(false)
   const [showAddServicesDialog, setShowAddServicesDialog] = useState(false)
   const [selectedServices, setSelectedServices] = useState<ServiceData[]>([])
@@ -258,13 +259,20 @@ export function DisposalFees() {
       setShowEditDialogV2(true)
     }
 
+    const handleAddDisposalFeeV1 = () => {
+      setSelectedFee(null)
+      setShowEditDialogV1(true)
+    }
+
     const currentRef = componentRef.current
     if (currentRef) {
       currentRef.addEventListener("add-disposal-fee", handleAddDisposalFee)
       currentRef.addEventListener("add-disposal-fee-v2", handleAddDisposalFeeV2)
+      currentRef.addEventListener("add-disposal-fee-v1", handleAddDisposalFeeV1)
       return () => {
         currentRef.removeEventListener("add-disposal-fee", handleAddDisposalFee)
         currentRef.removeEventListener("add-disposal-fee-v2", handleAddDisposalFeeV2)
+        currentRef.removeEventListener("add-disposal-fee-v1", handleAddDisposalFeeV1)
       }
     }
   }, [])
@@ -1361,14 +1369,21 @@ export function DisposalFees() {
 
       {/* Edit Dialog V2 */}
       <Dialog open={showEditDialogV2} onOpenChange={setShowEditDialogV2}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader>
-            <DialogTitle>Edit Disposal Fee</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
           <DisposalFeeFormV3
-            initialFee={selectedFee || undefined}
+            initialFee={selectedFee}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialogV2(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditDialogV1} onOpenChange={setShowEditDialogV1}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeForm
+            initialFee={selectedFee}
+            onSave={handleSaveFee}
+            onCancel={() => setShowEditDialogV1(false)}
           />
         </DialogContent>
       </Dialog>
