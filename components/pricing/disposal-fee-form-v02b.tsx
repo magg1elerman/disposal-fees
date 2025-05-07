@@ -553,7 +553,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                               <TableRow>
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
-                                <TableHead className="w-[220px]">Free Tonnage</TableHead>
+                                <TableHead className="w-[220px]">Included Tonnage</TableHead>
                                 <TableHead className="w-[220px]">Min. Charge</TableHead>
                               </TableRow>
                             </TableHeader>
