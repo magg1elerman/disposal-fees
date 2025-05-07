@@ -246,11 +246,13 @@ export function PricingLayout() {
       </Dialog>
 
       <Dialog open={showFormV3} onOpenChange={setShowFormV3}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV03
-            onSave={handleSaveV3}
-            onCancel={() => setShowFormV3(false)}
-          />
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV03
+              onSave={handleSaveV3}
+              onCancel={() => setShowFormV3(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

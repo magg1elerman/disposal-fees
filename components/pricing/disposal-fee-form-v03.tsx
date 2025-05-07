@@ -600,13 +600,29 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                   <div className="flex items-center space-x-2">
                                     <span>Min. Charge</span>
                                     <div className="flex items-center space-x-1">
+                                    <TooltipProvider delayDuration={100}>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                          </TooltipTrigger>
+                                          <TooltipContent side="right" className="max-w-[300px] p-3">
+                                            <p className="font-medium mb-1">Minimum Charge</p>
+                                            <p className="text-sm text-muted-foreground">
+                                            Enable to enforce a minimum charge for this fee 
+                                            (defaults to  <span className="pt-2 text-sm font-bold text-blue-500">Included 
+                                              Tonnage × Rate</span>). Override default by entering a custom value. 
+                                            Disable to charge the fee with no minimum. 
+                                            </p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
                                       <Switch
                                         id="auto-calculate-min-charge"
                                         checked={autoCalculateMinCharge}
                                         onCheckedChange={setAutoCalculateMinCharge}
                                         className="h-4 w-8"
                                       />
-                                      <TooltipProvider delayDuration={100}>
+                                      {/* <TooltipProvider delayDuration={100}>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
                                             <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
@@ -619,7 +635,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             </p>
                                           </TooltipContent>
                                         </Tooltip>
-                                      </TooltipProvider>
+                                      </TooltipProvider> */}
                                     </div>
                                   </div>
                                 </TableHead>
@@ -742,8 +758,12 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             id={`${material.name}-min-charge`}
                                             value={materialPricing[material.name]?.minCharge || ""}
                                             onChange={(e) => handleMaterialPricingChange(material.name, "minCharge", e.target.value)}
-                                            className="pl-7 h-10"
+                                            className={cn(
+                                              "pl-7 h-10",
+                                              !autoCalculateMinCharge && "opacity-50 cursor-not-allowed"
+                                            )}
                                             placeholder="0.00"
+                                            disabled={!autoCalculateMinCharge}
                                           />
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
