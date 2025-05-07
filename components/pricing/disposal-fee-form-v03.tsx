@@ -766,38 +766,6 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             disabled={!autoCalculateMinCharge}
                                           />
                                         </div>
-                                        {index === 0 && selectedMaterials.length > 1 && (
-                                          <TooltipProvider delayDuration={100}>
-                                            <Tooltip>
-                                              <TooltipTrigger asChild>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="shrink-0 p-2"
-                                                  onClick={() => {
-                                                    if (selectedMaterials.length > 0) {
-                                                      const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialMinCharge = materialPricing[firstMaterial]?.minCharge || ""
-                                                      const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
-                                                        newPricing[material] = {
-                                                          ...newPricing[material],
-                                                          minCharge: firstMaterialMinCharge
-                                                        }
-                                                      })
-                                                      setMaterialPricing(newPricing)
-                                                    }
-                                                  }}
-                                                >
-                                                  <Copy className="h-4 w-4" />
-                                                </Button>
-                                              </TooltipTrigger>
-                                              <TooltipContent>
-                                                <p>Copy this value to all materials</p>
-                                              </TooltipContent>
-                                            </Tooltip>
-                                          </TooltipProvider>
-                                        )}
                                       </div>
                                     </TableCell>
                                   </TableRow>
