@@ -812,7 +812,9 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                       }
                                     }}
                                   >
-                                    <SelectTrigger className="w-1/2 border-0 p-0 h-auto hover:bg-transparent focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 [&>svg]:hidden shadow-none bg-transparent">
+                                    <SelectTrigger className="w-1/2 border-0 p-0 h-auto 
+                                    hover:bg-transparent focus:ring-0 focus:outline-none 
+                                   [&>svg]:hidden shadow-none bg-transparent">
                                       <div className="flex items-center gap-1">
                                         <span>Add Material</span>
                                         <Plus className="h-4 w-4" />
