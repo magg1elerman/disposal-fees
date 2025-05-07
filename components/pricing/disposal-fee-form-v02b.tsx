@@ -370,11 +370,11 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
       <div className="p-6">
         <h2 className="text-xl font-bold">Disposal Fee v02b</h2>
         <div>
-            <ul className="list-disc list-inside px-2 text-sm">
+            {/* <ul className="list-disc list-inside px-2 text-sm">
                 <li>Included Tonnage changed to Free Tonnage</li>
                 <li>Min Charge column added instead of Chargeable colummn</li>
                 <li>Overage Threshold and Overage Fee set globally</li>
-              </ul>
+            </ul> */}
         </div>
             
       </div>
