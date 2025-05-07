@@ -11,6 +11,7 @@ import { Services } from "@/components/pricing/services"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v02a"
 import { DisposalFeeFormV3 as DisposalFeeFormV4 } from "@/components/pricing/disposal-fee-form-v02b"
+import { DisposalFeeFormV3 as DisposalFeeFormV03 } from "@/components/pricing/disposal-fee-form-v03"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -27,6 +28,7 @@ export function PricingLayout() {
   const [showFormV2a, setShowFormV2a] = useState(false)
   const [showFormV2b, setShowFormV2b] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
+  const [showFormV3, setShowFormV3] = useState(false)
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -45,6 +47,11 @@ export function PricingLayout() {
   const handleSaveV2b = (fee: any) => {
     // Handle saving the fee
     setShowFormV2b(false)
+  }
+
+  const handleSaveV3 = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV3(false)
   }
 
   const handleChange = (field: string, value: any) => {
@@ -100,9 +107,9 @@ export function PricingLayout() {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    onClick={() => setShowFormV2b(true)}
+                    onClick={() => setShowFormV3(true)}
                   >
-                    v02b
+                    v03
                   </Button>
               
                 </div>
@@ -234,6 +241,15 @@ export function PricingLayout() {
           <DisposalFeeFormV4
             onSave={handleSaveV2b}
             onCancel={() => setShowFormV2b(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV3} onOpenChange={setShowFormV3}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+          <DisposalFeeFormV03
+            onSave={handleSaveV3}
+            onCancel={() => setShowFormV3(false)}
           />
         </DialogContent>
       </Dialog>
