@@ -15,14 +15,18 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Input } from "@/components/ui/input"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 type ActiveView = "late-fees" | "fees" | "services" | "service-groups" | "general" | "rental" | "taxes" | "disposal"
 
 export function PricingLayout() {
   const [activeView, setActiveView] = useState<ActiveView>("disposal")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [showFormV2, setShowFormV2] = useState(false)
+  const [showFormV1a, setShowFormV1a] = useState(false)
+  const [showFormV1b, setShowFormV1b] = useState(false)
+  const [showFormV2a, setShowFormV2a] = useState(false)
   const [showFormV2b, setShowFormV2b] = useState(false)
+  const [showFormV2, setShowFormV2] = useState(false)
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -90,113 +94,127 @@ export function PricingLayout() {
           <div className="flex items-center space-x-4">
             {activeView === "disposal" && (
               <>
-               
+                
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-gray-200">
                   
-                 
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowFormV2b(true)}
+                  >
+                    v02b
                   </Button>
-           
+              
+                </div>
               </>
             )}
           </div>
+         
         </div>
+         <div className="bg-blue-100 p-4 border-t border-gray-200">
+  <div className=" pb-4 space-y-6">
+                <Accordion type="single" collapsible defaultValue="">
+                  <AccordionItem value="versions">
+                    <AccordionTrigger>Click to View Prior Versions</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Version 1</CardTitle>
+                            <CardDescription>
+                              Included Tonnage with <span className="font-semibold text-blue-500">
+                                Chargeable/Not Chargeable Toggle 
+                              </span>            
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => {
+                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                                  if (disposalFeesComponent) {
+                                    const event = new CustomEvent("add-disposal-fee")
+                                    disposalFeesComponent.dispatchEvent(event)
+                                  }
+                                }}
+                              >
+                                <p className="font-semibold">v01a </p>
+                                <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set per material
+                                  </span>
+                                </p>
+                              </Button>
+
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => {
+                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                                  if (disposalFeesComponent) {
+                                    const event = new CustomEvent("add-disposal-fee-v1")
+                                    disposalFeesComponent.dispatchEvent(event)
+                                  }
+                                }}
+                              >
+                                <span className="font-semibold">v01b</span>
+                                <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set globally.
+                                  </span>
+                                </span>
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Version 2</CardTitle>
+                            <CardDescription>
+                              <span className="line-through">Included Tonnage</span> <span className="font-semibold text-blue-500">Free Tonnage</span> and <span className="font-semibold text-blue-500">
+                                Min. Charge</span>
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => setShowFormV2(true)}
+                              >
+                                <p className="font-semibold">v02a </p>
+                                <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set per material
+                                  </span>
+                                </p>
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => setShowFormV2b(true)}
+                              >
+                                <span className="font-semibold">v02b</span>
+                                <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set globally.
+                                  </span>
+                                </span>
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>         </div>
         <div className="bg-white m-4 shadow-sm">
           <div className="p-4">
-            {activeView === "disposal" && (
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Version 1</CardTitle>
-                    <CardDescription>
-                    Included Tonnage with <span className="font-semibold text-blue-500">
-                    Chargeable/Not Chargeable Toggle 
-                              </span>            
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Button
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start"
-                        onClick={() => {
-                          const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                          if (disposalFeesComponent) {
-                            const event = new CustomEvent("add-disposal-fee")
-                            disposalFeesComponent.dispatchEvent(event)
-                          }
-                        }}
-                      >
-                        <p className="font-semibold">v01a </p>
-                        <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
-                          Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                              set per material
-                              </span>
-                        .</p>
-
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start"
-                        onClick={() => {
-                          const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                          if (disposalFeesComponent) {
-                            const event = new CustomEvent("add-disposal-fee-v1")
-                            disposalFeesComponent.dispatchEvent(event)
-                          }
-                        }}
-                      >
-                        <span className="font-semibold">v01b</span>
-                        <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
-                        Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                                         set globally.
-                              </span>
-                          </span>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Version 2</CardTitle>
-                    <CardDescription>
-                      <span className="line-through">Included Tonnage</span> <span className="font-semibold text-blue-500">Free Tonnage</span> and <span className="font-semibold text-blue-500">
-                        Min. Charge</span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Button 
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start"
-                        onClick={() => setShowFormV2(true)}
-                      >
-                        <p className="font-semibold">v02a </p>
-                        <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
-                          Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                              set per material
-                              </span>
-                        .</p>
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start"
-                        onClick={() => setShowFormV2b(true)}
-                      >
-                               <span className="font-semibold">v02b</span>
-                        <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
-                        Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                                         set globally.
-                              </span>
-                          </span>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {activeView === "disposal"}
             {renderView()}
           </div>
         </div>
