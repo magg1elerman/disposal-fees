@@ -8,8 +8,10 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import React from 'react';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 const mockTickets = [
+  // Suggested Match
   {
     id: '223381',
     image: '/disposal-ticket-example.png',
@@ -24,9 +26,10 @@ const mockTickets = [
     source: 'Mobile',
     hasImage: true,
     alerts: 1,
+    status: 'suggested',
   },
   {
-    id: '223381',
+    id: '223382',
     image: '/disposal-ticket-example.png',
     type: '20 Yard Container',
     tons: null,
@@ -39,6 +42,41 @@ const mockTickets = [
     source: 'Office',
     hasImage: false,
     alerts: 1,
+    status: 'suggested',
+  },
+  // Unprocessed
+  {
+    id: '223383',
+    image: '/disposal-ticket-example.png',
+    type: 'No Sort Recycle',
+    tons: 2.5,
+    rate: '$60/ton',
+    minCharge: '$120',
+    fee: 120,
+    container: null,
+    site: 'UNITED DISPOSAL',
+    created: '01-18-2025 | 10:00 AM',
+    source: 'Mobile',
+    hasImage: true,
+    alerts: 0,
+    status: 'unprocessed',
+  },
+  // Matched
+  {
+    id: '223384',
+    image: '/disposal-ticket-example.png',
+    type: 'C&D',
+    tons: 1.2,
+    rate: '$55/ton',
+    minCharge: '$110',
+    fee: 110,
+    container: null,
+    site: 'DUMP SITE NAME',
+    created: '01-19-2025 | 12:00 PM',
+    source: 'Office',
+    hasImage: true,
+    alerts: 0,
+    status: 'matched',
   },
 ];
 
@@ -121,6 +159,137 @@ function WorkOrderPanel({ onClose, visible }: { onClose: () => void; visible: bo
   );
 }
 
+function TicketRow({ ticket }: { ticket: any }) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const popoverHandlers = {
+    onMouseEnter: () => setPopoverOpen(true),
+    onMouseLeave: () => setPopoverOpen(false),
+  };
+  return (
+    <div className="flex items-center gap-4 py-2 px-2 w-full">
+      {/* Checkbox */}
+      <Checkbox className="mr-2" />
+      {/* Image */}
+      <img src={ticket.image} alt="ticket" className="w-14 h-14 rounded object-cover border" />
+      {/* Badge, camera, and type */}
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="bg-red-200 text-gray-800 px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-1">
+            {ticket.type}
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A2 2 0 0020 6.382V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1.382a2 2 0 00.447 1.342L9 10m6 0v10a2 2 0 01-2 2H11a2 2 0 01-2-2V10m6 0H9" /></svg>
+          </span>
+          <span className="text-xs text-blue-500">{ticket.rate ? `${ticket.rate} - 1 min` : ''}</span>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-semibold text-base">#{ticket.id}</span>
+          <span className="font-semibold text-base">| {ticket.site}</span>
+          <span className="text-xs text-gray-400">| {ticket.created}</span>
+        </div>
+      </div>
+      {/* Weights and fee */}
+      <div className="flex items-center gap-6 flex-shrink-0">
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-semibold">{ticket.tons || '—'}</span>
+          <span className="text-xs text-gray-400">Gross</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-semibold">15.1</span>
+          <span className="text-xs text-gray-400">Tare</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-semibold">10.2 Lbs</span>
+          <span className="text-xs text-blue-400">Net weight</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-lg font-bold">${ticket.fee}</span>
+          <span className="text-xs text-blue-400">tipping fee</span>
+        </div>
+      </div>
+      {/* Right side: status/actions by ticket.status */}
+      <div className="flex flex-col items-end flex-shrink-0 min-w-[180px] justify-center">
+        <div className="flex items-center gap-3">
+          {ticket.status === 'suggested' && (
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+              <PopoverTrigger asChild>
+                <span className="relative cursor-pointer" {...popoverHandlers}>
+                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/></svg>
+                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full px-1 text-xs border border-white">1</span>
+                  <span className="absolute -bottom-1 -right-1 bg-yellow-400 text-white rounded-full px-1 text-xs border border-white">?</span>
+                </span>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-auto p-0 bg-transparent border-none shadow-none">
+                <div className="bg-white rounded-xl shadow p-4 min-w-[260px] flex flex-col gap-2 border">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">WO#1</span>
+                    <span className="text-xs text-gray-400">mm/dd</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-100 text-green-800 px-2 py-0.5">RN</Badge>
+                    <span className="text-xs text-gray-700 bg-gray-100 rounded-full px-2 py-0.5">&lt;Route-name&gt; | &lt;seq&gt;</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <span className="inline-flex items-center gap-1 bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm font-medium">
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16m0 0h16m-16 0l16-16" /></svg>
+                      Dump & return
+                    </span>
+                    <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium">
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      Serviced
+                    </span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+          {ticket.status === 'unprocessed' && (
+            <span className="relative">
+              <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/></svg>
+              <span className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-0.5 border border-white">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </span>
+            </span>
+          )}
+          {ticket.status === 'matched' && (
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+              <PopoverTrigger asChild>
+                <span className="relative cursor-pointer" {...popoverHandlers}>
+                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/></svg>
+                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full px-1 text-xs border border-white">1</span>
+                  <span className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5 border border-white">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  </span>
+                </span>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-auto p-0 bg-transparent border-none shadow-none">
+                <div className="bg-white rounded-xl shadow p-4 min-w-[260px] flex flex-col gap-2 border">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">WO#1</span>
+                    <span className="text-xs text-gray-400">mm/dd</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-100 text-green-800 px-2 py-0.5">RN</Badge>
+                    <span className="text-xs text-gray-700 bg-gray-100 rounded-full px-2 py-0.5">&lt;Route-name&gt; | &lt;seq&gt;</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <span className="inline-flex items-center gap-1 bg-gray-200 text-gray-700 rounded-full px-3 py-1 text-sm font-medium">
+                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v16m0 0h16m-16 0l16-16" /></svg>
+                      Dump & return
+                    </span>
+                    <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium">
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      Serviced
+                    </span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DisposalTicketsPage() {
   const [workOrderPanelOpen, setWorkOrderPanelOpen] = useState(false);
   const [workOrderPanelSize, setWorkOrderPanelSize] = useState(0); // percent
@@ -192,68 +361,44 @@ export default function DisposalTicketsPage() {
                 <TabsTrigger value="all">All</TabsTrigger>
               </TabsList>
               <TabsContent value="unprocessed">
-                {/* Filters and search */}
-                <div className="flex items-center gap-2 mb-2">
-                  <Button variant="outline" size="sm">Value</Button>
-                  <Button variant="outline" size="sm">Value</Button>
-                  <Button variant="outline" size="sm">Value</Button>
-                  <Input
-                    placeholder="Search.."
-                    className="ml-auto w-64"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                  />
-                </div>
-                {/* Table */}
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead><Checkbox /></TableHead>
-                      <TableHead></TableHead>
-                      <TableHead>Disposal tickets</TableHead>
-                      <TableHead></TableHead>
-                      <TableHead></TableHead>
-                      <TableHead></TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
                   <TableBody>
-                    {mockTickets.map((ticket, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Checkbox /></TableCell>
-                        <TableCell>
-                          <img src={ticket.image} alt="ticket" className="w-12 h-12 rounded object-cover" />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {ticket.type === 'C&D' ? (
-                              <Badge>C&D</Badge>
-                            ) : (
-                              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">{ticket.container}</Badge>
-                            )}
-                            <div className="text-xs text-muted-foreground">#{ticket.id} | {ticket.site}</div>
-                          </div>
-                          <div className="flex gap-2 text-xs mt-1">
-                            {ticket.tons && <span>{ticket.tons} Ton</span>}
-                            {ticket.rate && <span>{ticket.rate}</span>}
-                            {ticket.minCharge && <span>{ticket.minCharge} min. charge</span>}
-                            <span className="font-semibold">${ticket.fee} Disposal Fee</span>
-                          </div>
-                        </TableCell>
-                        <TableCell></TableCell>
-                        <TableCell></TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          Created on {ticket.created}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{ticket.source}</Badge>
+                    {mockTickets.filter(t => t.status === 'unprocessed').map(ticket => (
+                      <TableRow key={ticket.id} className="align-middle">
+                        <TableCell className="!p-0 align-middle" colSpan={7}>
+                          <TicketRow ticket={ticket} />
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TabsContent>
-              {/* Other tabs can be filled similarly */}
+              <TabsContent value="suggested">
+                <Table>
+                  <TableBody>
+                    {mockTickets.filter(t => t.status === 'suggested').map(ticket => (
+                      <TableRow key={ticket.id} className="align-middle">
+                        <TableCell className="!p-0 align-middle" colSpan={7}>
+                          <TicketRow ticket={ticket} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+              <TabsContent value="matched">
+                <Table>
+                  <TableBody>
+                    {mockTickets.filter(t => t.status === 'matched').map(ticket => (
+                      <TableRow key={ticket.id} className="align-middle">
+                        <TableCell className="!p-0 align-middle" colSpan={7}>
+                          <TicketRow ticket={ticket} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
             </Tabs>
           </div>
         </ResizablePanel>
