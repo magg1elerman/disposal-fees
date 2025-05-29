@@ -18,7 +18,12 @@ export function MainNav() {
     },
     {
       name: "Routes",
-      href: "/routes",
+      href: "/routes/disposal-stops",
+      icon: <Route className="mr-2 h-4 w-4" />,
+    },
+    {
+      name: "Disposal Stops",
+      href: "/routes/disposal-stops",
       icon: <Route className="mr-2 h-4 w-4" />,
     },
     {
