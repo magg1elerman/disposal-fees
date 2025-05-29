@@ -33,8 +33,10 @@ const dummyStops = {
   // Add more stops if needed
 };
 
-export default function DisposalStopPage({ params }: { params: { disposalStopId: string } }) {
-  const stop = dummyStops[params.disposalStopId] || dummyStops["1001"];
+export default async function DisposalStopPage({ params }: { params: { disposalStopId: string } }) {
+  const { disposalStopId } = params;
+  
+  const stop = dummyStops[disposalStopId] || dummyStops["1001"];
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-4">{stop.name}</h1>

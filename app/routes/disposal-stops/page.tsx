@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export default function DisposalStopsListPage() {
-  // Enhanced dummy data
+  // Dummy data with unique IDs
   const stops = [
     { id: "1001", name: "Disposal Stop 1001", address: "123 Main St, San Diego, CA", tickets: 3, lastActivity: "2024-06-01" },
     { id: "1002", name: "Disposal Stop 1002", address: "456 Oak Ave, San Diego, CA", tickets: 1, lastActivity: "2024-05-28" },
@@ -14,15 +14,15 @@ export default function DisposalStopsListPage() {
       <table className="min-w-full bg-white rounded shadow">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left">Name</th>
-            <th className="px-4 py-2 text-left">Address</th>
-            <th className="px-4 py-2 text-left">Tickets</th>
-            <th className="px-4 py-2 text-left">Last Activity</th>
+            <th className="px-4 py-2 text-left border-b">Name</th>
+            <th className="px-4 py-2 text-left border-b">Address</th>
+            <th className="px-4 py-2 text-left border-b">Tickets</th>
+            <th className="px-4 py-2 text-left border-b">Last Activity</th>
           </tr>
         </thead>
         <tbody>
           {stops.map((stop) => (
-            <tr key={stop.id} className="border-t">
+            <tr key={`stop-${stop.id}`} className="border-t hover:bg-gray-50">
               <td className="px-4 py-2">
                 <Link href={`/routes/disposal-stops/${stop.id}`} className="text-blue-600 underline">
                   {stop.name}
