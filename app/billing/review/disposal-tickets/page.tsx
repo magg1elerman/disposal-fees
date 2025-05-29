@@ -104,7 +104,52 @@ const mockWorkOrders = [
       { label: '', color: 'bg-yellow-200' },
     ],
   },
-  {}, {}, // repeat for demo
+  {
+    id: 'WO-04713072',
+    date: '01/17/2025',
+    service: 'service name 2 | weekly 7x',
+    location: 'Location name',
+    address: 'Location address',
+    status: 'RN',
+    statusColor: 'bg-green-200 text-green-800',
+    icons: [
+      { icon: 'shield', badge: 1 },
+      { icon: 'money', badge: 1, value: '$10' },
+      { icon: 'image', badge: 1 },
+      { icon: 'receipt' },
+      { icon: 'ticket' },
+      { icon: 'store' },
+      { icon: 'clipboard' },
+    ],
+    chips: [
+      { label: 'RN', color: 'bg-green-200 text-green-800' },
+      { label: '', color: 'bg-purple-200' },
+      { label: '', color: 'bg-yellow-200' },
+    ],
+  },
+  {
+    id: 'WO-04713073',
+    date: '01/17/2025',
+    service: 'service name 3 | weekly 7x',
+    location: 'Location name',
+    address: 'Location address',
+    status: 'RN',
+    statusColor: 'bg-green-200 text-green-800',
+    icons: [
+      { icon: 'shield', badge: 1 },
+      { icon: 'money', badge: 1, value: '$10' },
+      { icon: 'image', badge: 1 },
+      { icon: 'receipt' },
+      { icon: 'ticket' },
+      { icon: 'store' },
+      { icon: 'clipboard' },
+    ],
+    chips: [
+      { label: 'RN', color: 'bg-green-200 text-green-800' },
+      { label: '', color: 'bg-purple-200' },
+      { label: '', color: 'bg-yellow-200' },
+    ],
+  }
 ];
 
 function WorkOrderPanel({ onClose, visible }: { onClose: () => void; visible: boolean }) {
@@ -124,8 +169,8 @@ function WorkOrderPanel({ onClose, visible }: { onClose: () => void; visible: bo
         <Button variant="outline" size="sm">driver</Button>
       </div>
       <div className="overflow-y-auto flex-1 p-2">
-        {mockWorkOrders.map((wo, i) => (
-          <div key={i} className="bg-gray-100 rounded-lg p-4 mb-4 shadow-sm">
+        {mockWorkOrders.map((wo) => (
+          <div key={wo.id} className="bg-gray-100 rounded-lg p-4 mb-4 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
               <a href="#" className="text-blue-600 font-medium hover:underline">{wo.id}</a>
               <span className="text-xs text-gray-500">| {wo.date}</span>
@@ -405,4 +450,4 @@ export default function DisposalTicketsPage() {
       </ResizablePanelGroup>
     </div>
   );
-} 
+}
