@@ -22,11 +22,6 @@ export function MainNav() {
       icon: <Route className="mr-2 h-4 w-4" />,
     },
     {
-      name: "Disposal Stops",
-      href: "/routes/disposal-stops",
-      icon: <Route className="mr-2 h-4 w-4" />,
-    },
-    {
       name: "Billing",
       href: "/billing",
       icon: <CreditCard className="mr-2 h-4 w-4" />,
