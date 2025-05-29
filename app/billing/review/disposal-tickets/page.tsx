@@ -362,7 +362,7 @@ export default function DisposalTicketsPage() {
     <div className="h-full w-full">
       <div className="mb-2 flex gap-2">
         {!workOrderPanelOpen && (
-          <Button variant="outline" size="sm" onClick={openWorkOrderPanel}>
+          <Button variant="outline\" size="sm\" onClick={openWorkOrderPanel}>
             Show Work Orders
           </Button>
         )}
