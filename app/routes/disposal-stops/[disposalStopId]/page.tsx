@@ -43,13 +43,116 @@ const dummyStops = {
     totalWeight: "3.5 tons",
     totalCost: "$190.00"
   },
+  "1002": {
+    name: "Disposal Stop 1002",
+    address: "456 Oak Ave, San Diego, CA 92103",
+    ticketNumber: "DT-20240528-1002",
+    photoUrl: "/public/disposal-ticket-example.png",
+    mapUrl: "https://maps.googleapis.com/maps/api/staticmap?center=32.7457,-117.1611&zoom=15&size=400x150&key=YOUR_API_KEY",
+    date: "May 28, 2024",
+    time: "08:15 AM",
+    status: "Pending",
+    materials: [
+      { name: "Construction Debris", units: "3.2 tons", price: "$192.00" },
+    ],
+    workOrders: [
+      { id: "WO-003", label: "Work Order #WO-003", status: "Pending", date: "05/28/2024" },
+    ],
+    routes: [
+      { id: "R-03", label: "Route #3", recurrence: "Weekly" },
+    ],
+    auditTrail: [
+      { time: "2024-05-28 08:00", action: "Disposal stop created by Dispatch" },
+      { time: "2024-05-28 08:10", action: "Driver assigned by Route Manager" },
+      { time: "2024-05-28 08:15", action: "Arrival at disposal site recorded" },
+    ],
+    materialAudit: [
+      { time: "2024-05-28 08:20", change: "Construction Debris: 0.0 → 3.2 tons by Scale Operator" },
+    ],
+    driver: "Maria Garcia",
+    vehicle: "Truck #T-456",
+    totalWeight: "3.2 tons",
+    totalCost: "$192.00"
+  },
+  "1003": {
+    name: "Disposal Stop 1003",
+    address: "789 Pine Rd, San Diego, CA 92104",
+    ticketNumber: "DT-20240602-1003",
+    photoUrl: "/public/disposal-ticket-example.png",
+    mapUrl: "https://maps.googleapis.com/maps/api/staticmap?center=32.7257,-117.1811&zoom=15&size=400x150&key=YOUR_API_KEY",
+    date: "June 2, 2024",
+    time: "14:45 PM",
+    status: "Completed",
+    materials: [
+      { name: "Green Waste", units: "1.8 tons", price: "$90.00" },
+      { name: "Mixed Waste", units: "2.2 tons", price: "$132.00" },
+      { name: "Hazardous Materials", units: "0.5 tons", price: "$75.00" },
+    ],
+    workOrders: [
+      { id: "WO-004", label: "Work Order #WO-004", status: "Completed", date: "06/02/2024" },
+      { id: "WO-005", label: "Work Order #WO-005", status: "Completed", date: "06/02/2024" },
+      { id: "WO-006", label: "Work Order #WO-006", status: "Completed", date: "06/02/2024" },
+    ],
+    routes: [
+      { id: "R-04", label: "Route #4", recurrence: "Daily" },
+    ],
+    auditTrail: [
+      { time: "2024-06-02 14:00", action: "Arrival at disposal site recorded" },
+      { time: "2024-06-02 14:30", action: "Multiple materials recorded by Scale Operator" },
+      { time: "2024-06-02 14:45", action: "Departure from disposal site recorded" },
+      { time: "2024-06-02 15:00", action: "Tickets reconciled via Disposal Ticket Tool" },
+      { time: "2024-06-02 15:15", action: "Work orders marked as completed by Supervisor" },
+    ],
+    materialAudit: [
+      { time: "2024-06-02 14:30", change: "Green Waste: 0.0 → 1.8 tons by Scale Operator" },
+      { time: "2024-06-02 14:35", change: "Mixed Waste: 0.0 → 2.2 tons by Scale Operator" },
+      { time: "2024-06-02 14:40", change: "Hazardous Materials: 0.0 → 0.5 tons by Scale Operator" },
+    ],
+    driver: "David Johnson",
+    vehicle: "Truck #T-789",
+    totalWeight: "4.5 tons",
+    totalCost: "$297.00"
+  },
+  "1004": {
+    name: "Disposal Stop 1004",
+    address: "321 Maple Blvd, San Diego, CA 92105",
+    ticketNumber: "DT-20240530-1004",
+    photoUrl: "/public/disposal-ticket-example.png",
+    mapUrl: "https://maps.googleapis.com/maps/api/staticmap?center=32.7357,-117.1711&zoom=15&size=400x150&key=YOUR_API_KEY",
+    date: "May 30, 2024",
+    time: "11:20 AM",
+    status: "In Progress",
+    materials: [
+      { name: "Recyclables", units: "1.5 tons", price: "$60.00" },
+    ],
+    workOrders: [
+      { id: "WO-007", label: "Work Order #WO-007", status: "In Progress", date: "05/30/2024" },
+      { id: "WO-008", label: "Work Order #WO-008", status: "Pending", date: "05/30/2024" },
+    ],
+    routes: [
+      { id: "R-05", label: "Route #5", recurrence: "Weekly" },
+    ],
+    auditTrail: [
+      { time: "2024-05-30 11:00", action: "Arrival at disposal site recorded" },
+      { time: "2024-05-30 11:20", action: "Initial weight recorded by Scale Operator" },
+      { time: "2024-05-30 11:30", action: "Processing delay reported by Driver" },
+    ],
+    materialAudit: [
+      { time: "2024-05-30 11:20", change: "Recyclables: 0.0 → 1.5 tons by Scale Operator" },
+    ],
+    driver: "Sarah Williams",
+    vehicle: "Truck #T-321",
+    totalWeight: "1.5 tons",
+    totalCost: "$60.00"
+  },
   // Add more stops if needed
 };
 
 export default async function DisposalStopPage({ params }: { params: { disposalStopId: string } }) {
   const { disposalStopId } = params;
   
-  const stop = dummyStops[disposalStopId] || dummyStops["1001"];
+  // Get the specific stop data or default to 1001 if not found
+  const stop = dummyStops[disposalStopId] ? dummyStops[disposalStopId] : dummyStops["1001"];
   return (
     <div className="container mx-auto py-6 max-w-7xl">
       {/* Header with back button and actions */}
