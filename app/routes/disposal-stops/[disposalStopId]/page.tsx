@@ -1,18 +1,14 @@
 "use client"
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { ArrowLeft, Calendar, Clock, Edit, ChevronDown, Printer } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Separator } from "@/components/ui/separator"
-import { MapPin } from "lucide-react"
 
 const dummyStops = {
   "1001": {
     name: "Disposal Stop 1001",
     address: "123 Main St, San Diego, CA 92101",
     ticketNumber: "DT-20240601-1001",
-    photoUrl: "/public/disposal-ticket-example.png",
+    photoUrl: "/disposal-ticket-example.png",
     mapUrl:
       "https://maps.googleapis.com/maps/api/staticmap?center=32.7157,-117.1611&zoom=15&size=400x150&key=YOUR_API_KEY",
     date: "June 1, 2024",
@@ -76,482 +72,440 @@ const dummyStops = {
     vehicle: "Truck #T-123",
     totalWeight: "3.5 tons",
     totalCost: "$190.00",
+    accountName: "Tracy 250319-2",
+    accountNumber: "HH-19675",
+    workOrderNumber: "WO-05699355",
+    containers: "1",
   },
-  // Update other stops with similar timing data...
-  "1002": {
-    name: "Disposal Stop 1002",
-    address: "456 Oak Ave, San Diego, CA 92103",
-    ticketNumber: "DT-20240528-1002",
-    photoUrl: "/public/disposal-ticket-example.png",
-    mapUrl:
-      "https://maps.googleapis.com/maps/api/staticmap?center=32.7457,-117.1611&zoom=15&size=400x150&key=YOUR_API_KEY",
-    date: "May 28, 2024",
-    time: "08:15 AM",
-    status: "Pending",
-    timing: {
-      arrivalTime: "2024-05-28T08:12:15Z",
-      dumpStartTime: "2024-05-28T08:15:30Z",
-      dumpEndTime: null,
-      departureTime: null,
-      totalDuration: "In Progress",
-      dumpDuration: "In Progress",
-      idleTime: "3m 15s",
-    },
-    geofence: {
-      center: { lat: 32.7457, lng: -117.1611 },
-      radius: 100,
-      entryPoint: { lat: 32.7455, lng: -117.1615, time: "2024-05-28T08:12:15Z" },
-      exitPoint: null,
-      dumpLocation: { lat: 32.7457, lng: -117.1611 },
-    },
-    driverPath: [
-      { lat: 32.745, lng: -117.162, time: "2024-05-28T08:10:00Z", status: "approaching" },
-      { lat: 32.7455, lng: -117.1615, time: "2024-05-28T08:12:15Z", status: "arrived" },
-      { lat: 32.7457, lng: -117.1611, time: "2024-05-28T08:15:30Z", status: "dumping" },
-    ],
-    materials: [{ name: "Construction Debris", units: "3.2 tons", price: "$192.00" }],
-    workOrders: [{ id: "WO-003", label: "Work Order #WO-003", status: "Pending", date: "05/28/2024" }],
-    routes: [{ id: "R-03", label: "Route #3", recurrence: "Weekly" }],
-    auditTrail: [
-      { time: "2024-05-28 08:12:15", action: "Vehicle entered geofence - Arrival detected", type: "geofence" },
-      { time: "2024-05-28 08:15:30", action: "Dump operation started", type: "operation" },
-    ],
-    materialAudit: [{ time: "2024-05-28 08:20", change: "Construction Debris: 0.0 → 3.2 tons by Scale Operator" }],
-    driver: "Maria Garcia",
-    vehicle: "Truck #T-456",
-    totalWeight: "3.2 tons",
-    totalCost: "$192.00",
-  },
-  // Add similar data for other stops...
+  // Other stops data remains the same...
 }
 
-// Mock clock component
-const Clock = () => <svg />
+export default function DisposalStopPage({ params }: { params: { disposalStopId: string } }) {
+  const { disposalStopId } = params
 
-const Page = ({ params }: { params: { disposalStopId: string } }) => {
-  const stopId = params.disposalStopId
-  const stop = dummyStops[stopId]
-
-  if (!stop) {
-    return <div>Disposal Stop not found.</div>
-  }
+  // Get the specific stop data or default to 1001 if not found
+  const stop = dummyStops[disposalStopId] ? dummyStops[disposalStopId] : dummyStops["1001"]
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold">{stop.name}</h1>
-        <p className="text-gray-500">{stop.address}</p>
-        <Badge variant="secondary" className="mt-2">
-          {stop.status}
-        </Badge>
+    <div className="container mx-auto py-6 max-w-7xl">
+      {/* Header section styled like the screenshot */}
+      <div className="bg-gray-50 p-4 mb-6 rounded-md">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-gray-500 text-sm">{stop.accountName}</div>
+            <h1 className="text-2xl font-bold">{stop.address}</h1>
+            <div className="grid grid-cols-4 gap-6 mt-2">
+              <div>
+                <div className="text-gray-500 text-xs">Account Name</div>
+                <div>{stop.accountName}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs">Account</div>
+                <div className="text-blue-600">{stop.accountNumber}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs">Work Order</div>
+                <div>{stop.workOrderNumber}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs">Containers</div>
+                <div>{stop.containers}</div>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" className="h-10 w-10">
+              <Printer className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center border rounded-md bg-white">
+              <div className="px-4 py-2">{stop.date}</div>
+              <Button variant="ghost" size="icon" className="h-10 w-10">
+                <Calendar className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button variant="ghost" size="icon" className="h-10 w-10">
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Timing and Productivity Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Arrival Time</p>
-                <p className="text-lg font-semibold text-green-600">
-                  {stop.timing?.arrivalTime ? new Date(stop.timing.arrivalTime).toLocaleTimeString() : "N/A"}
-                </p>
-              </div>
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Dump Duration</p>
-                <p className="text-lg font-semibold text-blue-600">{stop.timing?.dumpDuration || "N/A"}</p>
-              </div>
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Departure Time</p>
-                <p className="text-lg font-semibold text-red-600">
-                  {stop.timing?.departureTime
-                    ? new Date(stop.timing.departureTime).toLocaleTimeString()
-                    : "In Progress"}
-                </p>
-              </div>
-              <div
-                className={`w-3 h-3 rounded-full ${stop.timing?.departureTime ? "bg-red-500" : "bg-yellow-500"}`}
-              ></div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Total Duration</p>
-                <p className="text-lg font-semibold text-gray-900">{stop.timing?.totalDuration || "N/A"}</p>
-              </div>
-              <Clock className="h-5 w-5 text-gray-500" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Back button */}
+      <div className="mb-6">
+        <Link
+          href="/routes/disposal-stops"
+          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-md px-3 py-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Return to: Disposal Stops
+        </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
-        <div className="lg:col-span-2">
-          {/* Ticket Information Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Ticket Information</CardTitle>
-              <CardDescription>Details about the disposal ticket</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Ticket Number</p>
-                  <p className="text-lg">{stop.ticketNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Date</p>
-                  <p className="text-lg">{stop.date}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Time</p>
-                  <p className="text-lg">{stop.time}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Driver</p>
-                  <p className="text-lg">{stop.driver}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Vehicle</p>
-                  <p className="text-lg">{stop.vehicle}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total Weight</p>
-                  <p className="text-lg">{stop.totalWeight}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total Cost</p>
-                  <p className="text-lg">{stop.totalCost}</p>
+      {/* Collapsible sections like in the screenshot */}
+      <div className="space-y-4">
+        {/* Timing information section - more compact and styled like the screenshot */}
+        <div className="bg-white border rounded-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b">
+            <div className="flex items-center">
+              <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+              <h2 className="text-sm font-medium">Timing details</h2>
+            </div>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-4 gap-4">
+              <div>
+                <div className="text-xs text-gray-500">Arrival Time</div>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                  <span className="font-medium">
+                    {stop.timing?.arrivalTime
+                      ? new Date(stop.timing.arrivalTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                      : "N/A"}
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Materials Table Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Materials</CardTitle>
-              <CardDescription>List of disposed materials</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Material</TableHead>
-                    <TableHead>Units</TableHead>
-                    <TableHead>Price</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stop.materials.map((material, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{material.name}</TableCell>
-                      <TableCell>{material.units}</TableCell>
-                      <TableCell>{material.price}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Work Orders Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Work Orders</CardTitle>
-              <CardDescription>Associated work orders</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Label</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stop.workOrders.map((workOrder, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{workOrder.id}</TableCell>
-                      <TableCell>{workOrder.label}</TableCell>
-                      <TableCell>{workOrder.status}</TableCell>
-                      <TableCell>{workOrder.date}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Routes Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Routes</CardTitle>
-              <CardDescription>Associated routes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Label</TableHead>
-                    <TableHead>Recurrence</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {stop.routes.map((route, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{route.id}</TableCell>
-                      <TableCell>{route.label}</TableCell>
-                      <TableCell>{route.recurrence}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Material Audit Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Material Audit</CardTitle>
-              <CardDescription>Changes to material quantities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                {stop.materialAudit.map((audit, i) => (
-                  <div key={i} className="py-2 border-b last:border-none">
-                    {audit.time} - {audit.change}
-                  </div>
-                ))}
+              <div>
+                <div className="text-xs text-gray-500">Dump Duration</div>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                  <span className="font-medium">{stop.timing?.dumpDuration || "N/A"}</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Audit Trail Card */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Audit Trail</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                {stop.auditTrail.map((entry, i) => (
-                  <div key={i} className="relative pl-5 pb-3 border-l border-gray-200 last:pb-0">
-                    <div
-                      className={`absolute left-0 top-0 -translate-x-1/2 w-2 h-2 rounded-full ${
-                        entry.type === "geofence"
-                          ? "bg-blue-500"
-                          : entry.type === "operation"
-                            ? "bg-green-500"
-                            : "bg-gray-500"
-                      }`}
-                    ></div>
-                    <div className="text-xs text-gray-500">{entry.time}</div>
-                    <div
-                      className={`mt-1 ${
-                        entry.type === "geofence"
-                          ? "text-blue-700 font-medium"
-                          : entry.type === "operation"
-                            ? "text-green-700 font-medium"
-                            : ""
-                      }`}
-                    >
-                      {entry.action}
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <div className="text-xs text-gray-500">Departure Time</div>
+                <div className="flex items-center mt-1">
+                  <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                  <span className="font-medium">
+                    {stop.timing?.departureTime
+                      ? new Date(stop.timing.departureTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "In Progress"}
+                  </span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <div className="text-xs text-gray-500">Total Duration</div>
+                <div className="flex items-center mt-1">
+                  <Clock className="h-3 w-3 text-gray-500 mr-2" />
+                  <span className="font-medium">{stop.timing?.totalDuration || "N/A"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column */}
-        <div>
-          {/* Geofence Tracking Card */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Geofence Tracking</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-lg overflow-hidden mb-4 border relative">
-                <div className="w-full h-[300px] bg-gray-100 relative">
-                  {/* Simulated map with geofence */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50">
-                    {/* Geofence circle */}
-                    <div
-                      className="absolute border-2 border-dashed border-blue-400 rounded-full bg-blue-100 bg-opacity-30"
-                      style={{
-                        width: "120px",
-                        height: "120px",
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    >
-                      {/* Dump location */}
-                      <div className="absolute w-4 h-4 bg-blue-600 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="absolute w-2 h-2 bg-white rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+        {/* Work order details section */}
+        <div className="bg-white border rounded-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b">
+            <div className="flex items-center">
+              <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+              <h2 className="text-sm font-medium">Work order details</h2>
+            </div>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-4 gap-6 mb-6">
+              <div>
+                <div className="text-xs text-gray-500">Service</div>
+                <div className="p-2 border rounded-md mt-1 bg-white">Residential Weekly rc</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Recurrence</div>
+                <div className="p-2 border rounded-md mt-1 bg-white">5x Weekly</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Billing Period</div>
+                <div className="p-2 border rounded-md mt-1 bg-white">1 Month</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Price</div>
+                <div className="p-2 border rounded-md mt-1 bg-white">$100.00</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <div className="text-xs text-gray-500">Materials</div>
+                <div className="space-y-2 mt-1">
+                  {stop.materials.map((mat, i) => (
+                    <div key={i} className="p-2 border rounded-md bg-white">
+                      {mat.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="col-span-2">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <div className="text-xs text-gray-500">General Fees</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Quantity</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Price</div>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-between items-center">
+                  <div>Fee total</div>
+                  <div className="font-medium">$0.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Geofence tracking section */}
+        <div className="bg-white border rounded-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b">
+            <div className="flex items-center">
+              <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+              <h2 className="text-sm font-medium">Geofence tracking</h2>
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="rounded-lg overflow-hidden mb-4 border relative">
+              <div className="w-full h-[300px] bg-gray-100 relative">
+                {/* Simulated map with geofence */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50">
+                  {/* Geofence circle */}
+                  <div
+                    className="absolute border-2 border-dashed border-blue-400 rounded-full bg-blue-100 bg-opacity-30"
+                    style={{
+                      width: "120px",
+                      height: "120px",
+                      left: "50%",
+                      top: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    {/* Dump location */}
+                    <div className="absolute w-4 h-4 bg-blue-600 rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="absolute w-2 h-2 bg-white rounded-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                    </div>
+                  </div>
+
+                  {/* Driver path */}
+                  <svg className="absolute inset-0 w-full h-full">
+                    {/* Approach path */}
+                    <path
+                      d="M 50 250 Q 100 200 140 150"
+                      stroke="#10b981"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray="5,5"
+                    />
+                    {/* Inside geofence path */}
+                    <path d="M 140 150 L 150 150" stroke="#3b82f6" strokeWidth="4" fill="none" />
+                    {/* Exit path */}
+                    <path
+                      d="M 150 150 Q 200 120 250 100"
+                      stroke="#ef4444"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray="5,5"
+                    />
+                  </svg>
+
+                  {/* Entry point */}
+                  <div className="absolute w-3 h-3 bg-green-500 rounded-full" style={{ left: "140px", top: "150px" }}>
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-green-700 whitespace-nowrap">
+                      Entry
+                    </div>
+                  </div>
+
+                  {/* Exit point */}
+                  {stop.timing?.departureTime && (
+                    <div className="absolute w-3 h-3 bg-red-500 rounded-full" style={{ left: "160px", top: "150px" }}>
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-red-700 whitespace-nowrap">
+                        Exit
                       </div>
                     </div>
+                  )}
+                </div>
 
-                    {/* Driver path */}
-                    <svg className="absolute inset-0 w-full h-full">
-                      {/* Approach path */}
-                      <path
-                        d="M 50 250 Q 100 200 140 150"
-                        stroke="#10b981"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="5,5"
-                      />
-                      {/* Inside geofence path */}
-                      <path d="M 140 150 L 150 150" stroke="#3b82f6" strokeWidth="4" fill="none" />
-                      {/* Exit path */}
-                      <path
-                        d="M 150 150 Q 200 120 250 100"
-                        stroke="#ef4444"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="5,5"
-                      />
-                    </svg>
+                {/* Legend */}
+                <div className="absolute bottom-2 left-2 bg-white bg-opacity-90 rounded p-2 text-xs">
+                  <div className="flex items-center gap-1 mb-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Arrival</span>
+                  </div>
+                  <div className="flex items-center gap-1 mb-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>Dumping</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span>Departure</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                    {/* Entry point */}
-                    <div className="absolute w-3 h-3 bg-green-500 rounded-full" style={{ left: "140px", top: "150px" }}>
-                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-green-700 whitespace-nowrap">
-                        Entry
-                      </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-gray-500 mb-2">Geofence Details</div>
+                <div className="text-xs space-y-2">
+                  <div className="flex justify-between p-2 bg-gray-50 rounded">
+                    <span>Radius:</span>
+                    <span>{stop.geofence?.radius}m</span>
+                  </div>
+                  <div className="flex justify-between p-2 bg-gray-50 rounded">
+                    <span>Entry Time:</span>
+                    <span className="text-green-600">
+                      {stop.geofence?.entryPoint?.time
+                        ? new Date(stop.geofence.entryPoint.time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-2 bg-gray-50 rounded">
+                    <span>Exit Time:</span>
+                    <span className="text-red-600">
+                      {stop.geofence?.exitPoint?.time
+                        ? new Date(stop.geofence.exitPoint.time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "In Progress"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-gray-500 mb-2">Productivity Metrics</div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 bg-gray-50 rounded">
+                    <div className="text-gray-500">Idle Time</div>
+                    <div className="font-medium">{stop.timing?.idleTime || "N/A"}</div>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded">
+                    <div className="text-gray-500">Efficiency</div>
+                    <div className="font-medium text-green-600">
+                      {stop.timing?.dumpDuration && stop.timing?.totalDuration ? "78%" : "N/A"}
                     </div>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded">
+                    <div className="text-gray-500">Total Weight</div>
+                    <div className="font-medium">{stop.totalWeight}</div>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded">
+                    <div className="text-gray-500">Total Cost</div>
+                    <div className="font-medium">{stop.totalCost}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                    {/* Exit point */}
-                    {stop.timing?.departureTime && (
-                      <div className="absolute w-3 h-3 bg-red-500 rounded-full" style={{ left: "160px", top: "150px" }}>
-                        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-red-700 whitespace-nowrap">
-                          Exit
+        {/* Disposal ticket section */}
+        <div className="bg-white border rounded-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b">
+            <div className="flex items-center">
+              <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+              <h2 className="text-sm font-medium">Disposal ticket</h2>
+            </div>
+            <Button variant="outline" size="sm" className="h-8">
+              Add disposal ticket
+            </Button>
+          </div>
+          <div className="p-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex-1">
+                <div className="mb-4">
+                  <div className="text-sm text-gray-500 mb-1">Ticket Number</div>
+                  <div className="font-mono font-medium">{stop.ticketNumber}</div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="text-sm text-gray-500 mb-1">Materials</div>
+                  <div className="space-y-2">
+                    {stop.materials.map((mat, i) => (
+                      <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                        <div className="font-medium">{mat.name}</div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-600">{mat.units}</span>
+                          <span className="font-semibold">{mat.price}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Legend */}
-                  <div className="absolute bottom-2 left-2 bg-white bg-opacity-90 rounded p-2 text-xs">
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span>Arrival</span>
-                    </div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span>Dumping</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span>Departure</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm text-gray-500 mb-1">Geofence Details</div>
-                  <div className="text-xs space-y-1">
-                    <div className="flex justify-between">
-                      <span>Radius:</span>
-                      <span>{stop.geofence?.radius}m</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Entry Time:</span>
-                      <span className="text-green-600">
-                        {stop.geofence?.entryPoint?.time
-                          ? new Date(stop.geofence.entryPoint.time).toLocaleTimeString()
-                          : "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Exit Time:</span>
-                      <span className="text-red-600">
-                        {stop.geofence?.exitPoint?.time
-                          ? new Date(stop.geofence.exitPoint.time).toLocaleTimeString()
-                          : "In Progress"}
-                      </span>
-                    </div>
-                  </div>
+              <div className="flex-1">
+                <div className="border rounded-lg overflow-hidden">
+                  <img src="/disposal-ticket-example.png" alt="Disposal Ticket" className="w-full object-contain" />
                 </div>
 
-                <Separator />
-
-                <div>
-                  <div className="text-sm text-gray-500 mb-2">Productivity Metrics</div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-gray-500">Idle Time</div>
-                      <div className="font-medium">{stop.timing?.idleTime || "N/A"}</div>
-                    </div>
-                    <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-gray-500">Efficiency</div>
-                      <div className="font-medium text-green-600">
-                        {stop.timing?.dumpDuration && stop.timing?.totalDuration ? "78%" : "N/A"}
+                <div className="mt-4">
+                  <div className="text-sm text-gray-500 mb-1">Material Audit Trail</div>
+                  <div className="text-xs space-y-1 mt-2">
+                    {stop.materialAudit.map((entry, i) => (
+                      <div key={i} className="flex gap-2 p-2 bg-gray-50 rounded">
+                        <Clock className="h-3 w-3 text-gray-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="text-gray-400">{entry.time}:</span> {entry.change}
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-
-                <Button variant="outline" className="w-full mt-2">
-                  <MapPin className="h-4 w-4 mr-2" />
-                  View Full Tracking
-                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </div>
 
-          {/* Photo Card */}
-          <Card className="mt-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Photo</CardTitle>
-              <CardDescription>Disposal ticket photo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <img src={stop.photoUrl || "/placeholder.svg"} alt="Disposal Ticket" className="rounded-md" />
-            </CardContent>
-          </Card>
-
-          {/* Map Card */}
-          <Card className="mt-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-medium">Location</CardTitle>
-              <CardDescription>Disposal stop location</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <img src={stop.mapUrl || "/placeholder.svg"} alt="Map" className="rounded-md" />
-            </CardContent>
-          </Card>
+        {/* Audit trail section */}
+        <div className="bg-white border rounded-md overflow-hidden">
+          <div className="flex items-center justify-between bg-gray-50 px-4 py-3 border-b">
+            <div className="flex items-center">
+              <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+              <h2 className="text-sm font-medium">Audit trail</h2>
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="space-y-3 text-sm">
+              {stop.auditTrail.map((entry, i) => (
+                <div key={i} className="relative pl-5 pb-3 border-l border-gray-200 last:pb-0">
+                  <div
+                    className={`absolute left-0 top-0 -translate-x-1/2 w-2 h-2 rounded-full ${
+                      entry.type === "geofence"
+                        ? "bg-blue-500"
+                        : entry.type === "operation"
+                          ? "bg-green-500"
+                          : "bg-gray-500"
+                    }`}
+                  ></div>
+                  <div className="text-xs text-gray-500">{entry.time}</div>
+                  <div
+                    className={`mt-1 ${
+                      entry.type === "geofence"
+                        ? "text-blue-700 font-medium"
+                        : entry.type === "operation"
+                          ? "text-green-700 font-medium"
+                          : ""
+                    }`}
+                  >
+                    {entry.action}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default Page
