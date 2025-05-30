@@ -44,4 +44,4 @@ export type DisposalFee = {
 // Define the ContainerPricing type
 export type ContainerPricing = {
   rate: string
-} 
+}
