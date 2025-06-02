@@ -194,10 +194,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg font-medium">Disposal Ticket</CardTitle>
-              <Button variant="outline" size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Material
-              </Button>
+            
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-6">
@@ -220,6 +217,10 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                         </div>
                       ))}
                     </div>
+                      <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Material
+              </Button>
                   </div>
 
                   <div>
