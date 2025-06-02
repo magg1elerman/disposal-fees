@@ -9,9 +9,8 @@ const dummyStops = {
     name: "Disposal Stop 1001",
     address: "123 Main St, San Diego, CA 92101",
     ticketNumber: "DT-20240601-1001",
-    photoUrl: "/public/disposal-ticket-example.png",
-    mapUrl:
-      "https://maps.googleapis.com/maps/api/staticmap?center=32.7157,-117.1611&zoom=15&size=400x150&key=YOUR_API_KEY",
+    photoUrl: "/placeholder.svg?height=200&width=300",
+    mapUrl: "/placeholder.svg?height=150&width=400",
     date: "June 1, 2024",
     time: "10:30 AM",
     status: "Completed",
@@ -46,9 +45,8 @@ const dummyStops = {
     name: "Disposal Stop 1002",
     address: "456 Oak Ave, San Diego, CA 92103",
     ticketNumber: "DT-20240528-1002",
-    photoUrl: "/public/disposal-ticket-example.png",
-    mapUrl:
-      "https://maps.googleapis.com/maps/api/staticmap?center=32.7457,-117.1611&zoom=15&size=400x150&key=YOUR_API_KEY",
+    photoUrl: "/placeholder.svg?height=200&width=300",
+    mapUrl: "/placeholder.svg?height=150&width=400",
     date: "May 28, 2024",
     time: "08:15 AM",
     status: "Pending",
@@ -70,9 +68,8 @@ const dummyStops = {
     name: "Disposal Stop 1003",
     address: "789 Pine Rd, San Diego, CA 92104",
     ticketNumber: "DT-20240602-1003",
-    photoUrl: "/public/disposal-ticket-example.png",
-    mapUrl:
-      "https://maps.googleapis.com/maps/api/staticmap?center=32.7257,-117.1811&zoom=15&size=400x150&key=YOUR_API_KEY",
+    photoUrl: "/placeholder.svg?height=200&width=300",
+    mapUrl: "/placeholder.svg?height=150&width=400",
     date: "June 2, 2024",
     time: "14:45 PM",
     status: "Completed",
@@ -97,7 +94,7 @@ const dummyStops = {
     materialAudit: [
       { time: "2024-06-02 14:30", change: "Green Waste: 0.0 → 1.8 tons by Scale Operator" },
       { time: "2024-06-02 14:35", change: "Mixed Waste: 0.0 → 2.2 tons by Scale Operator" },
-      { time: "2024-06-02 14:40", change: "Hazardous Materials: 0.0 → 0.5 tons by Scale Operator" },
+      { time: "2024-06-02 14:40", action: "Hazardous Materials: 0.0 → 0.5 tons by Scale Operator" },
     ],
     driver: "David Johnson",
     vehicle: "Truck #T-789",
@@ -108,9 +105,8 @@ const dummyStops = {
     name: "Disposal Stop 1004",
     address: "321 Maple Blvd, San Diego, CA 92105",
     ticketNumber: "DT-20240530-1004",
-    photoUrl: "/public/disposal-ticket-example.png",
-    mapUrl:
-      "https://maps.googleapis.com/maps/api/staticmap?center=32.7357,-117.1711&zoom=15&size=400x150&key=YOUR_API_KEY",
+    photoUrl: "/placeholder.svg?height=200&width=300",
+    mapUrl: "/placeholder.svg?height=150&width=400",
     date: "May 30, 2024",
     time: "11:20 AM",
     status: "In Progress",
@@ -194,7 +190,10 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg font-medium">Disposal Ticket</CardTitle>
-            
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Material
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-6">
@@ -217,12 +216,6 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4">
-                      <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Material
-                      </Button>
-                    </div>
                   </div>
 
                   <div>
@@ -240,7 +233,11 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
 
                 <div className="flex-1">
                   <div className="border rounded-lg overflow-hidden">
-                    <img src="/disposal-ticket-example.png" alt="Disposal Ticket" className="w-full object-contain" />
+                    <img
+                      src="/placeholder.svg?height=200&width=300"
+                      alt="Disposal Ticket"
+                      className="w-full object-contain"
+                    />
                   </div>
                 </div>
               </div>
@@ -248,7 +245,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
           </Card>
 
           {/* Material Audit Trail Card */}
-          <Card className="mt-6">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium">Material Audit Trail</CardTitle>
             </CardHeader>
@@ -335,7 +332,11 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
             </CardHeader>
             <CardContent>
               <div className="rounded-lg overflow-hidden mb-4 border">
-                <img src="/map-screenshot.png" alt="Map of disposal site" className="w-full h-[200px] object-cover" />
+                <img
+                  src="/placeholder.svg?height=150&width=400"
+                  alt="Map of disposal site"
+                  className="w-full h-[200px] object-cover"
+                />
               </div>
 
               <div className="space-y-3">
