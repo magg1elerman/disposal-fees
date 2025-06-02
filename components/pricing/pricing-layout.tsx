@@ -105,14 +105,12 @@ export function PricingLayout() {
             {activeView === "disposal" && (
               <>
                 
-                <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-gray-200">
+                <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-green-500">
                   
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
+                  <Button  variant="outline" className="bg-green-300 text-green-900"
                     onClick={() => setShowFormV3(true)}
                   >
-                    v03b
+                   v03b - Per Gallon Fee Structures
                   </Button>
 
                 
