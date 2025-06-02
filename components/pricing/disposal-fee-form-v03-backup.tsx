@@ -65,10 +65,6 @@ const materials: Material[] = [
   { id: 11, name: "Shingles", color: "bg-gray-500 text-white" },
   { id: 12, name: "Friable Asbestos", color: "bg-yellow-100 text-black" },
   { id: 13, name: "Non-Friable Asbestos", color: "bg-yellow-200 text-black" },
-  { id: 14, name: "Fuel", color: "bg-red-200 text-black" },
-  { id: 15, name: "Oil-based Paint", color: "bg-orange-100 text-black" },
-  { id: 16, name: "Household Chemicals", color: "bg-yellow-100 text-black" },
-  { id: 17, name: "General Liquid Waste", color: "bg-blue-100 text-black" },
 ]
 const serviceMeasures = [
   { id: 1, name: "Per Ton", description: "Charged per ton of material" },
@@ -379,7 +375,6 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
           rateStructure: materialPricing[material]?.rateStructure || formData.rateStructure,
           overageThreshold: materialPricing[material]?.overageThreshold || 0,
           overageCharge: materialPricing[material]?.overageCharge || "",
-          chargeable: materialPricing[material]?.chargeable || false,
         }))
       }
 
@@ -415,11 +410,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
   return (
     <div className="">
       <div className="p-6">
-        <h2 className="text-xl font-bold">Disposal Fee v03b</h2>
+        <h2 className="text-xl font-bold">Disposal Fee v03</h2>
         <div>
-            <ul className="list-disc list-inside px-2 text-sm">
-                <li> Per gallon fee structure added</li>
-            </ul>
+            {/* <ul className="list-disc list-inside px-2 text-sm">
+                <li>Included Tonnage changed to Free Tonnage</li>
+                <li>Min Charge column added instead of Chargeable colummn</li>
+                <li>Overage Threshold and Overage Fee set globally</li>
+            </ul> */}
         </div>
             
       </div>
@@ -535,13 +532,9 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                       <RadioGroupItem value="Per Container" id="per-container" />
                       <Label htmlFor="per-container">Per Container</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Per Gallon" id="per-gallon" />
-                      <Label htmlFor="per-gallon">Per Gallon</Label>
-                    </div>
                   </RadioGroup>
                 </div>
-                {(formData.rateStructure === "Per Ton" || formData.rateStructure === "Per Gallon") && (
+                {formData.rateStructure === "Per Ton" && (
                   <>
                     <div className="flex-1">
                       <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
@@ -550,15 +543,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                           id="fee-overage-threshold"
                           type="number"
                           min="0"
-                          step={formData.rateStructure === "Per Gallon" ? "0.0001" : "0.1"}
+                          step="0.1"
                           value={formData.overageThreshold}
                           onChange={(e) => handleChange("overageThreshold", Number.parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
                           className="h-10"
                         />
-                        <span className="absolute right-3 top-2.5 text-muted-foreground">
-                          {formData.rateStructure === "Per Gallon" ? "gallons" : "tons"}
-                        </span>
+                        <span className="absolute right-3 top-2.5 text-muted-foreground">tons</span>
                       </div>
                     </div>
                     <div className="flex-1">
@@ -570,12 +561,8 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                           value={formData.overageCharge}
                           onChange={(e) => handleChange("overageCharge", e.target.value)}
                           className="pl-7 h-10"
-                          placeholder={formData.rateStructure === "Per Gallon" ? "0.0000" : "0.00"}
-                          step={formData.rateStructure === "Per Gallon" ? "0.0001" : "0.01"}
+                          placeholder="0.00"
                         />
-                        <span className="absolute right-3 top-3 text-muted-foreground text-xs">
-                          {formData.rateStructure === "Per Gallon" ? "/ gal" : "/ ton"}
-                        </span>
                       </div>
                     </div>
                   </>
@@ -608,9 +595,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                               <TableRow>
                                 <TableHead className="w-[200px]">Material</TableHead>
                                 <TableHead className="w-[220px]">Rate</TableHead>
-                                <TableHead className="w-[220px]">
-                                  {formData.rateStructure === "Per Gallon" ? "Included Gallons" : "Included Tonnage"}
-                                </TableHead>
+                                <TableHead className="w-[220px]">Included Tonnage</TableHead>
                                 <TableHead className="w-[220px]">
                                   <div className="flex items-center space-x-2">
                                     <span>Min. Charge</span>
@@ -678,12 +663,9 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             value={materialPricing[material.name]?.rate || ""}
                                             onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
                                             className="pl-7 pr-10 h-10"
-                                            placeholder={formData.rateStructure === "Per Gallon" ? "0.0000" : "0.00"}
-                                            step={formData.rateStructure === "Per Gallon" ? "0.0001" : "0.01"}
+                                            placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
-                                            {formData.rateStructure === "Per Gallon" ? "/ gal" : "/ ton"}
-                                          </span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ ton</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -726,15 +708,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             id={`${material.name}-included-tonnage`}
                                             type="number"
                                             min="0"
-                                            step={formData.rateStructure === "Per Gallon" ? "0.0001" : "0.1"}
+                                            step="0.1"
                                             value={materialPricing[material.name]?.includedTonnage || ""}
                                             onChange={(e) => handleMaterialPricingChange(material.name, "includedTonnage", Number.parseFloat(e.target.value) || 0)}
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
-                                            {formData.rateStructure === "Per Gallon" ? "gallons" : "tons"}
-                                          </span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -782,7 +762,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                               "pl-7 h-10",
                                               !autoCalculateMinCharge && "opacity-50 cursor-not-allowed"
                                             )}
-                                            placeholder={formData.rateStructure === "Per Gallon" ? "0.0000" : "0.00"}
+                                            placeholder="0.00"
                                             disabled={!autoCalculateMinCharge}
                                           />
                                         </div>
@@ -810,16 +790,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                     </SelectTrigger>
                                     <SelectContent>
                                       {materials
-                                        .filter(material => {
-                                          // Show only liquid waste materials for Per Gallon
-                                          if (formData.rateStructure === "Per Gallon") {
-                                            return ["Fuel", "Oil-based Paint", "Household Chemicals", "General Liquid Waste"].includes(material.name) &&
-                                              !selectedMaterials.includes(material.name)
-                                          }
-                                          // Show all other materials for other rate structures
-                                          return !["Fuel", "Oil-based Paint", "Household Chemicals", "General Liquid Waste"].includes(material.name) &&
-                                            !selectedMaterials.includes(material.name)
-                                        })
+                                        .filter(material => !selectedMaterials.includes(material.name))
                                         .map((material) => (
                                           <SelectItem
                                             key={material.id}
@@ -931,7 +902,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                       value={containerPricing[container.name]?.rate || ""}
                                       onChange={(e) => handleContainerPricingChange(container.name, "rate", e.target.value)}
                                       className="pl-7 pr-10 h-10"
-                                      placeholder={formData.rateStructure === "Per Gallon" ? "0.0000" : "0.00"}
+                                      placeholder="0.00"
                                     />
                                     <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ container</span>
                                   </div>

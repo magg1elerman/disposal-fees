@@ -21,7 +21,7 @@ export type DisposalFee = {
   id?: number
   name: string
   description: string
-  rateStructure: string
+  rateStructure: "Per Ton" | "Per Container" | "Per Gallon"
   rate: string
   minCharge: string
   businessLine: string
@@ -39,6 +39,10 @@ export type DisposalFee = {
   materialPricing?: MaterialPricing[]
   containers?: string[]
   containerPricing?: ContainerPricing[]
+  isChargeable?: boolean
+  containerRate?: string
+  freeTonnage?: number
+  isGlobal?: boolean
 }
 
 // Define the ContainerPricing type

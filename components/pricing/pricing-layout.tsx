@@ -9,8 +9,10 @@ import { Fees } from "@/components/pricing/fees"
 import { DisposalFees } from "@/components/pricing/disposal-fees"
 import { Services } from "@/components/pricing/services"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { DisposalFeeFormV3 } from "@/components/pricing/disposal-fee-form-v02a"
-import { DisposalFeeFormV3 as DisposalFeeFormV4 } from "@/components/pricing/disposal-fee-form-v02b"
+import { DisposalFeeFormV2 as DisposalFeeFormV01a } from "@/components/pricing/disposal-fee-form-v01a"
+import { DisposalFeeForm as DisposalFeeFormV01b } from "@/components/pricing/disposal-fee-form-v01b"
+import { DisposalFeeFormV3 as DisposalFeeFormV02a } from "@/components/pricing/disposal-fee-form-v02a"
+import { DisposalFeeFormV3 as DisposalFeeFormV02b } from "@/components/pricing/disposal-fee-form-v02b"
 import { DisposalFeeFormV3 as DisposalFeeFormV03 } from "@/components/pricing/disposal-fee-form-v03"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -29,6 +31,7 @@ export function PricingLayout() {
   const [showFormV2b, setShowFormV2b] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
   const [showFormV3, setShowFormV3] = useState(false)
+
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -109,10 +112,13 @@ export function PricingLayout() {
                     size="icon"
                     onClick={() => setShowFormV3(true)}
                   >
-                    v03
+                    v03b
                   </Button>
+
+                
               
                 </div>
+            
               </>
             )}
           </div>
@@ -214,6 +220,56 @@ export function PricingLayout() {
                             </div>
                           </CardContent>
                         </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Version 3</CardTitle>
+                            <CardDescription>
+                              Set Fee by Cotnainer or Materials only          
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => {
+                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                                  if (disposalFeesComponent) {
+                                    const event = new CustomEvent("add-disposal-fee")
+                                    disposalFeesComponent.dispatchEvent(event)
+                                  }
+                                }}
+                              >
+                                <p className="font-semibold">v01a </p>
+                                <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set per material
+                                  </span>
+                                </p>
+                              </Button>
+
+                              <Button 
+                                variant="outline" 
+                                className="h-auto py-4 flex flex-col items-start"
+                                onClick={() => {
+                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
+                                  if (disposalFeesComponent) {
+                                    const event = new CustomEvent("add-disposal-fee-v1")
+                                    disposalFeesComponent.dispatchEvent(event)
+                                  }
+                                }}
+                              >
+                                <span className="font-semibold">v01b</span>
+                                <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
+                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
+                                    set globally.
+                                  </span>
+                                </span>
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -229,7 +285,7 @@ export function PricingLayout() {
 
       <Dialog open={showFormV2} onOpenChange={setShowFormV2}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV3
+          <DisposalFeeFormV02a
             onSave={handleSaveV2}
             onCancel={() => setShowFormV2(false)}
           />
@@ -238,7 +294,7 @@ export function PricingLayout() {
 
       <Dialog open={showFormV2b} onOpenChange={setShowFormV2b}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV4
+          <DisposalFeeFormV02b
             onSave={handleSaveV2b}
             onCancel={() => setShowFormV2b(false)}
           />
@@ -255,6 +311,7 @@ export function PricingLayout() {
           </div>
         </DialogContent>
       </Dialog>
+
     </div>
   )
 }

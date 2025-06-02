@@ -37,9 +37,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fetchServiceData, type ServiceData } from "@/utils/csv-service-parser"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DisposalFeeFormV2 } from "./disposal-fee-form-v01a"
-import { DisposalFeeFormV3 } from "./disposal-fee-form-v02a"
-import { DisposalFeeForm } from "./disposal-fee-form-v01b"
+import { DisposalFeeFormV2 as DisposalFeeFormV01a } from "./disposal-fee-form-v01a"
+import { DisposalFeeFormV3 as DisposalFeeFormV02a } from "./disposal-fee-form-v02a"
+import { DisposalFeeForm as DisposalFeeFormV01b } from "./disposal-fee-form-v01b"
 import { Input } from "@/components/ui/input"
 
 // Interface for autolinked services
@@ -464,11 +464,11 @@ export function DisposalFees() {
     const tiers = selectedFee.tiers;
     
     const totalTons = tiers.reduce((sum, tier) => 
-      sum + (tier.to - tier.from), 0
+      sum + (tier.to !== null ? tier.to - tier.from : 0), 0
     );
 
     const totalCost = tiers.reduce((sum, tier) => 
-      sum + tier.rate * (tier.to - tier.from), 0
+      sum + tier.rate * (tier.to !== null ? tier.to - tier.from : 0), 0
     );
 
     return (
@@ -489,7 +489,7 @@ export function DisposalFees() {
         </div>
         <div className="space-y-2">
           {tiers.map((tier, index) => {
-            const tierTons = tier.to - tier.from;
+            const tierTons = tier.to !== null ? tier.to - tier.from : 0;
             const tierCost = tier.rate * tierTons;
             return (
               <div key={tier.id} className="flex items-center gap-4">
@@ -1043,7 +1043,7 @@ export function DisposalFees() {
                         {tiers.map((tier, index) => {
                           if (
                             tier.from <= 6 - selectedFee.includedTonnage &&
-                            (tier.to === null || tier.to > 6 - selectedFee.includedTonnage)
+                            (tier.to !== null && tier.to > 6 - selectedFee.includedTonnage)
                           ) {
                             return (
                               <p key={index} className="font-medium">
@@ -1359,7 +1359,7 @@ export function DisposalFees() {
           <DialogHeader>
             <DialogTitle className="text-white">Edit Disposal Fee</DialogTitle>
           </DialogHeader>
-          <DisposalFeeFormV2
+          <DisposalFeeFormV01a
             initialFee={selectedFee || undefined}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialog(false)}
@@ -1370,7 +1370,7 @@ export function DisposalFees() {
       {/* Edit Dialog V2 */}
       <Dialog open={showEditDialogV2} onOpenChange={setShowEditDialogV2}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeFormV3
+          <DisposalFeeFormV02a
             initialFee={selectedFee}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialogV2(false)}
@@ -1380,7 +1380,7 @@ export function DisposalFees() {
 
       <Dialog open={showEditDialogV1} onOpenChange={setShowEditDialogV1}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
-          <DisposalFeeForm
+          <DisposalFeeFormV01b
             initialFee={selectedFee}
             onSave={handleSaveFee}
             onCancel={() => setShowEditDialogV1(false)}
