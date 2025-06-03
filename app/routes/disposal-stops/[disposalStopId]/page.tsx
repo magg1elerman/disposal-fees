@@ -60,9 +60,11 @@ const dummyStops = {
     vehicle: "Truck #T-123",
     totalWeight: "3.5 tons",
     totalCost: "$190.00",
-    arrivalTime: "10:15 AM",
+    geofenceEntryTime: "10:15 AM",
+    arrivalTime: "10:18 AM", // Time at dump location
     dumpTime: "10:30 AM",
-    departureTime: "10:45 AM",
+    departureTime: "10:42 AM", // Time leaving dump location
+    geofenceExitTime: "10:45 AM",
   },
   "1002": {
     name: "Disposal Stop 1002",
@@ -87,9 +89,11 @@ const dummyStops = {
     vehicle: "Truck #T-456",
     totalWeight: "3.2 tons",
     totalCost: "$192.00",
+    geofenceEntryTime: "07:55 AM",
     arrivalTime: "08:00 AM",
     dumpTime: "08:15 AM",
-    departureTime: "08:30 AM",
+    departureTime: "08:25 AM",
+    geofenceExitTime: "08:30 AM",
   },
   "1003": {
     name: "Disposal Stop 1003",
@@ -128,9 +132,11 @@ const dummyStops = {
     vehicle: "Truck #T-789",
     totalWeight: "4.5 tons",
     totalCost: "$297.00",
+    geofenceEntryTime: "14:20 PM",
     arrivalTime: "14:30 PM",
     dumpTime: "14:45 PM",
-    departureTime: "15:00 PM",
+    departureTime: "14:55 PM",
+    geofenceExitTime: "15:05 PM",
   },
   "1004": {
     name: "Disposal Stop 1004",
@@ -158,9 +164,11 @@ const dummyStops = {
     vehicle: "Truck #T-321",
     totalWeight: "1.5 tons",
     totalCost: "$60.00",
+    geofenceEntryTime: "11:00 AM",
     arrivalTime: "11:05 AM",
     dumpTime: "11:20 AM",
     departureTime: "11:35 AM",
+    geofenceExitTime: "11:40 AM",
   },
   // Add more stops if needed
 }
@@ -388,7 +396,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
 
                     {/* Entry route - green line from outside geofence to dump location */}
                     <path
-                      d="M10,180 L30,160 L60,140 L100,120 L150,110 L200,100"
+                      d="M80,130 L100,120 L150,110 L200,100"
                       stroke="#10b981"
                       strokeWidth="4"
                       strokeLinecap="round"
@@ -417,7 +425,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
 
                     {/* Exit route - blue line from dump location to outside geofence */}
                     <path
-                      d="M200,100 L250,90 L280,80 L320,70 L350,60 L380,50"
+                      d="M200,100 L250,90 L280,80 L320,70"
                       stroke="#3b82f6"
                       strokeWidth="4"
                       strokeLinecap="round"
@@ -428,24 +436,29 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     />
 
                     {/* Exit arrow */}
-                    <polygon points="370,45 380,50 370,55" fill="#3b82f6" />
-                  </svg>
+                    <polygon points="310,65 320,70 310,75" fill="#3b82f6" />
 
-                  {/* Tooltips */}
-                  <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span>Entry: {stop.arrivalTime}</span>
+                    {/* Tooltips */}
+                    <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span>Entry: {stop.geofenceEntryTime}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <span>Dump: {stop.dumpTime}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span>Exit: {stop.geofenceExitTime}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <span>Dump: {stop.dumpTime}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span>Exit: {stop.departureTime}</span>
-                    </div>
-                  </div>
+
+                    {/* Geofence entry point */}
+                    <circle cx="80" cy="130" r="4" fill="#10b981" stroke="white" strokeWidth="2" />
+                    {/* Geofence exit point */}
+                    <circle cx="320" cy="70" r="4" fill="#3b82f6" stroke="white" strokeWidth="2" />
+                  </svg>
                 </div>
               </div>
 
@@ -459,16 +472,24 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
                   <div className="grid grid-cols-1 gap-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Arrival:</span>
+                      <span className="text-gray-600">Geofence Entry:</span>
+                      <span className="font-medium">{stop.geofenceEntryTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Arrival at Dump:</span>
                       <span className="font-medium">{stop.arrivalTime}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Dump:</span>
+                      <span className="text-gray-600">Dump Complete:</span>
                       <span className="font-medium">{stop.dumpTime}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Departure:</span>
+                      <span className="text-gray-600">Departure from Dump:</span>
                       <span className="font-medium">{stop.departureTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Geofence Exit:</span>
+                      <span className="font-medium">{stop.geofenceExitTime}</span>
                     </div>
                   </div>
                 </div>
