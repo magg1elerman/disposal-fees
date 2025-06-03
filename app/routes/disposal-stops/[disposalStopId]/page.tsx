@@ -497,23 +497,16 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
                   <div className="grid grid-cols-1 gap-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Geofence Entry:</span>
+                      <span className="text-gray-600">Entry:</span>
                       <span className="font-medium">{stop.geofenceEntryTime}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Arrival at Dump:</span>
                       <span className="font-medium">{stop.arrivalTime}</span>
                     </div>
+                
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Dump Complete:</span>
-                      <span className="font-medium">{stop.dumpTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Departure from Dump:</span>
-                      <span className="font-medium">{stop.departureTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Geofence Exit:</span>
+                      <span className="text-gray-600">Exit:</span>
                       <span className="font-medium">{stop.geofenceExitTime}</span>
                     </div>
                   </div>
