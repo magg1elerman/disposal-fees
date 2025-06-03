@@ -21,6 +21,17 @@ const mapStyles = `
   .dump-location:hover {
     filter: brightness(1.2);
   }
+  .map-tooltip {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .map-overlay:hover .map-tooltip {
+    opacity: 1;
+  }
+  .geofence-icon {
+    cursor: pointer;
+  }
 `
 
 const dummyStops = {
@@ -382,7 +393,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                 <img src="/map-screenshot.png" alt="Map of disposal site" className="w-full h-[200px] object-cover" />
 
                 {/* Geofence and Route Overlay */}
-                <div className="absolute inset-0">
+                <div className="absolute inset-0 map-overlay">
                   {/* Geofence boundary */}
                   <svg className="w-full h-full" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {/* Geofence boundary - semi-transparent blue polygon */}
@@ -439,14 +450,14 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <polygon points="310,65 320,70 310,75" fill="#3b82f6" />
 
                     {/* Geofence entry point - Blue Navigation/Compass Icon */}
-                    <g transform="translate(75, 125)">
+                    <g transform="translate(75, 125)" className="geofence-icon">
                       <circle cx="5" cy="5" r="8" fill="#3b82f6" stroke="white" strokeWidth="2" />
                       <path d="M5,2 L7,5 L5,8 L3,5 Z" fill="white" />
                       <circle cx="5" cy="5" r="1" fill="white" />
                     </g>
 
                     {/* Geofence exit point - Green Flag Icon */}
-                    <g transform="translate(315, 65)">
+                    <g transform="translate(315, 65)" className="geofence-icon">
                       <circle cx="5" cy="5" r="8" fill="#10b981" stroke="white" strokeWidth="2" />
                       <path
                         d="M3,2 L3,8 M3,2 L8,4 L3,6"
@@ -458,8 +469,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     </g>
                   </svg>
 
-                  {/* Tooltips - moved outside SVG */}
-                  <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs border">
+                  {/* Tooltips - now only visible on hover */}
+                  <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs border map-tooltip">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <span>Entry: {stop.geofenceEntryTime}</span>
