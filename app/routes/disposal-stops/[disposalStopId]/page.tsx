@@ -203,7 +203,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <div className="text-sm text-gray-500 mb-1">Ticket Number</div>
                     <div className="font-mono font-medium">{stop.ticketNumber}</div>
                   </div>
-                    <Accordion type="single" collapsible className="w-full mt-4">
+                    <Accordion type="single" collapsible className="w-full mt-4 pr-3">
                       <AccordionItem value="material-audit-trail">
                         <AccordionTrigger>Materials</AccordionTrigger>
                         <AccordionContent>
