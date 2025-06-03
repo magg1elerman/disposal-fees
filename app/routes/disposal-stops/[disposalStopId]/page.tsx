@@ -1,9 +1,27 @@
+"use client"
 import Link from "next/link"
 import { ArrowLeft, Calendar, MapPin, Truck, FileText, Clock, Plus, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
+// Add this CSS for the interactive map elements
+const mapStyles = `
+  .route-path {
+    transition: stroke-width 0.2s ease;
+    cursor: pointer;
+  }
+  .route-path:hover {
+    stroke-width: 5;
+  }
+  .dump-location {
+    cursor: pointer;
+  }
+  .dump-location:hover {
+    filter: brightness(1.2);
+  }
+`
 
 const dummyStops = {
   "1001": {
@@ -154,6 +172,10 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
   const stop = dummyStops[disposalStopId] ? dummyStops[disposalStopId] : dummyStops["1001"]
   return (
     <div className="container mx-auto py-6 max-w-7xl">
+      {/* Add the styles */}
+      <style jsx global>
+        {mapStyles}
+      </style>
       {/* Header with back button and actions */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
@@ -347,9 +369,76 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium">Location</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="rounded-lg overflow-hidden mb-4 border">
+            <CardContent className="relative">
+              <div className="rounded-lg overflow-hidden mb-4 border relative">
                 <img src="/map-screenshot.png" alt="Map of disposal site" className="w-full h-[200px] object-cover" />
+
+                {/* Geofence and Route Overlay */}
+                <div className="absolute inset-0">
+                  {/* Geofence boundary */}
+                  <svg className="w-full h-full" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Geofence boundary - semi-transparent blue polygon */}
+                    <path
+                      d="M50,50 L350,30 L330,170 L70,150 Z"
+                      fill="rgba(59, 130, 246, 0.1)"
+                      stroke="rgba(59, 130, 246, 0.6)"
+                      strokeWidth="2"
+                      strokeDasharray="5,5"
+                    />
+
+                    {/* Entry route - green line */}
+                    <path
+                      d="M20,100 C40,90 60,110 100,90"
+                      stroke="#10b981"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="route-path entry-path"
+                      data-time={stop.arrivalTime}
+                      data-duration="5 mins"
+                    />
+
+                    {/* Dump location - red dot with pulse animation */}
+                    <circle
+                      cx="200"
+                      cy="100"
+                      r="8"
+                      fill="#ef4444"
+                      className="dump-location"
+                      data-time={stop.dumpTime}
+                      data-duration="15 mins"
+                    >
+                      <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0.8;1" dur="2s" repeatCount="indefinite" />
+                    </circle>
+
+                    {/* Exit route - blue line */}
+                    <path
+                      d="M200,100 C250,120 280,90 350,110"
+                      stroke="#3b82f6"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      className="route-path exit-path"
+                      data-time={stop.departureTime}
+                      data-duration="4 mins"
+                    />
+                  </svg>
+
+                  {/* Tooltips */}
+                  <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <span>Entry: {stop.arrivalTime}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <span>Dump: {stop.dumpTime}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      <span>Exit: {stop.departureTime}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">
