@@ -197,7 +197,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
               <CardTitle className="text-lg font-medium">Disposal Ticket</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex flex-col md:flex-row">
                 <div className="flex-1">
                   <div className="mb-4">
                     <div className="text-sm text-gray-500 mb-1">Ticket Number</div>
