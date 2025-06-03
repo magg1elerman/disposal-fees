@@ -209,7 +209,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <div className="space-y-2 text-xs">
                       {stop.materials.map((mat, i) => (
                         <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                          <div className="text-red ">{mat.name}</div>
+                          <div className="color-red ">{mat.name}</div>
                           <div className="flex items-center gap-4">
                             <span className="text-gray-600">{mat.units}</span>
                             <span className="font-semibold">{mat.price}</span>
