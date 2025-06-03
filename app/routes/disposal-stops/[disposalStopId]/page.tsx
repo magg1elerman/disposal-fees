@@ -386,16 +386,20 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       strokeDasharray="5,5"
                     />
 
-                    {/* Entry route - green line */}
+                    {/* Entry route - green line from outside geofence to dump location */}
                     <path
-                      d="M20,100 C40,90 60,110 100,90"
+                      d="M10,180 L30,160 L60,140 L100,120 L150,110 L200,100"
                       stroke="#10b981"
-                      strokeWidth="3"
+                      strokeWidth="4"
                       strokeLinecap="round"
+                      fill="none"
                       className="route-path entry-path"
                       data-time={stop.arrivalTime}
                       data-duration="5 mins"
                     />
+
+                    {/* Entry arrow */}
+                    <polygon points="190,95 200,100 190,105" fill="#10b981" />
 
                     {/* Dump location - red dot with pulse animation */}
                     <circle
@@ -411,16 +415,20 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       <animate attributeName="opacity" values="1;0.8;1" dur="2s" repeatCount="indefinite" />
                     </circle>
 
-                    {/* Exit route - blue line */}
+                    {/* Exit route - blue line from dump location to outside geofence */}
                     <path
-                      d="M200,100 C250,120 280,90 350,110"
+                      d="M200,100 L250,90 L280,80 L320,70 L350,60 L380,50"
                       stroke="#3b82f6"
-                      strokeWidth="3"
+                      strokeWidth="4"
                       strokeLinecap="round"
+                      fill="none"
                       className="route-path exit-path"
                       data-time={stop.departureTime}
                       data-duration="4 mins"
                     />
+
+                    {/* Exit arrow */}
+                    <polygon points="370,45 380,50 370,55" fill="#3b82f6" />
                   </svg>
 
                   {/* Tooltips */}
