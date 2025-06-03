@@ -512,7 +512,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   </div>
                 </div>
               </div>
-                <div className="flex gap-4">
+                <div className="cols-span-1 flex gap-4">
                   <div className="flex-1">
                     <div className="text-sm text-gray-500 mb-1">Driver</div>
                     <div className="font-medium">{stop.driver}</div>
