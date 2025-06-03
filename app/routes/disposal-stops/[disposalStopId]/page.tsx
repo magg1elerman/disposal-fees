@@ -207,8 +207,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       <AccordionItem value="material-audit-trail">
                         <AccordionTrigger>Materials</AccordionTrigger>
                         <AccordionContent>
-                          <div className="mb-4">
-                              <div className="text-sm text-gray-500 mb-1">Materials</div>
+                          <div className="">
+                             
                               <div className="space-y-2 text-xs">
                                 {stop.materials.map((mat, i) => (
                                   <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
