@@ -232,7 +232,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
             
                     </Accordion>                 
                  
-                  <Accordion type="single" collapsible className="w-full mt-4">
+                  <Accordion type="single" collapsible className="w-full mt-4 p-3">
                     <AccordionItem value="material-audit-trail">
                       <AccordionTrigger>Material Audit Trail</AccordionTrigger>
                       <AccordionContent>
@@ -249,8 +249,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
-                  <div className="mx-3">
-                    <div className="mt-2 flex justify-between items-center py-3 bg-blue-50 rounded-md">
+                  <div className="p-3">
+                    <div className="mt-2 flex justify-between items-center bg-blue-50 rounded-md">
                       <div className="font-medium">Total Weight</div>
                       <div className="font-semibold">{stop.totalWeight}</div>
                     </div>
