@@ -438,27 +438,41 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     {/* Exit arrow */}
                     <polygon points="310,65 320,70 310,75" fill="#3b82f6" />
 
-                    {/* Tooltips */}
-                    <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span>Entry: {stop.geofenceEntryTime}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <span>Dump: {stop.dumpTime}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span>Exit: {stop.geofenceExitTime}</span>
-                      </div>
-                    </div>
+                    {/* Geofence entry point - Blue Navigation/Compass Icon */}
+                    <g transform="translate(75, 125)">
+                      <circle cx="5" cy="5" r="8" fill="#3b82f6" stroke="white" strokeWidth="2" />
+                      <path d="M5,2 L7,5 L5,8 L3,5 Z" fill="white" />
+                      <circle cx="5" cy="5" r="1" fill="white" />
+                    </g>
 
-                    {/* Geofence entry point */}
-                    <circle cx="80" cy="130" r="4" fill="#10b981" stroke="white" strokeWidth="2" />
-                    {/* Geofence exit point */}
-                    <circle cx="320" cy="70" r="4" fill="#3b82f6" stroke="white" strokeWidth="2" />
+                    {/* Geofence exit point - Green Flag Icon */}
+                    <g transform="translate(315, 65)">
+                      <circle cx="5" cy="5" r="8" fill="#10b981" stroke="white" strokeWidth="2" />
+                      <path
+                        d="M3,2 L3,8 M3,2 L8,4 L3,6"
+                        stroke="white"
+                        strokeWidth="1.5"
+                        fill="none"
+                        strokeLinecap="round"
+                      />
+                    </g>
                   </svg>
+
+                  {/* Tooltips - moved outside SVG */}
+                  <div className="absolute top-2 right-2 bg-white p-2 rounded shadow-md text-xs border">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      <span>Entry: {stop.geofenceEntryTime}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <span>Dump: {stop.dumpTime}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <span>Exit: {stop.geofenceExitTime}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
