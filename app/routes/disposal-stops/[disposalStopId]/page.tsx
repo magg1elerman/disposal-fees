@@ -512,12 +512,12 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   </div>
                 </div>
 
-                <div className="cols-span-1 flex gap-4">
-                  <div className="flex-1">
+                <div className="cols-span-1">
+                  <div className="">
                     <div className="text-sm text-gray-500 mb-1">Driver</div>
                     <div className="font-medium">{stop.driver}</div>
                   </div>
-                  <div className="flex-1">
+                  <div className="">
                     <div className="text-sm text-gray-500 mb-1">Vehicle</div>
                     <div className="font-medium">{stop.vehicle}</div>
                   </div>
