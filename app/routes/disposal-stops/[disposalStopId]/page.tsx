@@ -521,12 +521,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       </div>
                     </div>
                   </div>
-                  <div className="col-span-1 flex items-start justify-end">
-                    <Button variant="outline" size="sm" className="mt-6">
-                      Dump Site Details
-                      <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
-                    </Button>
-                  </div>
+                 
                 </div>
 
                 <Button variant="outline" className="w-full mt-2">
