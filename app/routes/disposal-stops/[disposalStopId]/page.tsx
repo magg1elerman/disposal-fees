@@ -492,8 +492,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   <div className="text-sm text-gray-500 mb-1">Address</div>
                   <div className="font-medium">{stop.address}</div>
                 </div>
-
-                <div className="space-y-2 mb-4">
+              <div className="grid grid-cols-2"> 
+                <div className="col-span-1 space-y-2 mb-4">
                   <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
                   <div className="grid grid-cols-1  text-sm">
                     <div className="flex justify-between">
@@ -511,7 +511,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     </div>
                   </div>
                 </div>
-
+              </div>
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <div className="text-sm text-gray-500 mb-1">Driver</div>
