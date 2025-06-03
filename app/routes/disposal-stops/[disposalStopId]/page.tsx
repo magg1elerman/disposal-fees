@@ -250,7 +250,6 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     </AccordionItem>
                   </Accordion>
                   <div>
-                    <div className="text-gray-500 mb-1 mt-4">Total</div>
                     <div className="flex justify-between items-center p-3 bg-blue-50 rounded-md">
                       <div className="font-medium mt-4">Total Weight</div>
                       <div className="font-semibold">{stop.totalWeight}</div>
