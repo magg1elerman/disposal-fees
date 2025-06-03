@@ -203,32 +203,35 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <div className="text-sm text-gray-500 mb-1">Ticket Number</div>
                     <div className="font-mono font-medium">{stop.ticketNumber}</div>
                   </div>
-   <Accordion type="single" collapsible className="w-full mt-4">
-                    <AccordionItem value="material-audit-trail">
-                      <AccordionTrigger>Material Audit Trail</AccordionTrigger>
-                      <AccordionContent>
-                  <div className="mb-4">
-                    <div className="text-sm text-gray-500 mb-1">Materials</div>
-                    <div className="space-y-2 text-xs">
-                      {stop.materials.map((mat, i) => (
-                        <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
-                          <div className="color-red ">{mat.name}</div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-gray-600">{mat.units}</span>
-                            <span className="font-semibold">{mat.price}</span>
+                    <Accordion type="single" collapsible className="w-full mt-4">
+                      <AccordionItem value="material-audit-trail">
+                        <AccordionTrigger>Material Audit Trail</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="mb-4">
+                              <div className="text-sm text-gray-500 mb-1">Materials</div>
+                              <div className="space-y-2 text-xs">
+                                {stop.materials.map((mat, i) => (
+                                  <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                                    <div className="color-red ">{mat.name}</div>
+                                    <div className="flex items-center gap-4">
+                                      <span className="text-gray-600">{mat.units}</span>
+                                      <span className="font-semibold">{mat.price}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="pt-4">
+                                <Button variant="outline" size="sm">
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add Material
+                                </Button>
+                              </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-4">
-                      <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Material
-                      </Button>
-                    </div>
-              </AccordionContent>   
-              </Accordion>                 
-                  </div>
+                          </AccordionContent>   
+                      </AccordionItem>
+            
+                    </Accordion>                 
+                 
                   <Accordion type="single" collapsible className="w-full mt-4">
                     <AccordionItem value="material-audit-trail">
                       <AccordionTrigger>Material Audit Trail</AccordionTrigger>
