@@ -495,7 +495,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
 
                 <div className="space-y-2 mb-4">
                   <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
-                  <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div className="grid grid-cols-1  text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Entry:</span>
                       <span className="font-medium">{stop.geofenceEntryTime}</span>
