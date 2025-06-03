@@ -231,9 +231,9 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       </AccordionItem>
                     </Accordion>                 
                  
-                  <Accordion type="single" collapsible className="w-full px-3">
+                  <Accordion type="single" collapsible className="w-full mt-4 pr-3">
                     <AccordionItem value="material-audit-trail">
-                      <AccordionTrigger className="text-sm text-gray-=700">Material Audit Trail</AccordionTrigger>
+                      <AccordionTrigger className="text-xs text-gray-=500">Material Audit Trail</AccordionTrigger>
                       <AccordionContent>
                         <div className="text-xs space-y-1 pt-2">
                           {stop.materialAudit.map((entry, i) => (
