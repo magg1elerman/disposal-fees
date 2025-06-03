@@ -521,7 +521,6 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       </div>
                     </div>
                   </div>
-                 
                 </div>
 
                 <Button variant="outline" className="w-full mt-2">
