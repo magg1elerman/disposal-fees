@@ -249,11 +249,11 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     </AccordionItem>
                   </Accordion>
                   <div className="">
-                    <div className="mt-2 py-3 flex justify-between items-center bg-blue-50 rounded-sm">
+                    <div className="mt-2 p-3 flex justify-between items-center bg-blue-50 rounded-sm">
                       <div className="font-medium">Total Weight</div>
                       <div className="font-semibold">{stop.totalWeight}</div>
                     </div>
-                    <div className="flex justify-between items-center py-3 mt-2 bg-blue-50 rounded-sm">
+                    <div className="flex justify-between items-center p-3 mt-2 bg-blue-50 rounded-sm">
                       <div className="font-medium">Tipping Fee</div>
                       <div className="font-semibold text-lg">{stop.totalCost}</div>
                     </div>
