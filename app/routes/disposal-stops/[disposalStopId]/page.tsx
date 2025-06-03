@@ -504,7 +504,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                   </div>
                 </div>
                 <div className="grid grid-cols-2">
-                  <div className="col-span-1 space-y-2 mb-4">
+                  <div className="col-span-2 space-y-2 mb-4">
                     <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
                     <div className="grid grid-cols-1  text-sm">
                       <div className="flex justify-between">
