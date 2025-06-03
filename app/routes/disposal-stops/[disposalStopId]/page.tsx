@@ -255,7 +255,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       <div className="font-semibold">{stop.totalWeight}</div>
                     </div>
                     <div className="flex justify-between items-center p-3 mt-2 bg-blue-50 rounded-md">
-                      <div className="font-medium">Total Cost</div>
+                      <div className="font-medium">Tipping Fee</div>
                       <div className="font-semibold text-lg">{stop.totalCost}</div>
                     </div>
                   </div>
