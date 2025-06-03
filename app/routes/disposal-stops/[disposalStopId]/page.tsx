@@ -501,8 +501,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                       <span className="font-medium">{stop.geofenceEntryTime}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Arrival at Dump:</span>
-                      <span className="font-medium">{stop.arrivalTime}</span>
+                      <span className="text-gray-600">Dump:</span>
+                      <span className="font-medium">{stop.dumpTime}</span>
                     </div>
                 
                     <div className="flex justify-between">
