@@ -503,27 +503,31 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <div className="font-medium">{stop.vehicle}</div>
                   </div>
                 </div>
-              <div className="grid grid-cols-2"> 
-                <div className="col-span-1 space-y-2 mb-4">
-                  <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
-                  <div className="grid grid-cols-1  text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Entry:</span>
-                      <span className="font-medium">{stop.geofenceEntryTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Dump:</span>
-                      <span className="font-medium">{stop.dumpTime}</span>
-                    </div>
-                
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Exit:</span>
-                      <span className="font-medium">{stop.geofenceExitTime}</span>
+                <div className="grid grid-cols-2">
+                  <div className="col-span-1 space-y-2 mb-4">
+                    <div className="text-sm text-gray-500 mb-2">Time Tracking</div>
+                    <div className="grid grid-cols-1  text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Entry:</span>
+                        <span className="font-medium">{stop.geofenceEntryTime}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Dump:</span>
+                        <span className="font-medium">{stop.dumpTime}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Exit:</span>
+                        <span className="font-medium">{stop.geofenceExitTime}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="col-span-1 flex items-start justify-end">
+                    <Button variant="outline" size="sm" className="mt-6">
+                      Dump Site Details
+                      <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-                
 
                 <Button variant="outline" className="w-full mt-2">
                   <MapPin className="h-4 w-4 mr-2" />
