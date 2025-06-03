@@ -25,4 +25,4 @@ export function MaterialChip({ name, color, onRemove }: MaterialChipProps) {
       )}
     </div>
   )
-} 
+}

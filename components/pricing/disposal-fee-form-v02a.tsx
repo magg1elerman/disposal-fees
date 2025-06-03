@@ -2,24 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Plus, Trash2, AlertCircle, HelpCircle, Copy } from "lucide-react"
+import { Plus, AlertCircle, Copy } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { MaterialChip } from "./material-chip"
-import { cn } from "@/lib/utils"
-import { RadioGroupItem } from "@/components/ui/radio-group"
-import { RadioGroup } from "@/components/ui/radio-group"
-import { type DisposalFee, type MaterialPricing } from "./types"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import type { DisposalFee, MaterialPricing } from "./types"
 
 // Types
 interface Material {
@@ -227,11 +219,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
     }
   }
 
-  const handleMaterialPricingChange = (
-    material: string,
-    field: string,
-    value: string | number | boolean,
-  ) => {
+  const handleMaterialPricingChange = (material: string, field: string, value: string | number | boolean) => {
     setMaterialPricing((prev) => ({
       ...prev,
       [material]: {
@@ -281,11 +269,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
     })
   }
 
-  const handleContainerPricingChange = (
-    container: string,
-    field: string,
-    value: string | number,
-  ) => {
+  const handleContainerPricingChange = (container: string, field: string, value: string | number) => {
     setContainerPricing((prev) => ({
       ...prev,
       [container]: {
@@ -297,26 +281,26 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
 
   const handleSubmit = () => {
     // Validate relevant fields
-    const newErrors: Record<string, string> = {};
-    const fieldsToValidate: string[] = ["name", "glCode"];
+    const newErrors: Record<string, string> = {}
+    const fieldsToValidate: string[] = ["name", "glCode"]
     if (formData.rateStructure === "Per Ton") {
-      fieldsToValidate.push("materials");
+      fieldsToValidate.push("materials")
     } else if (formData.rateStructure === "Per Container") {
-      fieldsToValidate.push("containers");
+      fieldsToValidate.push("containers")
     } else {
-      fieldsToValidate.push("rate");
+      fieldsToValidate.push("rate")
     }
 
     fieldsToValidate.forEach((field) => {
-      const value = formData[field as keyof DisposalFee];
-      const error = validateField(field, value);
+      const value = formData[field as keyof DisposalFee]
+      const error = validateField(field, value)
       if (error) {
-        newErrors[field] = error;
+        newErrors[field] = error
       }
-    });
+    })
 
-    setErrors(newErrors);
-    setTouched(fieldsToValidate.reduce((acc, field) => ({ ...acc, [field]: true }), {}));
+    setErrors(newErrors)
+    setTouched(fieldsToValidate.reduce((acc, field) => ({ ...acc, [field]: true }), {}))
 
     // If no errors, prepare and submit data
     if (Object.keys(newErrors).length === 0) {
@@ -370,13 +354,12 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
       <div className="p-6">
         <h2 className="text-xl font-bold">Disposal Fee v02a</h2>
         <div>
-            <ul className="list-disc list-inside px-2 text-sm">
-                <li>Included Tonnage changed to Free Tonnage</li>
-                <li>Min Charge column added instead of Chargeable colummn</li>
-                <li>Overage Threshold and Overage Fee set on a per material basis</li>
-                </ul>
+          <ul className="list-disc list-inside px-2 text-sm">
+            <li>Included Tonnage changed to Free Tonnage</li>
+            <li>Min Charge column added instead of Chargeable colummn</li>
+            <li>Overage Threshold and Overage Fee set on a per material basis</li>
+          </ul>
         </div>
-            
       </div>
 
       <div className="px-6">
@@ -404,7 +387,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
               </div>
 
               <div className="col-span-1">
-              <Label htmlFor="fee-name">Description</Label>
+                <Label htmlFor="fee-name">Description</Label>
                 <Input
                   id="fee-description"
                   value={formData.description}
@@ -413,8 +396,6 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                   placeholder="Enter a description for this disposal fee"
                   className="h-10"
                 />
-               
-               
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fee-business-line">Business Line</Label>
@@ -500,7 +481,6 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
 
         {/* Materials & Pricing Section */}
         <Card className="border-0 shadow-none">
-       
           <CardContent className="space-y-6">
             {/* Materials Selection Section - Only show when rateStructure is not "Per Container" */}
             {formData.rateStructure !== "Per Container" && (
@@ -527,7 +507,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                             </TableHeader>
                             <TableBody>
                               {selectedMaterials.map((materialName, index) => {
-                                const material = materials.find(m => m.name === materialName)
+                                const material = materials.find((m) => m.name === materialName)
                                 if (!material) return null
                                 return (
                                   <TableRow key={material.id}>
@@ -545,11 +525,15 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                           <Input
                                             id={`${material.name}-rate`}
                                             value={materialPricing[material.name]?.rate || ""}
-                                            onChange={(e) => handleMaterialPricingChange(material.name, "rate", e.target.value)}
+                                            onChange={(e) =>
+                                              handleMaterialPricingChange(material.name, "rate", e.target.value)
+                                            }
                                             className="pl-7 pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ ton</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                            / ton
+                                          </span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -562,12 +546,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                   onClick={() => {
                                                     if (selectedMaterials.length > 0) {
                                                       const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialPrice = materialPricing[firstMaterial]?.rate || ""
+                                                      const firstMaterialPrice =
+                                                        materialPricing[firstMaterial]?.rate || ""
                                                       const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
+                                                      selectedMaterials.forEach((material) => {
                                                         newPricing[material] = {
                                                           ...newPricing[material],
-                                                          rate: firstMaterialPrice
+                                                          rate: firstMaterialPrice,
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
@@ -594,11 +579,19 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             min="0"
                                             step="0.1"
                                             value={materialPricing[material.name]?.includedTonnage || ""}
-                                            onChange={(e) => handleMaterialPricingChange(material.name, "includedTonnage", Number.parseFloat(e.target.value) || 0)}
+                                            onChange={(e) =>
+                                              handleMaterialPricingChange(
+                                                material.name,
+                                                "includedTonnage",
+                                                Number.parseFloat(e.target.value) || 0,
+                                              )
+                                            }
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                            tons
+                                          </span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -611,12 +604,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                   onClick={() => {
                                                     if (selectedMaterials.length > 0) {
                                                       const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialIncludedTonnage = materialPricing[firstMaterial]?.includedTonnage || 0
+                                                      const firstMaterialIncludedTonnage =
+                                                        materialPricing[firstMaterial]?.includedTonnage || 0
                                                       const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
+                                                      selectedMaterials.forEach((material) => {
                                                         newPricing[material] = {
                                                           ...newPricing[material],
-                                                          includedTonnage: firstMaterialIncludedTonnage
+                                                          includedTonnage: firstMaterialIncludedTonnage,
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
@@ -643,11 +637,19 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             min="0"
                                             step="0.1"
                                             value={materialPricing[material.name]?.minChargedTonnage || ""}
-                                            onChange={(e) => handleMaterialPricingChange(material.name, "minChargedTonnage", Number.parseFloat(e.target.value) || 0)}
+                                            onChange={(e) =>
+                                              handleMaterialPricingChange(
+                                                material.name,
+                                                "minChargedTonnage",
+                                                Number.parseFloat(e.target.value) || 0,
+                                              )
+                                            }
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                            tons
+                                          </span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -660,12 +662,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                   onClick={() => {
                                                     if (selectedMaterials.length > 0) {
                                                       const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialMinChargedTonnage = materialPricing[firstMaterial]?.minChargedTonnage || 0
+                                                      const firstMaterialMinChargedTonnage =
+                                                        materialPricing[firstMaterial]?.minChargedTonnage || 0
                                                       const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
+                                                      selectedMaterials.forEach((material) => {
                                                         newPricing[material] = {
                                                           ...newPricing[material],
-                                                          minChargedTonnage: firstMaterialMinChargedTonnage
+                                                          minChargedTonnage: firstMaterialMinChargedTonnage,
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
@@ -692,11 +695,19 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                             min="0"
                                             step="0.1"
                                             value={materialPricing[material.name]?.overageThreshold || ""}
-                                            onChange={(e) => handleMaterialPricingChange(material.name, "overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                                            onChange={(e) =>
+                                              handleMaterialPricingChange(
+                                                material.name,
+                                                "overageThreshold",
+                                                Number.parseFloat(e.target.value) || 0,
+                                              )
+                                            }
                                             className="pr-10 h-10"
                                             placeholder="0.00"
                                           />
-                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">tons</span>
+                                          <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                            tons
+                                          </span>
                                         </div>
                                         {index === 0 && selectedMaterials.length > 1 && (
                                           <TooltipProvider delayDuration={100}>
@@ -709,12 +720,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                   onClick={() => {
                                                     if (selectedMaterials.length > 0) {
                                                       const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialThreshold = materialPricing[firstMaterial]?.overageThreshold || 0
+                                                      const firstMaterialThreshold =
+                                                        materialPricing[firstMaterial]?.overageThreshold || 0
                                                       const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
+                                                      selectedMaterials.forEach((material) => {
                                                         newPricing[material] = {
                                                           ...newPricing[material],
-                                                          overageThreshold: firstMaterialThreshold
+                                                          overageThreshold: firstMaterialThreshold,
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
@@ -739,7 +751,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                           <Input
                                             id={`${material.name}-overage-charge`}
                                             value={materialPricing[material.name]?.overageCharge || ""}
-                                            onChange={(e) => handleMaterialPricingChange(material.name, "overageCharge", e.target.value)}
+                                            onChange={(e) =>
+                                              handleMaterialPricingChange(
+                                                material.name,
+                                                "overageCharge",
+                                                e.target.value,
+                                              )
+                                            }
                                             className="pl-7 pr-10 h-10"
                                             placeholder="0.00"
                                           />
@@ -755,12 +773,13 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                   onClick={() => {
                                                     if (selectedMaterials.length > 0) {
                                                       const firstMaterial = selectedMaterials[0]
-                                                      const firstMaterialOverageCharge = materialPricing[firstMaterial]?.overageCharge || ""
+                                                      const firstMaterialOverageCharge =
+                                                        materialPricing[firstMaterial]?.overageCharge || ""
                                                       const newPricing = { ...materialPricing }
-                                                      selectedMaterials.forEach(material => {
+                                                      selectedMaterials.forEach((material) => {
                                                         newPricing[material] = {
                                                           ...newPricing[material],
-                                                          overageCharge: firstMaterialOverageCharge
+                                                          overageCharge: firstMaterialOverageCharge,
                                                         }
                                                       })
                                                       setMaterialPricing(newPricing)
@@ -798,12 +817,9 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                     </SelectTrigger>
                                     <SelectContent>
                                       {materials
-                                        .filter(material => !selectedMaterials.includes(material.name))
+                                        .filter((material) => !selectedMaterials.includes(material.name))
                                         .map((material) => (
-                                          <SelectItem
-                                            key={material.id}
-                                            value={material.name}
-                                          >
+                                          <SelectItem key={material.id} value={material.name}>
                                             {material.name}
                                           </SelectItem>
                                         ))}
@@ -890,7 +906,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                       </TableHeader>
                       <TableBody>
                         {selectedContainers.map((containerName, index) => {
-                          const container = containers.find(c => c.name === containerName)
+                          const container = containers.find((c) => c.name === containerName)
                           if (!container) return null
                           return (
                             <TableRow key={container.id}>
@@ -908,11 +924,15 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                     <Input
                                       id={`${container.name}-rate`}
                                       value={containerPricing[container.name]?.rate || ""}
-                                      onChange={(e) => handleContainerPricingChange(container.name, "rate", e.target.value)}
+                                      onChange={(e) =>
+                                        handleContainerPricingChange(container.name, "rate", e.target.value)
+                                      }
                                       className="pl-7 pr-10 h-10"
                                       placeholder="0.00"
                                     />
-                                    <span className="absolute right-3 top-3 text-muted-foreground text-xs">/ container</span>
+                                    <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                      / container
+                                    </span>
                                   </div>
                                   {index === 0 && selectedContainers.length > 1 && (
                                     <TooltipProvider delayDuration={100}>
@@ -927,10 +947,10 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                                                 const firstContainer = selectedContainers[0]
                                                 const firstContainerPrice = containerPricing[firstContainer]?.rate || ""
                                                 const newPricing = { ...containerPricing }
-                                                selectedContainers.forEach(container => {
+                                                selectedContainers.forEach((container) => {
                                                   newPricing[container] = {
                                                     ...newPricing[container],
-                                                    rate: firstContainerPrice
+                                                    rate: firstContainerPrice,
                                                   }
                                                 })
                                                 setContainerPricing(newPricing)
@@ -968,12 +988,9 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
                               </SelectTrigger>
                               <SelectContent>
                                 {containers
-                                  .filter(container => !selectedContainers.includes(container.name))
+                                  .filter((container) => !selectedContainers.includes(container.name))
                                   .map((container) => (
-                                    <SelectItem
-                                      key={container.id}
-                                      value={container.name}
-                                    >
+                                    <SelectItem key={container.id} value={container.name}>
                                       {container.name}
                                     </SelectItem>
                                   ))}
@@ -1004,4 +1021,7 @@ export function DisposalFeeFormV3({ initialFee, onSave, onCancel }: DisposalFeeF
       </div>
     </div>
   )
-} 
+}
+
+// Add this export at the end of the file
+export { DisposalFeeFormV3 as DisposalFeeFormV2 }

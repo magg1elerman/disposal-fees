@@ -5,4 +5,4 @@ export default function BillingHomePage() {
       <p>Welcome to the Billing section. Select an option from the sidebar to get started.</p>
     </div>
   );
-} 
+}

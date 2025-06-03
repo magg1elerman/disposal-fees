@@ -80,4 +80,4 @@ export const materials: Material[] = [
       }
     }
   }
-]; 
+];

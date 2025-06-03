@@ -23,4 +23,4 @@ export function MaterialChip({ name, color, onRemove }: MaterialChipProps) {
       </button>
     </div>
   )
-} 
+}
