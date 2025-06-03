@@ -511,7 +511,7 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     </div>
                   </div>
                 </div>
-              </div>
+
                 <div className="cols-span-1 flex gap-4">
                   <div className="flex-1">
                     <div className="text-sm text-gray-500 mb-1">Driver</div>
@@ -522,6 +522,8 @@ export default async function DisposalStopPage({ params }: { params: { disposalS
                     <div className="font-medium">{stop.vehicle}</div>
                   </div>
                 </div>
+              </div>
+                
 
                 <Button variant="outline" className="w-full mt-2">
                   <MapPin className="h-4 w-4 mr-2" />
