@@ -14,6 +14,7 @@ import { DisposalFeeForm as DisposalFeeFormV01b } from "@/components/pricing/dis
 import { DisposalFeeFormV3 as DisposalFeeFormV02a } from "@/components/pricing/disposal-fee-form-v02a"
 import { DisposalFeeFormV3 as DisposalFeeFormV02b } from "@/components/pricing/disposal-fee-form-v02b"
 import { DisposalFeeFormV3 as DisposalFeeFormV03 } from "@/components/pricing/disposal-fee-form-v03"
+import { DisposalFeeFormV4 as DisposalFeeFormV04 } from "@/components/pricing/disposal-fee-form-v04"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -31,7 +32,7 @@ export function PricingLayout() {
   const [showFormV2b, setShowFormV2b] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
   const [showFormV3, setShowFormV3] = useState(false)
-
+  const [showFormV4, setShowFormV4] = useState(false)
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -55,6 +56,11 @@ export function PricingLayout() {
   const handleSaveV3 = (fee: any) => {
     // Handle saving the fee
     setShowFormV3(false)
+  }
+
+  const handleSaveV4 = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV4(false)
   }
 
   const handleChange = (field: string, value: any) => {
@@ -108,9 +114,9 @@ export function PricingLayout() {
                 <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-green-500">
                   
                   <Button  variant="outline" className="bg-green-300 text-green-900"
-                    onClick={() => setShowFormV3(true)}
+                    onClick={() => setShowFormV4(true)}
                   >
-                   v03b - Per Gallon Fee Structures
+                   v04 - Fee Structure Updates
                   </Button>
 
                 
@@ -223,48 +229,16 @@ export function PricingLayout() {
                           <CardHeader>
                             <CardTitle>Version 3</CardTitle>
                             <CardDescription>
-                              Set Fee by Cotnainer or Materials only          
+                              Adding per gallons         
                             </CardDescription>
                           </CardHeader>
                           <CardContent>
                             <div className="grid grid-cols-2 gap-4">
-                              <Button 
-                                variant="outline" 
-                                className="h-auto py-4 flex flex-col items-start"
-                                onClick={() => {
-                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                                  if (disposalFeesComponent) {
-                                    const event = new CustomEvent("add-disposal-fee")
-                                    disposalFeesComponent.dispatchEvent(event)
-                                  }
-                                }}
+                            <Button  variant="outline" className="bg-white text-black"
+                                onClick={() => setShowFormV3(true)}
                               >
-                                <p className="font-semibold">v01a </p>
-                                <p className="text-xs text-muted-foreground text-left mt-1 text-wrap">
-                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                                    set per material
-                                  </span>
-                                </p>
-                              </Button>
-
-                              <Button 
-                                variant="outline" 
-                                className="h-auto py-4 flex flex-col items-start"
-                                onClick={() => {
-                                  const disposalFeesComponent = document.querySelector("[data-disposal-fees]")
-                                  if (disposalFeesComponent) {
-                                    const event = new CustomEvent("add-disposal-fee-v1")
-                                    disposalFeesComponent.dispatchEvent(event)
-                                  }
-                                }}
-                              >
-                                <span className="font-semibold">v01b</span>
-                                <span className="text-xs text-wrap text-muted-foreground text-left mt-1">
-                                  Overage Threshold and Overage Fee <span className="font-semibold text-blue-500">
-                                    set globally.
-                                  </span>
-                                </span>
-                              </Button>
+                              v03b - Per Gallon Fee Structures
+                            </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -305,6 +279,17 @@ export function PricingLayout() {
             <DisposalFeeFormV03
               onSave={handleSaveV3}
               onCancel={() => setShowFormV3(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV4} onOpenChange={setShowFormV4}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV04
+              onSave={handleSaveV4}
+              onCancel={() => setShowFormV4(false)}
             />
           </div>
         </DialogContent>
