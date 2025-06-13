@@ -14,7 +14,9 @@ import { DisposalFeeForm as DisposalFeeFormV01b } from "@/components/pricing/dis
 import { DisposalFeeFormV3 as DisposalFeeFormV02a } from "@/components/pricing/disposal-fee-form-v02a"
 import { DisposalFeeFormV3 as DisposalFeeFormV02b } from "@/components/pricing/disposal-fee-form-v02b"
 import { DisposalFeeFormV3 as DisposalFeeFormV03 } from "@/components/pricing/disposal-fee-form-v03"
-import { DisposalFeeFormV4 as DisposalFeeFormV04 } from "@/components/pricing/disposal-fee-form-v04"
+import { DisposalFeeFormV4a as DisposalFeeFormV04a } from "@/components/pricing/disposal-fee-form-v04a"
+import { DisposalFeeFormV4b as DisposalFeeFormV04b } from "@/components/pricing/disposal-fee-form-v04b"
+import { DisposalFeeFormV4c as DisposalFeeFormV04c } from "@/components/pricing/disposal-fee-form-v04c"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -32,7 +34,9 @@ export function PricingLayout() {
   const [showFormV2b, setShowFormV2b] = useState(false)
   const [showFormV2, setShowFormV2] = useState(false)
   const [showFormV3, setShowFormV3] = useState(false)
-  const [showFormV4, setShowFormV4] = useState(false)
+  const [showFormV4a, setShowFormV4a] = useState(false)
+  const [showFormV4b, setShowFormV4b] = useState(false)
+  const [showFormV4c, setShowFormV4c] = useState(false)
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -58,9 +62,18 @@ export function PricingLayout() {
     setShowFormV3(false)
   }
 
-  const handleSaveV4 = (fee: any) => {
+  const handleSaveV4b = (fee: any) => {
     // Handle saving the fee
-    setShowFormV4(false)
+    setShowFormV4b(false)
+  }
+
+  const handleSaveV4a = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV4a(false)
+  }
+  const handleSaveV4c = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV4c(false)
   }
 
   const handleChange = (field: string, value: any) => {
@@ -114,9 +127,14 @@ export function PricingLayout() {
                 <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-green-500">
                   
                   <Button  variant="outline" className="bg-green-300 text-green-900"
-                    onClick={() => setShowFormV4(true)}
+                    onClick={() => setShowFormV4b(true)}
                   >
-                   v04 - Fee Structure Updates
+                   v04b - Fee Structure Updates
+                  </Button>
+                  <Button  variant="outline" className="bg-green-300 text-green-900"
+                    onClick={() => setShowFormV4c(true)}
+                  >
+                   v04c - Fee Structure Updates
                   </Button>
 
                 
@@ -242,6 +260,25 @@ export function PricingLayout() {
                             </div>
                           </CardContent>
                         </Card>
+
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Version 4a</CardTitle>
+                            <CardDescription>
+                              Feature Structure Changes               
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                            <Button  variant="outline" className="bg-white text-black"
+                                onClick={() => setShowFormV4a(true)}
+                              >
+                              v04a - fee structure changes
+                            </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -284,12 +321,34 @@ export function PricingLayout() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showFormV4} onOpenChange={setShowFormV4}>
+      <Dialog open={showFormV4a} onOpenChange={setShowFormV4a}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-visible p-0">
           <div className="overflow-y-auto max-h-[90vh]">
-            <DisposalFeeFormV04
-              onSave={handleSaveV4}
-              onCancel={() => setShowFormV4(false)}
+            <DisposalFeeFormV04a
+              onSave={handleSaveV4a}
+              onCancel={() => setShowFormV4a(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV4b} onOpenChange={setShowFormV4b}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV04b
+              onSave={handleSaveV4b}
+              onCancel={() => setShowFormV4b(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV4c} onOpenChange={setShowFormV4c}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV04c
+              onSave={handleSaveV4c}
+              onCancel={() => setShowFormV4c(false)}
             />
           </div>
         </DialogContent>

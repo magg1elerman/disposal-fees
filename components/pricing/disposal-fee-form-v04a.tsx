@@ -219,7 +219,7 @@ const feeStructureConfigs: Record<string, FeeStructureConfig> = {
   }
 }
 
-export function DisposalFeeFormV4({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
+export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
     initialFee || {
@@ -518,7 +518,7 @@ export function DisposalFeeFormV4({ initialFee, onSave, onCancel }: DisposalFeeF
   return (
     <div className="">
       <div className="p-6">
-        <h2 className="text-xl font-bold">Disposal Fee Template v04</h2>
+        <h2 className="text-xl font-bold">Disposal Fee Template v04a</h2>
         <div>
             <ul className="list-disc list-inside px-2 text-sm">
                 <li> Updating Fee Structure Options</li>
