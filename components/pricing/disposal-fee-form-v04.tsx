@@ -210,7 +210,7 @@ const feeStructureConfigs: Record<string, FeeStructureConfig> = {
     showOverage: true,
     showIncluded: true,
     showMinCharge: true,
-    unitLabel: "kg",
+    unitLabel: "kilograms",
     rateConfig: {
       step: "0.01",
       placeholder: "0.00",
@@ -624,7 +624,7 @@ export function DisposalFeeFormV4({ initialFee, onSave, onCancel }: DisposalFeeF
                 </div>
               </div>
               <div className="col-span-2 flex items-end gap-4">
-                <div className="flex-1">
+                <div className="w-1/3">
                   <Label>Fee Structure</Label>
                   <Select
                     value={formData.rateStructure}
@@ -647,7 +647,7 @@ export function DisposalFeeFormV4({ initialFee, onSave, onCancel }: DisposalFeeF
                 </div>
                 {formData.rateStructure && feeStructureConfigs[formData.rateStructure].showOverage && (
                   <>
-                    <div className="flex-1">
+                    <div className="w-1/3">
                       <Label htmlFor="fee-overage-threshold">Overage Threshold</Label>
                       <div className="relative mt-2">
                         <Input
@@ -665,7 +665,7 @@ export function DisposalFeeFormV4({ initialFee, onSave, onCancel }: DisposalFeeF
                         </span>
                       </div>
                     </div>
-                    <div className="flex-1">
+                    <div className="w-1/3">
                       <Label htmlFor="fee-overage-charge">Overage Fee</Label>
                       <div className="relative mt-2">
                         <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
