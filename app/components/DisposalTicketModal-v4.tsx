@@ -351,69 +351,89 @@ export default function DisposalTicketModalV2({
   const [selectedMaterials, setSelectedMaterials] = useState<MaterialWithWeights[]>(() => {
     if (source === 'scale') {
       const mswMaterial = materials.find(m => m.name === 'MSW');
-      const cdMaterial = materials.find(m => m.name === 'C&D');
-      const initialMaterials = [];
+      const shinglesMaterial = materials.find(m => m.name === 'Shingles');
+      const initialScaleMaterials = [];
       if (mswMaterial) {
-        initialMaterials.push({
+        initialScaleMaterials.push({
           ...mswMaterial,
-          weights: {
-            gross: 5000,
-            tare: 2000,
-            net: 3000
-          },
-          unitOfMeasure: 'tons'
+          weights: { gross: 6000, tare: 2000, net: 4000 }, // 2 tons
+          unitOfMeasure: 'tons',
+          pricing: {
+            ...mswMaterial.pricing,
+            disposalFee: {
+              ...mswMaterial.pricing.disposalFee,
+              overageThreshold: 1.8, // tons
+              overageFee: 60,
+            }
+          }
         });
       }
-      if (cdMaterial) {
-        initialMaterials.push({
-          ...cdMaterial,
-          weights: {
-            gross: 6000,
-            tare: 3000,
-            net: 3000
-          },
-          unitOfMeasure: 'tons'
+      if (shinglesMaterial) {
+        initialScaleMaterials.push({
+          ...shinglesMaterial,
+          weights: { gross: 3000, tare: 1000, net: 2000 }, // 1 ton
+          unitOfMeasure: 'yards',
+          pricing: {
+            ...shinglesMaterial.pricing,
+            disposalFee: {
+              ...shinglesMaterial.pricing.disposalFee,
+              overageThreshold: 0.8, // tons
+              overageFee: 30,
+            }
+          }
         });
       }
-      return initialMaterials;
+      return initialScaleMaterials;
     } else if (source === 'mobile') {
       const recyclingMaterial = materials.find(m => m.name === 'Recycling');
-      return recyclingMaterial ? [{
-        ...recyclingMaterial,
-        weights: {
-          gross: 8000,
-          tare: 3000,
-          net: 5000
-        },
-        unitOfMeasure: 'tons'
-      }] : [];
+      const tireMaterial = materials.find(m => m.name === 'Tire');
+      const initialMobileMaterials = [];
+
+      if (recyclingMaterial) {
+        initialMobileMaterials.push({
+          ...recyclingMaterial,
+          weights: { gross: 4000, tare: 1000, net: 3000 }, // 1.5 tons
+          unitOfMeasure: 'tons',
+          pricing: {
+            ...recyclingMaterial.pricing,
+            disposalFee: {
+              ...recyclingMaterial.pricing.disposalFee,
+              overageThreshold: 1.0, // tons
+              overageFee: 50,
+            }
+          }
+        });
+      }
+
+      if (tireMaterial) {
+        initialMobileMaterials.push({
+          ...tireMaterial,
+          weights: { gross: 500, tare: 100, net: 400 }, // Represents weight of tires
+          unitOfMeasure: 'items',
+          pricing: {
+            ...tireMaterial.pricing,
+            disposalFee: {
+              ...tireMaterial.pricing.disposalFee,
+              overageThreshold: 0.1, // tons (weight threshold for tires)
+              overageFee: 20,
+            }
+          }
+        });
+      }
+      return initialMobileMaterials;
     }
     return [];
   });
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithWeights | null>(null);
   const [currentMaterial, setCurrentMaterial] = useState<MaterialWithWeights | null>(() => {
     if (source === 'scale') {
-      const mswMaterial = materials.find(m => m.name === 'MSW');
-      return mswMaterial ? {
-        ...mswMaterial,
-        weights: {
-          gross: 5000,
-          tare: 2000,
-          net: 3000
-        },
-        unitOfMeasure: 'tons'
-      } : null;
+      // For currentMaterial, let's default to the first one in selectedMaterials for scale if any
+      const initialScaleSelectedMaterials = selectedMaterials; // This will be the newly computed state
+      return initialScaleSelectedMaterials.length > 0 ? initialScaleSelectedMaterials[0] : null;
     } else if (source === 'mobile') {
-      const recyclingMaterial = materials.find(m => m.name === 'Recycling');
-      return recyclingMaterial ? {
-        ...recyclingMaterial,
-        weights: {
-          gross: 8000,
-          tare: 3000,
-          net: 5000
-        },
-        unitOfMeasure: 'tons'
-      } : null;
+      // For currentMaterial, let's default to the first one in selectedMaterials for mobile if any
+      const initialMobileSelectedMaterials = selectedMaterials; // This will be the newly computed state
+      return initialMobileSelectedMaterials.length > 0 ? initialMobileSelectedMaterials[0] : null;
     }
     return null;
   });
@@ -475,7 +495,27 @@ export default function DisposalTicketModalV2({
   const disposalSiteRef = useRef<HTMLSelectElement>(null);
   const materialRef = useRef<HTMLSelectElement>(null);
   const [useGrossTare, setUseGrossTare] = useState(false);
+  const [showDetailedOverage, setShowDetailedOverage] = useState(false); // Added state
   const [isTaxable, setIsTaxable] = useState(source === 'mobile');
+
+  const handleOverageChange = (materialId: string, field: 'overageThreshold' | 'overageFee', value: string) => {
+    setSelectedMaterials(prevMaterials =>
+      prevMaterials.map(mat =>
+        mat.id === materialId
+          ? {
+              ...mat,
+              pricing: {
+                ...mat.pricing,
+                disposalFee: {
+                  ...mat.pricing.disposalFee,
+                  [field]: parseFloat(value) || 0,
+                },
+              },
+            }
+          : mat
+      )
+    );
+  };
 
   // Add effect to focus disposal site dropdown when editing
   useEffect(() => {
@@ -985,6 +1025,17 @@ export default function DisposalTicketModalV2({
                         />
                         <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
                       </label>
+                      {/* Added Detailed Overage Toggle */}
+                      <label className="text-xs font-medium text-gray-600">Detailed Overage</label>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={showDetailedOverage}
+                          onChange={() => setShowDetailedOverage(prev => !prev)}
+                        />
+                        <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
                   </div>
                   <div className="overflow-x-auto">
@@ -1002,6 +1053,12 @@ export default function DisposalTicketModalV2({
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Unit of Measure</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Site Rate</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600">Tipping Fee</th>
+                          {showDetailedOverage && (
+                            <>
+                              <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Overage Threshold</th>
+                              <th className="text-left py-1 px-2 font-medium text-gray-600">Overage Fee</th>
+                            </>
+                          )}
                         </tr>
                       </thead>
                       <tbody>
@@ -1250,10 +1307,49 @@ export default function DisposalTicketModalV2({
                                 />
                               </div>
                             </td>
+                            {showDetailedOverage && (
+                              <>
+                                <td className="py-1 px-2 border-r border-gray-100">
+                                  <div className={`flex items-center rounded border border-gray-200 ${
+                                    (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                      ? 'bg-transparent border-transparent'
+                                      : 'bg-white'
+                                  }`}>
+                                    <input
+                                      type="number"
+                                      className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
+                                      value={material.pricing.disposalFee.overageThreshold}
+                                      step="0.1" // Assuming threshold might be decimal
+                                      onChange={(e) => handleOverageChange(material.id, 'overageThreshold', e.target.value)}
+                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    />
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2">
+                                  <div className={`flex items-center rounded border border-gray-200 ${
+                                    (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                      ? 'bg-transparent border-transparent'
+                                      : 'bg-white'
+                                  }`}>
+                                    <span className="text-xs text-gray-500 pl-1 pr-0.5 shrink-0">$</span>
+                                    <input
+                                      type="number"
+                                      className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
+                                      value={material.pricing.disposalFee.overageFee}
+                                      step="0.01"
+                                      onChange={(e) => handleOverageChange(material.id, 'overageFee', e.target.value)}
+                                      disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                      readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    />
+                                  </div>
+                                </td>
+                              </>
+                            )}
                           </tr>
                         ))}
                         <tr>
-                          <td className="py-1 px-2" colSpan={useGrossTare ? 6 : 4}>
+                          <td className="py-1 px-2" colSpan={useGrossTare ? (showDetailedOverage ? 8 : 6) : (showDetailedOverage ? 6 : 4)}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -1443,87 +1539,90 @@ export default function DisposalTicketModalV2({
                           )}
                         </div>
                         <div className="space-y-2 text-xs">
-                          {selectedMaterials.map((material, index) => (
-                            <div key={material.id} className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className={`text-xs font-medium ${
-                                  material.name === 'MSW' ? 'text-blue-700' :
-                                  material.name === 'Recycling' ? 'text-green-700' :
-                                  material.name === 'C&D' ? 'text-cyan-700' :
-                                  'text-gray-700'
-                                }`}>
-                                  {material.name}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Rate:</span>
-                                <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Total {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? material.weights?.net || 0 :
-                                       material.unitOfMeasure === 'gallons' ? material.weights?.net || 0 :
-                                       material.unitOfMeasure === 'yards' ? material.weights?.net || 0 :
-                                       (material.weights?.net || 0) / 2000} {material.unitOfMeasure}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? material.pricing.disposalFee.includedTonnage :
-                                       material.unitOfMeasure === 'gallons' ? material.pricing.disposalFee.includedTonnage :
-                                       material.unitOfMeasure === 'yards' ? material.pricing.disposalFee.includedTonnage :
-                                       material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       material.unitOfMeasure === 'gallons' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       material.unitOfMeasure === 'yards' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
-                              </div>
-                              {(material.unitOfMeasure === 'tons' ? (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold :
-                                (material.weights?.net || 0) > material.pricing.disposalFee.overageThreshold) && (
-                                <>
-                                  <div className="flex justify-between text-orange-600">
-                                    <span>Overage Fee:</span>
-                                    <span>+${material.pricing.disposalFee.overageFee.toFixed(2)}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-xs">
-                                      (Applied when {material.unitOfMeasure} exceeds {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
-                                    </span>
-                                  </div>
-                                </>
-                              )}
-                              <div className="flex justify-between text-xs text-gray-800">
-                                <span>Subtotal:</span>
-                                <span className="text-left">${(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}</span>
-                              </div>
-                              {isTaxable && (
-                                <div className="flex justify-between text-xs text-gray-600">
-                                  <span>Tax (8.25%):</span>
-                                  <span className="text-left">+${((material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000) * 0.0825).toFixed(2)}</span>
+                          {selectedMaterials.map((material, index) => {
+                            const netTons = (material.weights?.net || 0) / 2000;
+                            const materialPricing = material.pricing.disposalFee;
+                            const lineItemSubtotal = (materialPricing.rate * 0.7) * netTons;
+                            const overageFeeAmountForThisMaterial = netTons > materialPricing.overageThreshold ? materialPricing.overageFee : 0;
+                            const lineItemTotalBeforeTax = lineItemSubtotal + overageFeeAmountForThisMaterial;
+                            const lineItemTax = isTaxable ? lineItemTotalBeforeTax * 0.0825 : 0;
+
+                            return (
+                              <div key={material.id} className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs font-medium ${
+                                    material.name === 'MSW' ? 'text-blue-700' :
+                                    material.name === 'Recycling' ? 'text-green-700' :
+                                    material.name === 'C&D' ? 'text-cyan-700' :
+                                    'text-gray-700'
+                                  }`}>
+                                    {material.name}
+                                  </span>
                                 </div>
-                              )}
-                              {index < selectedMaterials.length - 1 && (
-                                <div className="border-t border-gray-100 my-2"></div>
-                              )}
-                            </div>
-                          ))}
+                                <div className="flex justify-between">
+                                  <span>Rate:</span>
+                                  <span>${(materialPricing.rate * 0.7).toFixed(2)}/ton</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Total Tonnage:</span>
+                                  <span>
+                                    {netTons.toFixed(2)} tons
+                                    {material.unitOfMeasure !== 'tons' && ` (actual UoM: ${material.unitOfMeasure || 'N/A'})`}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Included Tonnage:</span>
+                                  <span>
+                                    {materialPricing.includedTonnage.toFixed(2)} tons
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Chargeable Tonnage:</span>
+                                  <span>
+                                    {Math.max(0, netTons - materialPricing.includedTonnage).toFixed(2)} tons
+                                  </span>
+                                </div>
+                                {netTons > materialPricing.overageThreshold && (
+                                  <>
+                                    <div className="flex justify-between text-orange-600">
+                                      <span>Overage Fee:</span>
+                                      <span>+${materialPricing.overageFee.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-xs">
+                                        (Applied when tonnage exceeds {materialPricing.overageThreshold.toFixed(2)} tons)
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
+                                <div className="flex justify-between text-xs text-gray-800">
+                                  <span>Subtotal:</span>
+                                  <span className="text-left">${lineItemSubtotal.toFixed(2)}</span>
+                                </div>
+                                {isTaxable && (
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>Tax (8.25%):</span>
+                                    <span className="text-left">+${lineItemTax.toFixed(2)}</span>
+                                  </div>
+                                )}
+                                {index < selectedMaterials.length - 1 && (
+                                  <div className="border-t border-gray-100 my-2"></div>
+                                )}
+                              </div>
+                            );
+                          })}
                           <div className="border-t border-gray-200 mt-4 pt-2"></div>
                           <div className="flex justify-between">
                             <span className="text-lg font-semibold text-blue-600">Total:</span>
                             <span className="text-lg font-semibold text-blue-600">
                               ${selectedMaterials.reduce((total, material) => {
-                                const subtotal = material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000;
-                                const tax = isTaxable ? subtotal * 0.0825 : 0;
-                                const overage = (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold ? material.pricing.disposalFee.overageFee : 0;
-                                return total + subtotal + tax + overage;
+                                const netTons = (material.weights?.net || 0) / 2000;
+                                const materialPricing = material.pricing.disposalFee;
+                                const subtotalForMaterial = (materialPricing.rate * 0.7) * netTons;
+                                const overageFeeAmount = netTons > materialPricing.overageThreshold ? materialPricing.overageFee : 0;
+                                const totalBeforeTax = subtotalForMaterial + overageFeeAmount;
+                                const tax = isTaxable ? totalBeforeTax * 0.0825 : 0;
+                                return total + totalBeforeTax + tax;
                               }, 0).toFixed(2)}
                             </span>
                           </div>
