@@ -18,16 +18,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 10,
+        minFee: 20
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 15,
+        minFee: 25
       }
     }
   },
@@ -37,16 +41,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 10,
+        minFee: 20
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 15,
+        minFee: 25
       }
     }
   },
@@ -56,16 +64,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 10,
+        minFee: 20
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 15,
+        minFee: 25
       }
     }
   },
@@ -75,16 +87,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 50,
+        unitOfMeasure: "tons",
+        includedTonnage: 0.5,
+        overageThreshold: 1,
+        overageFee: 25,
+        minFee: 50
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 60,
+        unitOfMeasure: "tons",
+        includedTonnage: 0.5,
+        overageThreshold: 1,
+        overageFee: 30,
+        minFee: 60
       }
     }
   },
@@ -94,16 +110,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 30,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 1,
+        overageFee: 15,
+        minFee: 30
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 35,
+        unitOfMeasure: "items",
+        includedTonnage: 1,
+        overageThreshold: 1,
+        overageFee: 20,
+        minFee: 35
       }
     }
   },
@@ -113,16 +133,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 10,
+        unitOfMeasure: "items",
+        includedTonnage: 4, // Assuming a standard car has 4 tires
+        overageThreshold: 5,
+        overageFee: 12,
+        minFee: 10
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 15,
+        unitOfMeasure: "items",
+        includedTonnage: 4,
+        overageThreshold: 5,
+        overageFee: 18,
+        minFee: 15
       }
     }
   },
@@ -132,16 +156,20 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 40,
+        unitOfMeasure: "yards",
+        includedTonnage: 2, // Assuming 2 yards included
+        overageThreshold: 3,
+        overageFee: 20,
+        minFee: 40
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 50,
+        unitOfMeasure: "yards",
+        includedTonnage: 2,
+        overageThreshold: 3,
+        overageFee: 25,
+        minFee: 50
       }
     }
   },
@@ -151,16 +179,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 60,
+        unitOfMeasure: "yards"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 70,
+        unitOfMeasure: "yards"
       }
     }
   },
@@ -170,16 +194,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 100,
+        unitOfMeasure: "tons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 120,
+        unitOfMeasure: "tons"
       }
     }
   },
@@ -189,16 +209,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 80,
+        unitOfMeasure: "tons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 90,
+        unitOfMeasure: "tons"
       }
     }
   },
@@ -208,16 +224,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 15,
+        unitOfMeasure: "gallons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20,
+        unitOfMeasure: "gallons"
       }
     }
   },
@@ -227,16 +239,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 18,
+        unitOfMeasure: "gallons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 22,
+        unitOfMeasure: "gallons"
       }
     }
   },
@@ -246,16 +254,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20,
+        unitOfMeasure: "gallons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25,
+        unitOfMeasure: "gallons"
       }
     }
   },
@@ -265,16 +269,12 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 22,
+        unitOfMeasure: "gallons"
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 28,
+        unitOfMeasure: "gallons"
       }
     }
   }
