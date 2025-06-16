@@ -636,19 +636,22 @@ export default function DisposalTicketModalV4a({
     if (currentMaterial) {
       // Set tipping fee rate (Hauler Charge)
       // Customer Charge uses the material's disposal fee base rate
+      const baseRate = currentMaterial.pricing.disposalFee.rate;
+      const includedAmount = currentMaterial.pricing.disposalFee.includedTonnage;
+      
       setTicketPricing({ 
         ...currentMaterial.pricing.disposalFee,
-        minFee: currentMaterial.pricing.disposalFee.rate,
+        minFee: baseRate * includedAmount, // Set minFee to included amount * rate
         unitOfMeasure: (currentMaterial.unitOfMeasure || "tons") as "tons" | "items" | "gallons" | "yards"
       });
 
       // Hauler Charge (tipping fee) is 15% below the base rate
       setTippingFeePricing({
-        rate: currentMaterial.pricing.disposalFee.rate * 0.85,
+        rate: baseRate * 0.85,
         includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
         overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
         overageFee: currentMaterial.pricing.disposalTicket.overageFee,
-        minFee: currentMaterial.pricing.disposalFee.rate * 0.85,
+        minFee: baseRate * 0.85 * includedAmount, // Set minFee to included amount * rate
         unitOfMeasure: (currentMaterial.unitOfMeasure || "tons") as "tons" | "items" | "gallons" | "yards",
         containerRate: currentMaterial.pricing.disposalTicket.containerRate
       });
@@ -802,7 +805,10 @@ export default function DisposalTicketModalV4a({
     if (!currentMaterial) return 0;
 
     if (isPricingPerTon) {
-      return tippingFeePricing.rate * actualTonnage; // Simple rate × net weight
+      const netAmount = currentMaterial.unitOfMeasure === 'tons' ? 
+        (currentMaterial.weights?.net || 0) / 2000 : 
+        (currentMaterial.weights?.net || 0);
+      return netAmount * tippingFeePricing.rate;
     } else {
       return containerRate;
     }
@@ -832,11 +838,14 @@ export default function DisposalTicketModalV4a({
 
   const handleSaveFee = () => {
     if (currentMaterial && editedFee) {
+      const baseRate = editedFee.rate;
+      const includedAmount = editedFee.includedTonnage;
+      
       currentMaterial.pricing.disposalTicket = {
         ...currentMaterial.pricing.disposalTicket,
         ...editedFee,
-        minFee: editedFee.rate,
-        unitOfMeasure: currentMaterial.unitOfMeasure || "tons"
+        minFee: baseRate * includedAmount, // Set minFee to included amount * rate
+        unitOfMeasure: currentMaterial.unitOfMeasure as "tons" | "items" | "gallons" | "yards"
       };
       setIsEditingFee(false);
     }
@@ -1029,8 +1038,8 @@ export default function DisposalTicketModalV4a({
           </span>
         </div>
 
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto pr-4">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto min-h-0">
           {/* Four Column Layout - 1/4 + 1/4 + 1/4 + 1/4 split */}
           <div className="grid grid-cols-4 gap-6">
             {/* Left Two Columns */}
@@ -1209,7 +1218,10 @@ export default function DisposalTicketModalV4a({
                                           rate: 0,
                                           includedTonnage: 0,
                                           overageThreshold: 0,
-                                          overageFee: 0
+                                          overageFee: 0,
+                                          minFee: 0,
+                                          unitOfMeasure: "tons",
+                                          containerRate: 0
                                         });
                                         setContainerRate(0);
                                       }
@@ -1453,7 +1465,7 @@ export default function DisposalTicketModalV4a({
                                   Add Material +
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent className="w-[200px]">
+                              <DropdownMenuContent className="w-[200px] h-[400px] overflow-y-auto">
                                 {materials
                                   .filter(material => !selectedMaterials.some(m => m.id === material.id))
                                   .map((material: Material) => (
@@ -1655,7 +1667,7 @@ export default function DisposalTicketModalV4a({
                               </div>
                               <div className="flex justify-between">
                                 <span>Rate:</span>
-                                <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/{material.unitOfMeasure}</span>
+                                <span>${material.pricing.disposalFee.rate.toFixed(2)} per {material.unitOfMeasure}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Total {material.unitOfMeasure === 'items' ? 'Items' : 
@@ -1681,7 +1693,7 @@ export default function DisposalTicketModalV4a({
                               </div>
                               <div className="flex justify-between">
                                 <span>Minimum Charge:</span>
-                                <span>${material.pricing.disposalFee.minFee.toFixed(2)}</span>
+                                <span>${(material.pricing.disposalFee.rate * material.pricing.disposalFee.includedTonnage).toFixed(2)}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Overage Threshold:</span>
@@ -1716,10 +1728,11 @@ export default function DisposalTicketModalV4a({
                                     (material.weights?.net || 0) / 2000 : 
                                     (material.weights?.net || 0);
                                   const chargeableAmount = Math.max(0, netAmount - material.pricing.disposalFee.includedTonnage);
-                                  const baseCharge = chargeableAmount * (material.pricing.disposalFee.rate * 0.7);
+                                  const baseCharge = chargeableAmount * material.pricing.disposalFee.rate;
                                   const overageFee = netAmount > material.pricing.disposalFee.overageThreshold ? 
                                     material.pricing.disposalFee.overageFee : 0;
-                                  return Math.max(material.pricing.disposalFee.minFee, baseCharge + overageFee).toFixed(2);
+                                  const minCharge = material.pricing.disposalFee.rate * material.pricing.disposalFee.includedTonnage;
+                                  return Math.max(minCharge, baseCharge + overageFee).toFixed(2);
                                 })()}</span>
                               </div>
                               {isTaxable && (
@@ -1730,10 +1743,11 @@ export default function DisposalTicketModalV4a({
                                       (material.weights?.net || 0) / 2000 : 
                                       (material.weights?.net || 0);
                                     const chargeableAmount = Math.max(0, netAmount - material.pricing.disposalFee.includedTonnage);
-                                    const baseCharge = chargeableAmount * (material.pricing.disposalFee.rate * 0.7);
+                                    const baseCharge = chargeableAmount * material.pricing.disposalFee.rate;
                                     const overageFee = netAmount > material.pricing.disposalFee.overageThreshold ? 
                                       material.pricing.disposalFee.overageFee : 0;
-                                    const subtotal = Math.max(material.pricing.disposalFee.minFee, baseCharge + overageFee);
+                                    const minCharge = material.pricing.disposalFee.rate * material.pricing.disposalFee.includedTonnage;
+                                    const subtotal = Math.max(minCharge, baseCharge + overageFee);
                                     return (subtotal * 0.0825).toFixed(2);
                                   })()}</span>
                                 </div>
@@ -1748,10 +1762,17 @@ export default function DisposalTicketModalV4a({
                             <span className="text-lg font-semibold text-blue-600">Total:</span>
                             <span className="text-lg font-semibold text-blue-600">
                               ${selectedMaterials.reduce((total, material) => {
-                                const subtotal = material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000;
+                                const netAmount = material.unitOfMeasure === 'tons' ? 
+                                  (material.weights?.net || 0) / 2000 : 
+                                  (material.weights?.net || 0);
+                                const chargeableAmount = Math.max(0, netAmount - material.pricing.disposalFee.includedTonnage);
+                                const baseCharge = chargeableAmount * material.pricing.disposalFee.rate;
+                                const overageFee = netAmount > material.pricing.disposalFee.overageThreshold ? 
+                                  material.pricing.disposalFee.overageFee : 0;
+                                const minCharge = material.pricing.disposalFee.rate * material.pricing.disposalFee.includedTonnage;
+                                const subtotal = Math.max(minCharge, baseCharge + overageFee);
                                 const tax = isTaxable ? subtotal * 0.0825 : 0;
-                                const overage = (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold ? material.pricing.disposalFee.overageFee : 0;
-                                return total + subtotal + tax + overage;
+                                return total + subtotal + tax;
                               }, 0).toFixed(2)}
                             </span>
                           </div>
@@ -1765,7 +1786,7 @@ export default function DisposalTicketModalV4a({
           </div>
         </div>
 
-        {/* Footer Buttons - Always visible */}
+        {/* Footer - Fixed */}
         <div className="mt-8 flex justify-end gap-4 border-t pt-4">
           <button
             onClick={onClose}
