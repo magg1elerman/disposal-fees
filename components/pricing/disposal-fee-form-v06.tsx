@@ -769,11 +769,11 @@ export function DisposalFeeFormV6({ initialFee, onSave, onCancel }: DisposalFeeF
                                           <SelectValue placeholder="Select unit" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="Per Ton">Per Ton</SelectItem>
-                                          <SelectItem value="Per Gallon">Per Gallon</SelectItem>
-                                          <SelectItem value="Per Item">Per Item</SelectItem>
-                                          <SelectItem value="Per Pound">Per Pound</SelectItem>
-                                          <SelectItem value="Per Yard">Per Yard</SelectItem>
+                                          <SelectItem value="Per Ton">Tons</SelectItem>
+                                          <SelectItem value="Per Gallon">Gallons</SelectItem>
+                                          <SelectItem value="Per Item">Items</SelectItem>
+                                          <SelectItem value="Per Pound">Pounds</SelectItem>
+                                          <SelectItem value="Per Yard">Yards</SelectItem>
                                         </SelectContent>
                                       </Select>
                                     </TableCell>
