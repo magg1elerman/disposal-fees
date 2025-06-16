@@ -256,6 +256,7 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showDescriptionSuggestions, setShowDescriptionSuggestions] = useState(false)
   const [autoCalculateMinCharge, setAutoCalculateMinCharge] = useState(false)
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
 
   // Initialize form data from initialFee
   useEffect(() => {
@@ -389,7 +390,13 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
   }
 
   const handleChange = (field: string, value: any) => {
-    setFormData({ ...formData, [field]: value })
+    console.log(`Field ${field} changing to:`, value);
+    console.log('Current formData:', formData);
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      console.log('New formData:', newData);
+      return newData;
+    });
 
     if (touched[field]) {
       const error = validateField(field, value)
@@ -532,7 +539,6 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                 <li> Updating Verbiage from "Disposal Fee" to "Disposal Fee Template"</li>
             </ul>
         </div>
-            
       </div>
 
       <div className="px-6">
@@ -541,6 +547,17 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
               <div className="col-span-1">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="fee-name">Gross/Tare</Label>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="show-advanced" className="text-sm text-muted-foreground">Show Advanced Options</Label>
+                    <Switch
+                      id="show-advanced"
+                      checked={showAdvancedOptions}
+                      onCheckedChange={setShowAdvancedOptions}
+                    />
+                  </div>
+                </div>
                 <Label htmlFor="fee-name">Fee Name</Label>
                 <Input
                   id="fee-name"
@@ -632,25 +649,24 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fee-disposal-site">Disposal Site</Label>
-                <Select
+                <select
+                  id="fee-disposal-site"
                   value={formData.disposalSite}
-                  onValueChange={(value) => handleChange("disposalSite", value)}
-                  onOpenChange={() => handleBlur("disposalSite")}
+                  onChange={(e) => {
+                    alert('Selection changed to: ' + e.target.value);
+                    setFormData(prev => ({
+                      ...prev,
+                      disposalSite: e.target.value
+                    }));
+                  }}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background"
                 >
-                  <SelectTrigger
-                    id="fee-disposal-site"
-                    className={`h-10 ${isFieldInvalid("disposalSite") ? "border-red-500" : ""}`}
-                  >
-                    <SelectValue placeholder="Select disposal site" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {disposalSites.map((site) => (
-                      <SelectItem key={site.id} value={site.id.toString()}>
-                        {site.name} - {site.description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {disposalSites.map((site) => (
+                    <option key={site.id} value={site.id.toString()}>
+                      {site.name} - {site.description}
+                    </option>
+                  ))}
+                </select>
                 <div className="min-h-[20px]">
                   {isFieldInvalid("disposalSite") && (
                     <p className="text-xs text-red-500 flex items-center gap-1">
@@ -784,7 +800,7 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                                     )}
                                   </div>
                                 </TableHead>
-                                {(formData.disposalSite === "2" || formData.disposalSite === "3") && (
+                                {showAdvancedOptions && (
                                   <>
                                     <TableHead className="w-[220px]">Overage Threshold</TableHead>
                                     <TableHead className="w-[220px]">Overage Fee</TableHead>
@@ -924,7 +940,7 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                                         </div>
                                       </div>
                                     </TableCell>
-                                    {(formData.disposalSite === "2" || formData.disposalSite === "3") && (
+                                    {showAdvancedOptions && (
                                       <>
                                         <TableCell className="w-[220px]">
                                           <div className="relative flex items-center gap-2">

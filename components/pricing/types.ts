@@ -17,7 +17,7 @@ export interface MaterialPricing {
 }
 
 // Define the DisposalFee type
-export type DisposalFee = {
+export interface DisposalFee {
   id?: number
   name: string
   description: string
@@ -28,7 +28,7 @@ export type DisposalFee = {
   status?: string
   locations?: number
   material?: string
-  materials?: string[]
+  materials: string[]
   includedTonnage: number
   minChargedTonnage: number
   glCode: string
@@ -36,6 +36,7 @@ export type DisposalFee = {
   tiers?: { id: number; from: number; to: number | null; rate: number }[]
   overageCharge: string
   overageThreshold: number
+  disposalSite: string
   materialPricing?: MaterialPricing[]
   containers?: string[]
   containerPricing?: ContainerPricing[]
