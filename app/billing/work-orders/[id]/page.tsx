@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import DisposalTicketModalV3 from '@/app/components/DisposalTicketModal-v3';
 import DisposalTicketModalV4a from '@/app/components/DisposalTicketModal-v4a';
-import DisposalTicketModalV4b from '@/app/components/DisposalTicketModal-v4b';
+// import DisposalTicketModalV4b from '@/app/components/DisposalTicketModal-v4b';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -248,7 +248,7 @@ export default function WorkOrderDetailPage() {
                       </div>
                     </div>
 
-                    <div className="flex-1">
+                    {/* <div className="flex-1">
                       <div className="mb-2">
                         <span className="text-sm font-medium text-gray-600">v04b</span>
                       </div>
@@ -274,7 +274,7 @@ export default function WorkOrderDetailPage() {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -365,29 +365,29 @@ export default function WorkOrderDetailPage() {
           source="scale"
         />
 
-        <DisposalTicketModalV4b
+        {/* <DisposalTicketModalV4b
           isOpen={isModal4bOpen}
           onClose={() => setIsModal4bOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="office"
-        />
+        /> */}
 
-        <DisposalTicketModalV4b
+        {/* <DisposalTicketModalV4b
           isOpen={isMobileModal4bOpen}
           onClose={() => setIsMobileModal4bOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="mobile"
-        />
+        /> */}
 
-        <DisposalTicketModalV4b
+        {/* <DisposalTicketModalV4b
           isOpen={isScaleModal4bOpen}
           onClose={() => setIsScaleModal4bOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="scale"
-        />
+        /> */}
       </>
     </div>
 

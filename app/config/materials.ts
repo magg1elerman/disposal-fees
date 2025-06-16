@@ -4,6 +4,8 @@ export interface MaterialPricing {
     includedTonnage: number;
     overageThreshold: number;
     overageFee: number;
+    minFee: number;
+    unitOfMeasure: 'tons' | 'items' | 'gallons' | 'yards';
     containerRate?: number;
   };
   disposalFee: {
@@ -11,6 +13,8 @@ export interface MaterialPricing {
     includedTonnage: number;
     overageThreshold: number;
     overageFee: number;
+    minFee: number;
+    unitOfMeasure: 'tons' | 'items' | 'gallons' | 'yards';
     containerRate?: number;
   };
 }
@@ -32,13 +36,17 @@ export const materials: Material[] = [
         rate: 95.00,
         includedTonnage: 1,
         overageThreshold: 1.5,
-        overageFee: 35.00
+        overageFee: 35.00,
+        minFee: 50.00,
+        unitOfMeasure: 'tons'
       },
       disposalFee: {
         rate: 95.00,
         includedTonnage: 1,
         overageThreshold: 1.5,
-        overageFee: 35.00
+        overageFee: 35.00,
+        minFee: 50.00,
+        unitOfMeasure: 'tons'
       }
     }
   },
@@ -51,13 +59,17 @@ export const materials: Material[] = [
         rate: 50.00,
         includedTonnage: 1.5,
         overageThreshold: 2,
-        overageFee: 20.00
+        overageFee: 20.00,
+        minFee: 40.00,
+        unitOfMeasure: 'tons'
       },
       disposalFee: {
         rate: 50.00,
         includedTonnage: 1.5,
         overageThreshold: 2,
-        overageFee: 20.00
+        overageFee: 20.00,
+        minFee: 40.00,
+        unitOfMeasure: 'tons'
       }
     }
   },
@@ -70,13 +82,17 @@ export const materials: Material[] = [
         rate: 110.00,
         includedTonnage: 1,
         overageThreshold: 1.25,
-        overageFee: 50.00
+        overageFee: 50.00,
+        minFee: 60.00,
+        unitOfMeasure: 'tons'
       },
       disposalFee: {
         rate: 110.00,
         includedTonnage: 1,
         overageThreshold: 1.25,
-        overageFee: 50.00
+        overageFee: 50.00,
+        minFee: 60.00,
+        unitOfMeasure: 'tons'
       }
     }
   },
@@ -89,13 +105,17 @@ export const materials: Material[] = [
         rate: 25.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 10.00
+        overageFee: 10.00,
+        minFee: 20.00,
+        unitOfMeasure: 'items'
       },
       disposalFee: {
         rate: 25.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 10.00
+        overageFee: 10.00,
+        minFee: 20.00,
+        unitOfMeasure: 'items'
       }
     }
   },
@@ -108,13 +128,17 @@ export const materials: Material[] = [
         rate: 30.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 12.00
+        overageFee: 12.00,
+        minFee: 25.00,
+        unitOfMeasure: 'items'
       },
       disposalFee: {
         rate: 30.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 12.00
+        overageFee: 12.00,
+        minFee: 25.00,
+        unitOfMeasure: 'items'
       }
     }
   },
@@ -127,13 +151,17 @@ export const materials: Material[] = [
         rate: 20.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 8.00
+        overageFee: 8.00,
+        minFee: 15.00,
+        unitOfMeasure: 'items'
       },
       disposalFee: {
         rate: 20.00,
         includedTonnage: 1,
         overageThreshold: 5,
-        overageFee: 8.00
+        overageFee: 8.00,
+        minFee: 15.00,
+        unitOfMeasure: 'items'
       }
     }
   },
@@ -146,13 +174,17 @@ export const materials: Material[] = [
         rate: 45.00,
         includedTonnage: 1.5,
         overageThreshold: 2.5,
-        overageFee: 15.00
+        overageFee: 15.00,
+        minFee: 35.00,
+        unitOfMeasure: 'tons'
       },
       disposalFee: {
         rate: 45.00,
         includedTonnage: 1.5,
         overageThreshold: 2.5,
-        overageFee: 15.00
+        overageFee: 15.00,
+        minFee: 35.00,
+        unitOfMeasure: 'tons'
       }
     }
   },
@@ -165,13 +197,17 @@ export const materials: Material[] = [
         rate: 35.00,
         includedTonnage: 1,
         overageThreshold: 3,
-        overageFee: 15.00
+        overageFee: 15.00,
+        minFee: 25.00,
+        unitOfMeasure: 'items'
       },
       disposalFee: {
         rate: 35.00,
         includedTonnage: 1,
         overageThreshold: 3,
-        overageFee: 15.00
+        overageFee: 15.00,
+        minFee: 25.00,
+        unitOfMeasure: 'items'
       }
     }
   },
@@ -184,13 +220,17 @@ export const materials: Material[] = [
         rate: 5.00,
         includedTonnage: 4,
         overageThreshold: 10,
-        overageFee: 2.50
+        overageFee: 2.50,
+        minFee: 15.00,
+        unitOfMeasure: 'items'
       },
       disposalFee: {
         rate: 5.00,
         includedTonnage: 4,
         overageThreshold: 10,
-        overageFee: 2.50
+        overageFee: 2.50,
+        minFee: 15.00,
+        unitOfMeasure: 'items'
       }
     }
   },
@@ -200,16 +240,20 @@ export const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 85.00,
+        rate: 65.00,
         includedTonnage: 1,
-        overageThreshold: 2,
-        overageFee: 30.00
+        overageThreshold: 1.5,
+        overageFee: 25.00,
+        minFee: 45.00,
+        unitOfMeasure: 'tons'
       },
       disposalFee: {
-        rate: 85.00,
+        rate: 65.00,
         includedTonnage: 1,
-        overageThreshold: 2,
-        overageFee: 30.00
+        overageThreshold: 1.5,
+        overageFee: 25.00,
+        minFee: 45.00,
+        unitOfMeasure: 'tons'
       }
     }
   },
