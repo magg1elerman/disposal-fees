@@ -219,6 +219,12 @@ const feeStructureConfigs: Record<string, FeeStructureConfig> = {
   }
 }
 
+const disposalSites = [
+  { id: 1, name: "Disposal Site 1", description: "Standard disposal site" },
+  { id: 2, name: "Disposal Site 2", description: "Advanced disposal site with overage options" },
+  { id: 3, name: "Disposal Site 3", description: "Advanced disposal site with overage options" },
+]
+
 export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFeeFormProps) {
   // Form state
   const [formData, setFormData] = useState<DisposalFee>(
@@ -235,6 +241,7 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
       glCode: "",
       businessLine: "",
       materials: [],
+      disposalSite: "1", // Default to Disposal Site 1
     },
   )
 
@@ -623,6 +630,35 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                   )}
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="fee-disposal-site">Disposal Site</Label>
+                <Select
+                  value={formData.disposalSite}
+                  onValueChange={(value) => handleChange("disposalSite", value)}
+                  onOpenChange={() => handleBlur("disposalSite")}
+                >
+                  <SelectTrigger
+                    id="fee-disposal-site"
+                    className={`h-10 ${isFieldInvalid("disposalSite") ? "border-red-500" : ""}`}
+                  >
+                    <SelectValue placeholder="Select disposal site" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {disposalSites.map((site) => (
+                      <SelectItem key={site.id} value={site.id.toString()}>
+                        {site.name} - {site.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="min-h-[20px]">
+                  {isFieldInvalid("disposalSite") && (
+                    <p className="text-xs text-red-500 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> {errors.disposalSite}
+                    </p>
+                  )}
+                </div>
+              </div>
               <div className="col-span-2 flex items-end gap-4">
                 <div className="w-1/3">
                   <Label>Fee Structure</Label>
@@ -730,10 +766,10 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                                             <TooltipContent side="right" className="max-w-[300px] p-3">
                                               <p className="font-medium mb-1">Minimum Charge</p>
                                               <p className="text-sm text-muted-foreground">
-                                              Enable to enforce a minimum charge for this fee 
-                                              (defaults to  <span className="pt-2 text-sm font-bold text-blue-500">Included 
+                                                Enable to enforce a minimum charge for this fee 
+                                                (defaults to <span className="pt-2 text-sm font-bold text-blue-500">Included 
                                                 Tonnage × Rate</span>). Override default by entering a custom value. 
-                                              Disable to charge the fee with no minimum. 
+                                                Disable to charge the fee with no minimum. 
                                               </p>
                                             </TooltipContent>
                                           </Tooltip>
@@ -748,6 +784,12 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                                     )}
                                   </div>
                                 </TableHead>
+                                {(formData.disposalSite === "2" || formData.disposalSite === "3") && (
+                                  <>
+                                    <TableHead className="w-[220px]">Overage Threshold</TableHead>
+                                    <TableHead className="w-[220px]">Overage Fee</TableHead>
+                                  </>
+                                )}
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -882,6 +924,46 @@ export function DisposalFeeFormV4a({ initialFee, onSave, onCancel }: DisposalFee
                                         </div>
                                       </div>
                                     </TableCell>
+                                    {(formData.disposalSite === "2" || formData.disposalSite === "3") && (
+                                      <>
+                                        <TableCell className="w-[220px]">
+                                          <div className="relative flex items-center gap-2">
+                                            <div className="relative w-[120px]">
+                                              <Input
+                                                id={`${material.name}-overage-threshold`}
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={materialPricing[material.name]?.overageThreshold || "5.0"}
+                                                onChange={(e) => handleMaterialPricingChange(material.name, "overageThreshold", Number.parseFloat(e.target.value) || 0)}
+                                                className="pr-10 h-10"
+                                                placeholder="0.0"
+                                              />
+                                              <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                                {feeStructureConfigs[formData.rateStructure]?.unitLabel}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </TableCell>
+                                        <TableCell className="w-[220px]">
+                                          <div className="relative flex items-center gap-2">
+                                            <div className="relative w-[120px]">
+                                              <span className="absolute left-3 top-3 text-muted-foreground text-xs">$</span>
+                                              <Input
+                                                id={`${material.name}-overage-charge`}
+                                                value={materialPricing[material.name]?.overageCharge || "25.00"}
+                                                onChange={(e) => handleMaterialPricingChange(material.name, "overageCharge", e.target.value)}
+                                                className="pl-7 h-10"
+                                                placeholder="0.00"
+                                              />
+                                              <span className="absolute right-3 top-3 text-muted-foreground text-xs">
+                                                / {feeStructureConfigs[formData.rateStructure]?.unitLabel.slice(0, -1)}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </TableCell>
+                                      </>
+                                    )}
                                   </TableRow>
                                 )
                               })}

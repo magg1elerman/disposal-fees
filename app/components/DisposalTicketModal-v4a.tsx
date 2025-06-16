@@ -1071,6 +1071,20 @@ export default function DisposalTicketModalV4a({
                                   material.name === 'MSW' ? 'text-blue-700' :
                                   material.name === 'Recycling' ? 'text-green-700' :
                                   material.name === 'C&D' ? 'text-cyan-700' :
+                                  material.name === 'No Sort Recycle' ? 'text-emerald-700' :
+                                  material.name === 'Friable Asbestos' ? 'text-red-700' :
+                                  material.name === 'Non-Friable Asbestos' ? 'text-orange-700' :
+                                  material.name === 'Tire' ? 'text-purple-700' :
+                                  material.name === 'Mattress' ? 'text-pink-700' :
+                                  material.name === 'Mate88' ? 'text-pink-600' :
+                                  material.name === 'Mat34' ? 'text-pink-500' :
+                                  material.name === 'Appliance' ? 'text-indigo-700' :
+                                  material.name === 'Fuel' ? 'text-yellow-700' :
+                                  material.name === 'Oil-based Paint' ? 'text-amber-700' :
+                                  material.name === 'Household Chemicals' ? 'text-lime-700' :
+                                  material.name === 'General Liquid Waste' ? 'text-teal-700' :
+                                  material.name === 'Brush' ? 'text-emerald-600' :
+                                  material.name === 'Shingles' ? 'text-amber-600' :
                                   'text-gray-700'
                                 }`}>
                                   {material.name}
@@ -1508,6 +1522,20 @@ export default function DisposalTicketModalV4a({
                                   material.name === 'MSW' ? 'text-blue-700' :
                                   material.name === 'Recycling' ? 'text-green-700' :
                                   material.name === 'C&D' ? 'text-cyan-700' :
+                                  material.name === 'No Sort Recycle' ? 'text-emerald-700' :
+                                  material.name === 'Friable Asbestos' ? 'text-red-700' :
+                                  material.name === 'Non-Friable Asbestos' ? 'text-orange-700' :
+                                  material.name === 'Tire' ? 'text-purple-700' :
+                                  material.name === 'Mattress' ? 'text-pink-700' :
+                                  material.name === 'Mate88' ? 'text-pink-600' :
+                                  material.name === 'Mat34' ? 'text-pink-500' :
+                                  material.name === 'Appliance' ? 'text-indigo-700' :
+                                  material.name === 'Fuel' ? 'text-yellow-700' :
+                                  material.name === 'Oil-based Paint' ? 'text-amber-700' :
+                                  material.name === 'Household Chemicals' ? 'text-lime-700' :
+                                  material.name === 'General Liquid Waste' ? 'text-teal-700' :
+                                  material.name === 'Brush' ? 'text-emerald-600' :
+                                  material.name === 'Shingles' ? 'text-amber-600' :
                                   'text-gray-700'
                                 }`}>
                                   {material.name}
