@@ -586,10 +586,10 @@ export default function DisposalTicketModalV4a({
     driver: '',
     memo: '',
     weights: {
-      gross: source === 'scale' ? 6000 : source === 'mobile' ? 8000 : 0.00, // 4 tons in pounds
-      vehicleTare: source === 'scale' ? 2000 : source === 'mobile' ? 3000 : 0.00, // 1.5 tons in pounds
-      netWeight: source === 'scale' ? 4000 : source === 'mobile' ? 5000 : 0.00, // 2.5 tons in pounds
-      netTons: source === 'scale' ? 2.00 : source === 'mobile' ? 2.50 : 0.00 // 2.5 tons
+      gross: source === 'scale' ? 6 : source === 'mobile' ? 8 : 0,
+      vehicleTare: source === 'scale' ? 2 : source === 'mobile' ? 3 : 0,
+      netWeight: source === 'scale' ? 4 : source === 'mobile' ? 5 : 0,
+      netTons: source === 'scale' ? 4 : source === 'mobile' ? 5 : 0
     }
   });
   const [disposalSites] = useState(['Disposal site 1', 'Disposal site 2', 'Disposal site 3']);
@@ -603,8 +603,6 @@ export default function DisposalTicketModalV4a({
     overageFee: number;
     containerRate: number;
   } | null>(null);
-  const [isEditingNetWeight, setIsEditingNetWeight] = useState(false);
-  const [editedNetWeight, setEditedNetWeight] = useState<number | null>(null);
   const [isEditingField, setIsEditingField] = useState<string | null>(null);
   const [isEditingDisposalSite, setIsEditingDisposalSite] = useState(false);
   const [isEditingMaterial, setIsEditingMaterial] = useState(false);
@@ -805,10 +803,7 @@ export default function DisposalTicketModalV4a({
     if (!currentMaterial) return 0;
 
     if (isPricingPerTon) {
-      const netAmount = currentMaterial.unitOfMeasure === 'tons' ? 
-        (currentMaterial.weights?.net || 0) / 2000 : 
-        (currentMaterial.weights?.net || 0);
-      return netAmount * tippingFeePricing.rate;
+      return tippingFeePricing.rate * (currentMaterial.weights?.net || 0);
     } else {
       return containerRate;
     }
@@ -865,31 +860,6 @@ export default function DisposalTicketModalV4a({
     }
   };
 
-  const handleEditNetWeight = () => {
-    setEditedNetWeight(ticketDetails.weights.netTons);
-    setIsEditingNetWeight(true);
-  };
-
-  const handleSaveNetWeight = () => {
-    if (editedNetWeight !== null) {
-      setTicketDetails(prev => ({
-        ...prev,
-        weights: {
-          ...prev.weights,
-          netTons: editedNetWeight,
-          netWeight: editedNetWeight * 2000 // Convert tons to pounds
-        }
-      }));
-      setIsEditingNetWeight(false);
-      setEditedNetWeight(null);
-    }
-  };
-
-  const handleCancelNetWeight = () => {
-    setIsEditingNetWeight(false);
-    setEditedNetWeight(null);
-  };
-
   // Helper function to get default unit of measure
   const getDefaultUnitOfMeasure = (material: Material): string => {
     switch (material.name) {
@@ -927,7 +897,7 @@ export default function DisposalTicketModalV4a({
         return [...prev, {
           ...material,
           weights: { gross: 0, tare: 0, net: 0 },
-          unitOfMeasure: getDefaultUnitOfMeasure(material)
+          unitOfMeasure: 'tons' // Default to tons but user can change
         }];
       }
     });
@@ -937,7 +907,7 @@ export default function DisposalTicketModalV4a({
     setSelectedMaterial({
       ...material,
       weights: { gross: 0, tare: 0, net: 0 },
-      unitOfMeasure: getDefaultUnitOfMeasure(material)
+      unitOfMeasure: 'tons' // Default to tons but user can change
     });
   };
 
@@ -948,7 +918,7 @@ export default function DisposalTicketModalV4a({
         {
           ...selectedMaterial,
           weights: { gross: 0, tare: 0, net: 0 },
-          unitOfMeasure: getDefaultUnitOfMeasure(selectedMaterial)
+          unitOfMeasure: 'tons' // Default to tons but user can change
         }
       ]);
       setSelectedMaterial(null);
@@ -1317,9 +1287,7 @@ export default function DisposalTicketModalV4a({
                                   <input
                                     type="number"
                                     className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
-                                    value={material.unitOfMeasure === 'tons' ? 
-                                      (material.weights?.net || 0) / 2000 :
-                                      material.weights?.net || 0}
+                                    value={material.weights?.net || 0}
                                     step="0.01"
                                     onChange={(e) => {
                                       const value = parseFloat(e.target.value);
@@ -1328,18 +1296,17 @@ export default function DisposalTicketModalV4a({
                                           ? {
                                               ...m,
                                               weights: {
-                                                gross: material.unitOfMeasure === 'tons' ? value * 2000 + (m.weights?.tare || 0) : value + (m.weights?.tare || 0),
+                                                gross: value + (m.weights?.tare || 0),
                                                 tare: m.weights?.tare || 0,
-                                                net: material.unitOfMeasure === 'tons' ? value * 2000 : value
+                                                net: value
                                               }
                                             }
                                           : m
                                       ));
                                     }}
-                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
-                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
+                                    disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                    readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                   />
-                                  {/* <span className="text-xs text-gray-500">tons</span> */}
                                 </div>
                               </div>
                             </td>
@@ -1362,7 +1329,7 @@ export default function DisposalTicketModalV4a({
                                         : m
                                     ));
                                   }}
-                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || !isAdvancedMode}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                 >
                                   <option value="tons">Tons</option>
                                   <option value="yards">Yards</option>
@@ -1475,7 +1442,7 @@ export default function DisposalTicketModalV4a({
                                         setSelectedMaterials(prev => [...prev, {
                                           ...material,
                                           weights: { gross: 0, tare: 0, net: 0 },
-                                          unitOfMeasure: getDefaultUnitOfMeasure(material)
+                                          unitOfMeasure: 'tons' // Default to tons but user can change
                                         }]);
                                         setCurrentMaterial(material);
                                         setIsPricingPerTon(!material.allowPerContainer || true);
@@ -1684,12 +1651,8 @@ export default function DisposalTicketModalV4a({
                                 <span>{material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'tons' ? 
-                                       Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage).toFixed(2) :
-                                       Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
+                                <span>Chargeable Tonnage:</span>
+                                <span>{Math.max(0, (currentMaterial?.weights?.net || 0) - (currentMaterial?.pricing.disposalTicket.includedTonnage || 0))} {currentMaterial?.unitOfMeasure || 'tons'}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Minimum Charge:</span>
@@ -1775,6 +1738,10 @@ export default function DisposalTicketModalV4a({
                                 return total + subtotal + tax;
                               }, 0).toFixed(2)}
                             </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Total Tonnage:</span>
+                            <span>{currentMaterial?.weights?.net || 0} {currentMaterial?.unitOfMeasure || 'tons'}</span>
                           </div>
                         </div>
                       </div>
