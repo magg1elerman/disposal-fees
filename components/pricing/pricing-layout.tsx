@@ -17,6 +17,9 @@ import { DisposalFeeFormV3 as DisposalFeeFormV03 } from "@/components/pricing/di
 import { DisposalFeeFormV4a as DisposalFeeFormV04a } from "@/components/pricing/disposal-fee-form-v04a"
 import { DisposalFeeFormV4b as DisposalFeeFormV04b } from "@/components/pricing/disposal-fee-form-v04b"
 import { DisposalFeeFormV4c as DisposalFeeFormV04c } from "@/components/pricing/disposal-fee-form-v04c"
+import { DisposalFeeFormV5a as DisposalFeeFormV05a } from "@/components/pricing/disposal-fee-form-v05a"
+import { DisposalFeeFormV5b as DisposalFeeFormV05b } from "@/components/pricing/disposal-fee-form-v05b"
+import { DisposalFeeFormV5c as DisposalFeeFormV05c } from "@/components/pricing/disposal-fee-form-v05c"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -37,6 +40,9 @@ export function PricingLayout() {
   const [showFormV4a, setShowFormV4a] = useState(false)
   const [showFormV4b, setShowFormV4b] = useState(false)
   const [showFormV4c, setShowFormV4c] = useState(false)
+  const [showFormV5a, setShowFormV5a] = useState(false)
+  const [showFormV5b, setShowFormV5b] = useState(false)
+  const [showFormV5c, setShowFormV5c] = useState(false)
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -74,6 +80,21 @@ export function PricingLayout() {
   const handleSaveV4c = (fee: any) => {
     // Handle saving the fee
     setShowFormV4c(false)
+  }
+
+  const handleSaveV5a = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV5a(false)
+  }
+
+  const handleSaveV5b = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV5b(false)
+  }
+
+  const handleSaveV5c = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV5c(false)
   }
 
   const handleChange = (field: string, value: any) => {
@@ -126,19 +147,24 @@ export function PricingLayout() {
                 
                 <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-green-500">
                   
+                  
                   <Button  variant="outline" className="bg-green-300 text-green-900"
-                    onClick={() => setShowFormV4b(true)}
+                    onClick={() => setShowFormV5a(true)}
                   >
-                   v04b - Fee Structure Updates
+                   v05a
                   </Button>
                   <Button  variant="outline" className="bg-green-300 text-green-900"
-                    onClick={() => setShowFormV4c(true)}
+                    onClick={() => setShowFormV5b(true)}
                   >
-                   v04c - Fee Structure Updates
+                   v05b
                   </Button>
-
+                  <Button  variant="outline" className="bg-green-300 text-green-900"
+                    onClick={() => setShowFormV5c(true)}
+                  >
+                   v05c
+                  </Button>
                 
-              
+
                 </div>
             
               </>
@@ -264,9 +290,9 @@ export function PricingLayout() {
 
                         <Card>
                           <CardHeader>
-                            <CardTitle>Version 4a</CardTitle>
+                            <CardTitle>Version 4</CardTitle>
                             <CardDescription>
-                              Feature Structure Changes               
+                              Fee Structure Changes               
                             </CardDescription>
                           </CardHeader>
                           <CardContent>
@@ -276,6 +302,18 @@ export function PricingLayout() {
                               >
                               v04a - fee structure changes
                             </Button>
+                            <Button  variant="outline" className="bg-white text-black"
+                                onClick={() => setShowFormV4b(true)}
+                              >
+                              v04b - fee structure changes
+                            </Button>
+                            <Button  variant="outline" className="bg-white text-black"
+                                onClick={() => setShowFormV4c(true)}
+                              >
+                              v04c - fee structure changes
+                            </Button>
+                            
+                            
                             </div>
                           </CardContent>
                         </Card>
@@ -354,6 +392,38 @@ export function PricingLayout() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showFormV5a} onOpenChange={setShowFormV5a}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV05a
+              onSave={handleSaveV5a}
+              onCancel={() => setShowFormV5a(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV5b} onOpenChange={setShowFormV5b}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV05b
+              onSave={handleSaveV5b}
+              onCancel={() => setShowFormV5b(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV5c} onOpenChange={setShowFormV5c}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV05c
+              onSave={handleSaveV5c}
+              onCancel={() => setShowFormV5c(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
