@@ -551,7 +551,9 @@ export function DisposalFeeFormV6({ initialFee, onSave, onCancel }: DisposalFeeF
         <h2 className="text-xl font-bold">Disposal Fee Template v06</h2>
         <div>
             <ul className="list-disc list-inside px-2 text-sm">
-                <li> moving UoM to per material line</li>
+                <li> adding copy icon to all fiels for material pricing</li>
+                <li> changing Fee Type to eliminate "per"</li>
+
             </ul>
         </div>
             
@@ -669,11 +671,11 @@ export function DisposalFeeFormV6({ initialFee, onSave, onCancel }: DisposalFeeF
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="unit" id="unit" />
-                      <Label htmlFor="unit">Per Unit of Measure</Label>
+                      <Label htmlFor="unit">Unit of Measure</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="container" id="container" />
-                      <Label htmlFor="container">Per Container</Label>
+                      <Label htmlFor="container">Container</Label>
                     </div>
                   </RadioGroup>
                 </div>
