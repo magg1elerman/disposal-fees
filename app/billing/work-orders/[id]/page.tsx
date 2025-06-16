@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import DisposalTicketModalV3 from '@/app/components/DisposalTicketModal-v3';
+import DisposalTicketModalV4 from '@/app/components/DisposalTicketModal-v4';
 
 interface DisposalTicket {
   isPricingPerTon: boolean;
@@ -53,6 +54,9 @@ export default function WorkOrderDetailPage() {
   const [isModal2bOpen, setIsModal2bOpen] = useState(false);
   const [isMobileModal2bOpen, setIsMobileModal2bOpen] = useState(false);
   const [isScaleModal2bOpen, setIsScaleModal2bOpen] = useState(false);
+  const [isModal4Open, setIsModal4Open] = useState(false);
+  const [isMobileModal4Open, setIsMobileModal4Open] = useState(false);
+  const [isScaleModal4Open, setIsScaleModal4Open] = useState(false);
   
   const workOrder = workOrders.find((wo) => wo.id === id);
 
@@ -205,25 +209,54 @@ export default function WorkOrderDetailPage() {
           <div className="space-y-6">
             <div className="border-t pt-6">
               <h2 className="text-lg font-semibold mb-4">Disposal Ticket</h2>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setIsModal2bOpen(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Disposal Ticket - Office
-                </button>
-                <button
-                  onClick={() => setIsMobileModal2bOpen(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Disposal Ticket - Mobile
-                </button>
-                <button
-                  onClick={() => setIsScaleModal2bOpen(true)}
-                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                >
-                  Disposal Ticket - Scale
-                </button>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-md font-medium mb-3">Version 4</h3>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setIsModal4Open(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Disposal Ticket - Office
+                    </button>
+                    <button
+                      onClick={() => setIsMobileModal4Open(true)}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Disposal Ticket - Mobile
+                    </button>
+                    <button
+                      onClick={() => setIsScaleModal4Open(true)}
+                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                    >
+                      Disposal Ticket - Scale
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-md font-medium mb-3">Version 3</h3>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setIsModal2bOpen(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Disposal Ticket - Office
+                    </button>
+                    <button
+                      onClick={() => setIsMobileModal2bOpen(true)}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Disposal Ticket - Mobile
+                    </button>
+                    <button
+                      onClick={() => setIsScaleModal2bOpen(true)}
+                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                    >
+                      Disposal Ticket - Scale
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -250,6 +283,30 @@ export default function WorkOrderDetailPage() {
         <DisposalTicketModalV3
           isOpen={isScaleModal2bOpen}
           onClose={() => setIsScaleModal2bOpen(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="scale"
+        />
+
+        <DisposalTicketModalV4
+          isOpen={isModal4Open}
+          onClose={() => setIsModal4Open(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="office"
+        />
+
+        <DisposalTicketModalV4
+          isOpen={isMobileModal4Open}
+          onClose={() => setIsMobileModal4Open(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="mobile"
+        />
+
+        <DisposalTicketModalV4
+          isOpen={isScaleModal4Open}
+          onClose={() => setIsScaleModal4Open(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="scale"
