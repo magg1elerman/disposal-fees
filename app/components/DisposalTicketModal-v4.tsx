@@ -17,18 +17,8 @@ const materials: Material[] = [
     name: "Mattress",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 },
+      disposalFee: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 }
     }
   },
   {
@@ -36,18 +26,8 @@ const materials: Material[] = [
     name: "Mate88",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 },
+      disposalFee: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 }
     }
   },
   {
@@ -55,18 +35,8 @@ const materials: Material[] = [
     name: "Mat34",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 },
+      disposalFee: { rate: 100, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 25 }
     }
   },
   {
@@ -74,18 +44,8 @@ const materials: Material[] = [
     name: "No Sort Recycle",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 60, includedTonnage: 1, overageThreshold: 1.2, overageFee: 30 },
+      disposalFee: { rate: 60, includedTonnage: 1, overageThreshold: 1.2, overageFee: 30 }
     }
   },
   {
@@ -93,18 +53,8 @@ const materials: Material[] = [
     name: "Appliance",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 120, includedTonnage: 0.2, overageThreshold: 0.25, overageFee: 40 },
+      disposalFee: { rate: 120, includedTonnage: 0.2, overageThreshold: 0.25, overageFee: 40 }
     }
   },
   {
@@ -112,18 +62,8 @@ const materials: Material[] = [
     name: "Tire",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 150, includedTonnage: 0.05, overageThreshold: 0.08, overageFee: 20 },
+      disposalFee: { rate: 150, includedTonnage: 0.05, overageThreshold: 0.08, overageFee: 20 }
     }
   },
   {
@@ -131,18 +71,8 @@ const materials: Material[] = [
     name: "Brush",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 70, includedTonnage: 0.5, overageThreshold: 0.6, overageFee: 35 },
+      disposalFee: { rate: 70, includedTonnage: 0.5, overageThreshold: 0.6, overageFee: 35 }
     }
   },
   {
@@ -150,18 +80,8 @@ const materials: Material[] = [
     name: "Shingles",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 90, includedTonnage: 0.75, overageThreshold: 0.9, overageFee: 45 },
+      disposalFee: { rate: 90, includedTonnage: 0.75, overageThreshold: 0.9, overageFee: 45 }
     }
   },
   {
@@ -169,18 +89,8 @@ const materials: Material[] = [
     name: "Friable Asbestos",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 300, includedTonnage: 0.5, overageThreshold: 0.6, overageFee: 150 },
+      disposalFee: { rate: 300, includedTonnage: 0.5, overageThreshold: 0.6, overageFee: 150 }
     }
   },
   {
@@ -188,18 +98,8 @@ const materials: Material[] = [
     name: "Non-Friable Asbestos",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 200, includedTonnage: 0.75, overageThreshold: 0.85, overageFee: 100 },
+      disposalFee: { rate: 200, includedTonnage: 0.75, overageThreshold: 0.85, overageFee: 100 }
     }
   },
   {
@@ -207,18 +107,8 @@ const materials: Material[] = [
     name: "Fuel",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 500, includedTonnage: 0.01, overageThreshold: 0.015, overageFee: 100 },
+      disposalFee: { rate: 500, includedTonnage: 0.01, overageThreshold: 0.015, overageFee: 100 }
     }
   },
   {
@@ -226,18 +116,8 @@ const materials: Material[] = [
     name: "Oil-based Paint",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 450, includedTonnage: 0.02, overageThreshold: 0.025, overageFee: 90 },
+      disposalFee: { rate: 450, includedTonnage: 0.02, overageThreshold: 0.025, overageFee: 90 }
     }
   },
   {
@@ -245,18 +125,8 @@ const materials: Material[] = [
     name: "Household Chemicals",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      }
+      disposalTicket: { rate: 400, includedTonnage: 0.03, overageThreshold: 0.04, overageFee: 80 },
+      disposalFee: { rate: 400, includedTonnage: 0.03, overageThreshold: 0.04, overageFee: 80 }
     }
   },
   {
@@ -264,17 +134,8 @@ const materials: Material[] = [
     name: "General Liquid Waste",
     allowPerContainer: true,
     pricing: {
-      disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
-      },
-      disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+      disposalTicket: { rate: 250, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 75 },
+      disposalFee: { rate: 250, includedTonnage: 0.1, overageThreshold: 0.15, overageFee: 75 }
       }
     }
   }
