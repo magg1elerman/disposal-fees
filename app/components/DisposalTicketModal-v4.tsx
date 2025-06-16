@@ -1460,18 +1460,34 @@ export default function DisposalTicketModalV2({
                                 <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Total Tonnage:</span>
-                                <span>{(material.weights?.net || 0) / 2000} tons</span>
+                                <span>Total {material.unitOfMeasure === 'items' ? 'Items' : 
+                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                <span>{material.unitOfMeasure === 'items' ? material.weights?.net || 0 :
+                                       material.unitOfMeasure === 'gallons' ? material.weights?.net || 0 :
+                                       material.unitOfMeasure === 'yards' ? material.weights?.net || 0 :
+                                       (material.weights?.net || 0) / 2000} {material.unitOfMeasure}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Included Tonnage:</span>
-                                <span>{material.pricing.disposalFee.includedTonnage} tons</span>
+                                <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
+                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                <span>{material.unitOfMeasure === 'items' ? material.pricing.disposalFee.includedTonnage :
+                                       material.unitOfMeasure === 'gallons' ? material.pricing.disposalFee.includedTonnage :
+                                       material.unitOfMeasure === 'yards' ? material.pricing.disposalFee.includedTonnage :
+                                       material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Chargeable Tonnage:</span>
-                                <span>{Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} tons</span>
+                                <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
+                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                <span>{material.unitOfMeasure === 'items' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                       material.unitOfMeasure === 'gallons' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                       material.unitOfMeasure === 'yards' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                       Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
                               </div>
-                              {(material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold && (
+                              {(material.unitOfMeasure === 'tons' ? (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold :
+                                (material.weights?.net || 0) > material.pricing.disposalFee.overageThreshold) && (
                                 <>
                                   <div className="flex justify-between text-orange-600">
                                     <span>Overage Fee:</span>
@@ -1479,7 +1495,7 @@ export default function DisposalTicketModalV2({
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-xs">
-                                      (Applied when tonnage exceeds {material.pricing.disposalFee.overageThreshold} tons)
+                                      (Applied when {material.unitOfMeasure} exceeds {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
                                     </span>
                                   </div>
                                 </>
