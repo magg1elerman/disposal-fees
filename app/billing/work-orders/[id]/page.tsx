@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import DisposalTicketModalV3 from '@/app/components/DisposalTicketModal-v3';
-import DisposalTicketModalV4 from '@/app/components/DisposalTicketModal-v4';
+import DisposalTicketModalV4a from '@/app/components/DisposalTicketModal-v4a';
+import DisposalTicketModalV4b from '@/app/components/DisposalTicketModal-v4b';
 import { ChevronDown } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -56,9 +57,12 @@ export default function WorkOrderDetailPage() {
   const [isModal2bOpen, setIsModal2bOpen] = useState(false);
   const [isMobileModal2bOpen, setIsMobileModal2bOpen] = useState(false);
   const [isScaleModal2bOpen, setIsScaleModal2bOpen] = useState(false);
-  const [isModal4Open, setIsModal4Open] = useState(false);
-  const [isMobileModal4Open, setIsMobileModal4Open] = useState(false);
-  const [isScaleModal4Open, setIsScaleModal4Open] = useState(false);
+  const [isModal4aOpen, setIsModal4aOpen] = useState(false);
+  const [isMobileModal4aOpen, setIsMobileModal4aOpen] = useState(false);
+  const [isScaleModal4aOpen, setIsScaleModal4aOpen] = useState(false);
+  const [isModal4bOpen, setIsModal4bOpen] = useState(false);
+  const [isMobileModal4bOpen, setIsMobileModal4bOpen] = useState(false);
+  const [isScaleModal4bOpen, setIsScaleModal4bOpen] = useState(false);
   const [isVersion3Open, setIsVersion3Open] = useState(false);
   
   const workOrder = workOrders.find((wo) => wo.id === id);
@@ -215,25 +219,62 @@ export default function WorkOrderDetailPage() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-md font-medium mb-3">Version 4 (Current)</h3>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setIsModal4Open(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      Disposal Ticket - Office
-                    </button>
-                    <button
-                      onClick={() => setIsMobileModal4Open(true)}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Disposal Ticket - Mobile
-                    </button>
-                    <button
-                      onClick={() => setIsScaleModal4Open(true)}
-                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                    >
-                      Disposal Ticket - Scale
-                    </button>
+                  <div className="flex gap-6">
+                    <div className="flex-1">
+                      <div className="mb-2">
+                        <span className="text-sm font-medium text-gray-600">v04a</span>
+                      </div>
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => setIsModal4aOpen(true)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >
+                            Disposal Ticket - Office
+                          </button>
+                          <button
+                            onClick={() => setIsMobileModal4aOpen(true)}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                          >
+                            Disposal Ticket - Mobile
+                          </button>
+                          <button
+                            onClick={() => setIsScaleModal4aOpen(true)}
+                            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                          >
+                            Disposal Ticket - Scale
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="mb-2">
+                        <span className="text-sm font-medium text-gray-600">v04b</span>
+                      </div>
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => setIsModal4bOpen(true)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >
+                            Disposal Ticket - Office
+                          </button>
+                          <button
+                            onClick={() => setIsMobileModal4bOpen(true)}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                          >
+                            Disposal Ticket - Mobile
+                          </button>
+                          <button
+                            onClick={() => setIsScaleModal4bOpen(true)}
+                            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                          >
+                            Disposal Ticket - Scale
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -300,30 +341,56 @@ export default function WorkOrderDetailPage() {
           source="scale"
         />
 
-        <DisposalTicketModalV4
-          isOpen={isModal4Open}
-          onClose={() => setIsModal4Open(false)}
+        <DisposalTicketModalV4a
+          isOpen={isModal4aOpen}
+          onClose={() => setIsModal4aOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="office"
         />
 
-        <DisposalTicketModalV4
-          isOpen={isMobileModal4Open}
-          onClose={() => setIsMobileModal4Open(false)}
+        <DisposalTicketModalV4a
+          isOpen={isMobileModal4aOpen}
+          onClose={() => setIsMobileModal4aOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="mobile"
         />
 
-        <DisposalTicketModalV4
-          isOpen={isScaleModal4Open}
-          onClose={() => setIsScaleModal4Open(false)}
+        <DisposalTicketModalV4a
+          isOpen={isScaleModal4aOpen}
+          onClose={() => setIsScaleModal4aOpen(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="scale"
+        />
+
+        <DisposalTicketModalV4b
+          isOpen={isModal4bOpen}
+          onClose={() => setIsModal4bOpen(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="office"
+        />
+
+        <DisposalTicketModalV4b
+          isOpen={isMobileModal4bOpen}
+          onClose={() => setIsMobileModal4bOpen(false)}
+          workOrderId={workOrder.id}
+          onSave={handleSaveDisposalTicket}
+          source="mobile"
+        />
+
+        <DisposalTicketModalV4b
+          isOpen={isScaleModal4bOpen}
+          onClose={() => setIsScaleModal4bOpen(false)}
           workOrderId={workOrder.id}
           onSave={handleSaveDisposalTicket}
           source="scale"
         />
       </>
     </div>
+
+    
   );
 }

@@ -340,7 +340,7 @@ interface DisposalTicketModalProps {
   source?: 'route' | 'office' | 'scale' | 'mobile';
 }
 
-export default function DisposalTicketModalV2({ 
+export default function DisposalTicketModalV4a({ 
   isOpen, 
   onClose, 
   workOrderId, 
@@ -361,7 +361,15 @@ export default function DisposalTicketModalV2({
             tare: 2000,
             net: 3000
           },
-          unitOfMeasure: 'tons'
+          unitOfMeasure: 'tons',
+          pricing: {
+            ...mswMaterial.pricing,
+            disposalFee: {
+              ...mswMaterial.pricing.disposalFee,
+              overageThreshold: 5.00,
+              overageFee: 25.00
+            }
+          }
         });
       }
       if (cdMaterial) {
@@ -372,21 +380,61 @@ export default function DisposalTicketModalV2({
             tare: 3000,
             net: 3000
           },
-          unitOfMeasure: 'tons'
+          unitOfMeasure: 'yards',
+          pricing: {
+            ...cdMaterial.pricing,
+            disposalFee: {
+              ...cdMaterial.pricing.disposalFee,
+              overageThreshold: 10.00,
+              overageFee: 50.00
+            }
+          }
         });
       }
       return initialMaterials;
     } else if (source === 'mobile') {
       const recyclingMaterial = materials.find(m => m.name === 'Recycling');
-      return recyclingMaterial ? [{
-        ...recyclingMaterial,
-        weights: {
-          gross: 8000,
-          tare: 3000,
-          net: 5000
-        },
-        unitOfMeasure: 'tons'
-      }] : [];
+      const tireMaterial = materials.find(m => m.name === 'Tire');
+      const initialMaterials = [];
+      if (recyclingMaterial) {
+        initialMaterials.push({
+          ...recyclingMaterial,
+          weights: {
+            gross: 8000,
+            tare: 3000,
+            net: 5000
+          },
+          unitOfMeasure: 'tons',
+          pricing: {
+            ...recyclingMaterial.pricing,
+            disposalFee: {
+              ...recyclingMaterial.pricing.disposalFee,
+              overageThreshold: 3.00,
+              overageFee: 15.00
+            }
+          }
+        });
+      }
+      if (tireMaterial) {
+        initialMaterials.push({
+          ...tireMaterial,
+          weights: {
+            gross: 0,
+            tare: 0,
+            net: 4
+          },
+          unitOfMeasure: 'items',
+          pricing: {
+            ...tireMaterial.pricing,
+            disposalFee: {
+              ...tireMaterial.pricing.disposalFee,
+              overageThreshold: 2,
+              overageFee: 10.00
+            }
+          }
+        });
+      }
+      return initialMaterials;
     }
     return [];
   });
@@ -476,6 +524,8 @@ export default function DisposalTicketModalV2({
   const materialRef = useRef<HTMLSelectElement>(null);
   const [useGrossTare, setUseGrossTare] = useState(false);
   const [isTaxable, setIsTaxable] = useState(source === 'mobile');
+  const [selectedDisposalSite, setSelectedDisposalSite] = useState('Disposal site 1');
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
 
   // Add effect to focus disposal site dropdown when editing
   useEffect(() => {
@@ -785,6 +835,12 @@ export default function DisposalTicketModalV2({
       setSelectedMaterial(null);
     }
   };
+
+  // Update isAdvancedMode when disposal site changes
+  useEffect(() => {
+    setIsAdvancedMode(selectedDisposalSite !== 'Disposal site 1');
+  }, [selectedDisposalSite]);
+
   if (!isOpen) return null;
 
   return (
@@ -792,7 +848,7 @@ export default function DisposalTicketModalV2({
       <div className="bg-white rounded-lg p-8 min-w-[90vw] max-h-[95vh] flex flex-col overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">Disposal Ticket v04 (Current)</h2>
+            <h2 className="text-xl font-semibold">Disposal Ticket v04a </h2>
             {(source === 'mobile' || source === 'scale') && (
               <div className="relative group">
                 <button
@@ -831,19 +887,21 @@ export default function DisposalTicketModalV2({
               </div>
             )}
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Is Taxable</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={isTaxable}
-                  onChange={(e) => setIsTaxable(e.target.checked)}
-                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
-                />
-                <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <label className="text-xs font-medium text-gray-600">Is Taxable</label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={isTaxable}
+                    onChange={(e) => setIsTaxable(e.target.checked)}
+                    disabled={(source === 'mobile' && !isMobileUnlocked) || (source === 'scale' && !isScaleUnlocked)}
+                  />
+                  <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -1000,7 +1058,7 @@ export default function DisposalTicketModalV2({
                           )}
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Net Weight</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Unit of Measure</th>
-                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Site Rate</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600">Site Rate</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600">Tipping Fee</th>
                         </tr>
                       </thead>
@@ -1166,7 +1224,7 @@ export default function DisposalTicketModalV2({
                                         : m
                                     ));
                                   }}
-                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || !isAdvancedMode}
                                 >
                                   <option value="tons">Tons</option>
                                   <option value="yards">Yards</option>
@@ -1175,7 +1233,7 @@ export default function DisposalTicketModalV2({
                                 </select>
                               </div>
                             </td>
-                            <td className="py-1 px-2 border-r border-gray-100">
+                            <td className="py-1 px-2">
                               <div className={`flex items-center rounded border border-gray-200 ${
                                 (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
                                   ? 'bg-transparent border-transparent'
@@ -1468,36 +1526,40 @@ export default function DisposalTicketModalV2({
                                        material.unitOfMeasure === 'yards' ? material.weights?.net || 0 :
                                        (material.weights?.net || 0) / 2000} {material.unitOfMeasure}</span>
                               </div>
-                              <div className="flex justify-between">
-                                <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? material.pricing.disposalFee.includedTonnage :
-                                       material.unitOfMeasure === 'gallons' ? material.pricing.disposalFee.includedTonnage :
-                                       material.unitOfMeasure === 'yards' ? material.pricing.disposalFee.includedTonnage :
-                                       material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
-                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       material.unitOfMeasure === 'gallons' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       material.unitOfMeasure === 'yards' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                       Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
-                              </div>
-                              {(material.unitOfMeasure === 'tons' ? (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold :
-                                (material.weights?.net || 0) > material.pricing.disposalFee.overageThreshold) && (
+                              {isAdvancedMode && (
                                 <>
-                                  <div className="flex justify-between text-orange-600">
-                                    <span>Overage Fee:</span>
-                                    <span>+${material.pricing.disposalFee.overageFee.toFixed(2)}</span>
+                                  <div className="flex justify-between">
+                                    <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
+                                              material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                              material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                    <span>{material.unitOfMeasure === 'items' ? material.pricing.disposalFee.includedTonnage :
+                                           material.unitOfMeasure === 'gallons' ? material.pricing.disposalFee.includedTonnage :
+                                           material.unitOfMeasure === 'yards' ? material.pricing.disposalFee.includedTonnage :
+                                           material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-xs">
-                                      (Applied when {material.unitOfMeasure} exceeds {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
-                                    </span>
+                                    <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
+                                              material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                              material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                    <span>{material.unitOfMeasure === 'items' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                           material.unitOfMeasure === 'gallons' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                           material.unitOfMeasure === 'yards' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
+                                           Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
                                   </div>
+                                  {(material.unitOfMeasure === 'tons' ? (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold :
+                                    (material.weights?.net || 0) > material.pricing.disposalFee.overageThreshold) && (
+                                    <>
+                                      <div className="flex justify-between text-orange-600">
+                                        <span>Overage Fee:</span>
+                                        <span>+${material.pricing.disposalFee.overageFee.toFixed(2)}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-xs">
+                                          (Applied when {material.unitOfMeasure} exceeds {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
+                                        </span>
+                                      </div>
+                                    </>
+                                  )}
                                 </>
                               )}
                               <div className="flex justify-between text-xs text-gray-800">
