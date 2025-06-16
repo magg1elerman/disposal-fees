@@ -2,12 +2,283 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { materials, Material, MaterialPricing } from '@/app/config/materials';
+import { materials as baseMaterials, Material, MaterialPricing } from '@/app/config/materials';
 import { MaterialChip } from "./MaterialChip";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+// Extended materials list from v05c
+const materials: Material[] = [
+  ...baseMaterials,
+  {
+    id: "mattress",
+    name: "Mattress",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "mate88",
+    name: "Mate88",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "mat34",
+    name: "Mat34",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "no-sort-recycle",
+    name: "No Sort Recycle",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "appliance",
+    name: "Appliance",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "tire",
+    name: "Tire",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "brush",
+    name: "Brush",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "shingles",
+    name: "Shingles",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "friable-asbestos",
+    name: "Friable Asbestos",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "non-friable-asbestos",
+    name: "Non-Friable Asbestos",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "fuel",
+    name: "Fuel",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "oil-based-paint",
+    name: "Oil-based Paint",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "household-chemicals",
+    name: "Household Chemicals",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  },
+  {
+    id: "general-liquid-waste",
+    name: "General Liquid Waste",
+    allowPerContainer: true,
+    pricing: {
+      disposalTicket: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      },
+      disposalFee: {
+        rate: 0,
+        includedTonnage: 0,
+        overageThreshold: 0,
+        overageFee: 0
+      }
+    }
+  }
+];
 
 // Update the DisposalFee interface to match the pricing section
 interface DisposalFee {
@@ -57,6 +328,7 @@ interface MaterialWeight {
 interface MaterialWithWeights extends Material {
   weights?: MaterialWeight;
   isTaxable?: boolean;
+  unitOfMeasure?: string;
 }
 
 interface DisposalTicketModalProps {
@@ -88,7 +360,8 @@ export default function DisposalTicketModalV2({
             gross: 5000,
             tare: 2000,
             net: 3000
-          }
+          },
+          unitOfMeasure: 'tons'
         });
       }
       if (cdMaterial) {
@@ -98,7 +371,8 @@ export default function DisposalTicketModalV2({
             gross: 6000,
             tare: 3000,
             net: 3000
-          }
+          },
+          unitOfMeasure: 'tons'
         });
       }
       return initialMaterials;
@@ -110,21 +384,24 @@ export default function DisposalTicketModalV2({
           gross: 8000,
           tare: 3000,
           net: 5000
-        }
+        },
+        unitOfMeasure: 'tons'
       }] : [];
     }
     return [];
   });
+  const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithWeights | null>(null);
   const [currentMaterial, setCurrentMaterial] = useState<MaterialWithWeights | null>(() => {
     if (source === 'scale') {
       const mswMaterial = materials.find(m => m.name === 'MSW');
       return mswMaterial ? {
         ...mswMaterial,
         weights: {
-          gross: 6000,
+          gross: 5000,
           tare: 2000,
-          net: 4000
-        }
+          net: 3000
+        },
+        unitOfMeasure: 'tons'
       } : null;
     } else if (source === 'mobile') {
       const recyclingMaterial = materials.find(m => m.name === 'Recycling');
@@ -134,7 +411,8 @@ export default function DisposalTicketModalV2({
           gross: 8000,
           tare: 3000,
           net: 5000
-        }
+        },
+        unitOfMeasure: 'tons'
       } : null;
     }
     return null;
@@ -443,6 +721,70 @@ export default function DisposalTicketModalV2({
     setEditedNetWeight(null);
   };
 
+  // Helper function to get default unit of measure
+  const getDefaultUnitOfMeasure = (material: Material): string => {
+    switch (material.name) {
+      case "Tire":
+      case "Mattress":
+      case "Mate88":
+      case "Mat34":
+      case "Appliance":
+        return "items";
+      case "Fuel":
+      case "Oil-based Paint":
+      case "Household Chemicals":
+      case "General Liquid Waste":
+        return "gallons";
+      case "Brush":
+      case "Shingles":
+        return "yards";
+      case "MSW":
+      case "Recycling":
+      case "C&D":
+      case "No Sort Recycle":
+      case "Friable Asbestos":
+      case "Non-Friable Asbestos":
+        return "tons";
+      default:
+        return "tons";
+    }
+  };
+
+  const handleMaterialToggle = (material: Material) => {
+    setSelectedMaterials(prev => {
+      if (prev.some(m => m.id === material.id)) {
+        return prev.filter(m => m.id !== material.id);
+      } else {
+        return [...prev, {
+          ...material,
+          weights: { gross: 0, tare: 0, net: 0 },
+          unitOfMeasure: getDefaultUnitOfMeasure(material)
+        }];
+      }
+    });
+  };
+
+  const handleMaterialSelect = (material: Material) => {
+    setSelectedMaterial({
+      ...material,
+      weights: { gross: 0, tare: 0, net: 0 },
+      unitOfMeasure: getDefaultUnitOfMeasure(material)
+    });
+  };
+
+  const handleAddMaterial = () => {
+    if (selectedMaterial) {
+      setSelectedMaterials(prev => [
+        ...prev,
+        {
+          ...selectedMaterial,
+          weights: { gross: 0, tare: 0, net: 0 },
+          unitOfMeasure: getDefaultUnitOfMeasure(selectedMaterial)
+        }
+      ]);
+      setSelectedMaterial(null);
+    }
+  };
   if (!isOpen) return null;
 
   return (
@@ -450,7 +792,7 @@ export default function DisposalTicketModalV2({
       <div className="bg-white rounded-lg p-8 min-w-[90vw] max-h-[95vh] flex flex-col overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-semibold">Disposal Ticket v4</h2>
+            <h2 className="text-xl font-semibold">Disposal Ticket v04 (Current)</h2>
             {(source === 'mobile' || source === 'scale') && (
               <div className="relative group">
                 <button
@@ -657,6 +999,7 @@ export default function DisposalTicketModalV2({
                             </>
                           )}
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Net Weight</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Unit of Measure</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Site Rate</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600">Tipping Fee</th>
                         </tr>
@@ -730,7 +1073,7 @@ export default function DisposalTicketModalV2({
                                         disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                         readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                       />
-                                      <span className="text-xs text-gray-500 ">tons</span>
+                                      {/* <span className="text-xs text-gray-500 ">tons</span> */}
                                     </div>
                                   </div>
                                 </td>
@@ -764,7 +1107,7 @@ export default function DisposalTicketModalV2({
                                         disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                         readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
                                       />
-                                      <span className="text-xs text-gray-500 pl-0.5">tons</span>
+                                      {/* <span className="text-xs text-gray-500 pl-0.5">tons</span> */}
                                     </div>
                                   </div>
                                 </td>
@@ -800,8 +1143,36 @@ export default function DisposalTicketModalV2({
                                     disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
                                     readOnly={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked) || useGrossTare}
                                   />
-                                  <span className="text-xs text-gray-500">tons</span>
+                                  {/* <span className="text-xs text-gray-500">tons</span> */}
                                 </div>
+                              </div>
+                            </td>
+                            <td className="py-1 px-2 border-r border-gray-100">
+                              <div className={`flex items-center rounded border border-gray-200 ${
+                                (source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)
+                                  ? 'bg-transparent border-transparent'
+                                  : 'bg-white'
+                              }`}>
+                                <select
+                                  className="w-full text-left focus:outline-none text-xs px-1 py-0.5 bg-transparent"
+                                  value={material.unitOfMeasure || 'tons'}
+                                  onChange={(e) => {
+                                    setSelectedMaterials(prev => prev.map(m => 
+                                      m.id === material.id 
+                                        ? {
+                                            ...m,
+                                            unitOfMeasure: e.target.value as 'tons' | 'yards' | 'gallons' | 'items'
+                                          }
+                                        : m
+                                    ));
+                                  }}
+                                  disabled={(source === 'scale' && !isScaleUnlocked) || (source === 'mobile' && !isMobileUnlocked)}
+                                >
+                                  <option value="tons">Tons</option>
+                                  <option value="yards">Yards</option>
+                                  <option value="gallons">Gallons</option>
+                                  <option value="items">Items</option>
+                                </select>
                               </div>
                             </td>
                             <td className="py-1 px-2 border-r border-gray-100">
@@ -905,7 +1276,11 @@ export default function DisposalTicketModalV2({
                                     <DropdownMenuItem
                                       key={material.id}
                                       onClick={() => {
-                                        setSelectedMaterials(prev => [...prev, material]);
+                                        setSelectedMaterials(prev => [...prev, {
+                                          ...material,
+                                          weights: { gross: 0, tare: 0, net: 0 },
+                                          unitOfMeasure: getDefaultUnitOfMeasure(material)
+                                        }]);
                                         setCurrentMaterial(material);
                                         setIsPricingPerTon(!material.allowPerContainer || true);
                                         setTicketPricing({
@@ -921,6 +1296,20 @@ export default function DisposalTicketModalV2({
                                         material.name === 'MSW' ? 'text-blue-700' :
                                         material.name === 'Recycling' ? 'text-green-700' :
                                         material.name === 'C&D' ? 'text-cyan-700' :
+                                        material.name === 'No Sort Recycle' ? 'text-emerald-700' :
+                                        material.name === 'Friable Asbestos' ? 'text-red-700' :
+                                        material.name === 'Non-Friable Asbestos' ? 'text-orange-700' :
+                                        material.name === 'Tire' ? 'text-purple-700' :
+                                        material.name === 'Mattress' ? 'text-pink-700' :
+                                        material.name === 'Mate88' ? 'text-pink-600' :
+                                        material.name === 'Mat34' ? 'text-pink-500' :
+                                        material.name === 'Appliance' ? 'text-indigo-700' :
+                                        material.name === 'Fuel' ? 'text-yellow-700' :
+                                        material.name === 'Oil-based Paint' ? 'text-amber-700' :
+                                        material.name === 'Household Chemicals' ? 'text-lime-700' :
+                                        material.name === 'General Liquid Waste' ? 'text-teal-700' :
+                                        material.name === 'Brush' ? 'text-emerald-600' :
+                                        material.name === 'Shingles' ? 'text-amber-600' :
                                         'text-gray-700'
                                       }`}>
                                         {material.name}
@@ -1172,3 +1561,4 @@ export default function DisposalTicketModalV2({
     </div>
   );
 }
+

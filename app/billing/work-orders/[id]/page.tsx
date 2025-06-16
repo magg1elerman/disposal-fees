@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import DisposalTicketModalV3 from '@/app/components/DisposalTicketModal-v3';
 import DisposalTicketModalV4 from '@/app/components/DisposalTicketModal-v4';
+import { ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface DisposalTicket {
   isPricingPerTon: boolean;
@@ -57,6 +59,7 @@ export default function WorkOrderDetailPage() {
   const [isModal4Open, setIsModal4Open] = useState(false);
   const [isMobileModal4Open, setIsMobileModal4Open] = useState(false);
   const [isScaleModal4Open, setIsScaleModal4Open] = useState(false);
+  const [isVersion3Open, setIsVersion3Open] = useState(false);
   
   const workOrder = workOrders.find((wo) => wo.id === id);
 
@@ -211,7 +214,7 @@ export default function WorkOrderDetailPage() {
               <h2 className="text-lg font-semibold mb-4">Disposal Ticket</h2>
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-md font-medium mb-3">Version 4</h3>
+                  <h3 className="text-md font-medium mb-3">Version 4 (Current)</h3>
                   <div className="flex gap-4">
                     <button
                       onClick={() => setIsModal4Open(true)}
@@ -234,29 +237,38 @@ export default function WorkOrderDetailPage() {
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-md font-medium mb-3">Version 3</h3>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setIsModal2bOpen(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      Disposal Ticket - Office
-                    </button>
-                    <button
-                      onClick={() => setIsMobileModal2bOpen(true)}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Disposal Ticket - Mobile
-                    </button>
-                    <button
-                      onClick={() => setIsScaleModal2bOpen(true)}
-                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                    >
-                      Disposal Ticket - Scale
-                    </button>
-                  </div>
-                </div>
+                <Collapsible
+                  open={isVersion3Open}
+                  onOpenChange={setIsVersion3Open}
+                  className="border rounded-lg"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-50">
+                    <h3 className="text-md font-medium">Version 3</h3>
+                    <ChevronDown className={`h-5 w-5 transition-transform ${isVersion3Open ? 'transform rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4">
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => setIsModal2bOpen(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Disposal Ticket - Office
+                      </button>
+                      <button
+                        onClick={() => setIsMobileModal2bOpen(true)}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Disposal Ticket - Mobile
+                      </button>
+                      <button
+                        onClick={() => setIsScaleModal2bOpen(true)}
+                        className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                      >
+                        Disposal Ticket - Scale
+                      </button>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
             </div>
           </div>
