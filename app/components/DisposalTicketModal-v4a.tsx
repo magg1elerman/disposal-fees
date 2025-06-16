@@ -13,97 +13,127 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const materials: Material[] = [
   ...baseMaterials,
   {
-    id: "mattress",
+    id: "mattress-1",
     name: "Mattress",
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 15.00,
+        minFee: 25.00,
+        unitOfMeasure: "items",
+        containerRate: 50.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 35.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 20.00,
+        minFee: 35.00,
+        unitOfMeasure: "items",
+        containerRate: 75.00
       }
     }
   },
   {
-    id: "mate88",
+    id: "mate88-1",
     name: "Mate88",
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 30.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 20.00,
+        minFee: 30.00,
+        unitOfMeasure: "items",
+        containerRate: 60.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 40.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 25.00,
+        minFee: 40.00,
+        unitOfMeasure: "items",
+        containerRate: 85.00
       }
     }
   },
   {
-    id: "mat34",
+    id: "mat34-1",
     name: "Mat34",
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 20.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 15.00,
+        minFee: 20.00,
+        unitOfMeasure: "items",
+        containerRate: 45.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 30.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 20.00,
+        minFee: 30.00,
+        unitOfMeasure: "items",
+        containerRate: 65.00
       }
     }
   },
   {
-    id: "no-sort-recycle",
+    id: "no-sort-recycle-1",
     name: "No Sort Recycle",
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 45.00,
+        includedTonnage: 2,
+        overageThreshold: 5,
+        overageFee: 25.00,
+        minFee: 45.00,
+        unitOfMeasure: "tons",
+        containerRate: 90.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 55.00,
+        includedTonnage: 2,
+        overageThreshold: 5,
+        overageFee: 30.00,
+        minFee: 55.00,
+        unitOfMeasure: "tons",
+        containerRate: 110.00
       }
     }
   },
   {
-    id: "appliance",
+    id: "appliance-1",
     name: "Appliance",
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 35.00,
+        includedTonnage: 1,
+        overageThreshold: 3,
+        overageFee: 20.00,
+        minFee: 35.00,
+        unitOfMeasure: "items",
+        containerRate: 70.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 45.00,
+        includedTonnage: 1,
+        overageThreshold: 3,
+        overageFee: 25.00,
+        minFee: 45.00,
+        unitOfMeasure: "items",
+        containerRate: 90.00
       }
     }
   },
@@ -113,16 +143,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 15.00,
+        includedTonnage: 4,
+        overageThreshold: 8,
+        overageFee: 10.00,
+        minFee: 15.00,
+        unitOfMeasure: "items",
+        containerRate: 30.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 25.00,
+        includedTonnage: 4,
+        overageThreshold: 8,
+        overageFee: 15.00,
+        minFee: 25.00,
+        unitOfMeasure: "items",
+        containerRate: 50.00
       }
     }
   },
@@ -132,16 +168,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 40.00,
+        includedTonnage: 3,
+        overageThreshold: 6,
+        overageFee: 20.00,
+        minFee: 40.00,
+        unitOfMeasure: "yards",
+        containerRate: 80.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 50.00,
+        includedTonnage: 3,
+        overageThreshold: 6,
+        overageFee: 25.00,
+        minFee: 50.00,
+        unitOfMeasure: "yards",
+        containerRate: 100.00
       }
     }
   },
@@ -151,16 +193,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 50.00,
+        includedTonnage: 2,
+        overageThreshold: 4,
+        overageFee: 30.00,
+        minFee: 50.00,
+        unitOfMeasure: "yards",
+        containerRate: 100.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 60.00,
+        includedTonnage: 2,
+        overageThreshold: 4,
+        overageFee: 35.00,
+        minFee: 60.00,
+        unitOfMeasure: "yards",
+        containerRate: 120.00
       }
     }
   },
@@ -170,16 +218,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 200.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 100.00,
+        minFee: 200.00,
+        unitOfMeasure: "tons",
+        containerRate: 400.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 250.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 125.00,
+        minFee: 250.00,
+        unitOfMeasure: "tons",
+        containerRate: 500.00
       }
     }
   },
@@ -189,16 +243,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 150.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 75.00,
+        minFee: 150.00,
+        unitOfMeasure: "tons",
+        containerRate: 300.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 200.00,
+        includedTonnage: 1,
+        overageThreshold: 2,
+        overageFee: 100.00,
+        minFee: 200.00,
+        unitOfMeasure: "tons",
+        containerRate: 400.00
       }
     }
   },
@@ -208,16 +268,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 75.00,
+        includedTonnage: 10,
+        overageThreshold: 20,
+        overageFee: 50.00,
+        minFee: 75.00,
+        unitOfMeasure: "gallons",
+        containerRate: 150.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 85.00,
+        includedTonnage: 10,
+        overageThreshold: 20,
+        overageFee: 60.00,
+        minFee: 85.00,
+        unitOfMeasure: "gallons",
+        containerRate: 170.00
       }
     }
   },
@@ -227,16 +293,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 65.00,
+        includedTonnage: 5,
+        overageThreshold: 10,
+        overageFee: 40.00,
+        minFee: 65.00,
+        unitOfMeasure: "gallons",
+        containerRate: 130.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 75.00,
+        includedTonnage: 5,
+        overageThreshold: 10,
+        overageFee: 50.00,
+        minFee: 75.00,
+        unitOfMeasure: "gallons",
+        containerRate: 150.00
       }
     }
   },
@@ -246,16 +318,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 55.00,
+        includedTonnage: 5,
+        overageThreshold: 10,
+        overageFee: 35.00,
+        minFee: 55.00,
+        unitOfMeasure: "gallons",
+        containerRate: 110.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 65.00,
+        includedTonnage: 5,
+        overageThreshold: 10,
+        overageFee: 45.00,
+        minFee: 65.00,
+        unitOfMeasure: "gallons",
+        containerRate: 130.00
       }
     }
   },
@@ -265,16 +343,22 @@ const materials: Material[] = [
     allowPerContainer: true,
     pricing: {
       disposalTicket: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 45.00,
+        includedTonnage: 10,
+        overageThreshold: 20,
+        overageFee: 30.00,
+        minFee: 45.00,
+        unitOfMeasure: "gallons",
+        containerRate: 90.00
       },
       disposalFee: {
-        rate: 0,
-        includedTonnage: 0,
-        overageThreshold: 0,
-        overageFee: 0
+        rate: 55.00,
+        includedTonnage: 10,
+        overageThreshold: 20,
+        overageFee: 40.00,
+        minFee: 55.00,
+        unitOfMeasure: "gallons",
+        containerRate: 110.00
       }
     }
   }
@@ -471,13 +555,19 @@ export default function DisposalTicketModalV4a({
     rate: 75.00,
     includedTonnage: 1,
     overageThreshold: 5.00,
-    overageFee: 25.00
+    overageFee: 25.00,
+    minFee: 75.00,
+    unitOfMeasure: "tons",
+    containerRate: 150.00
   });
   const [tippingFeePricing, setTippingFeePricing] = useState<MaterialPricing['disposalTicket']>({
     rate: 65.00,
     includedTonnage: 1,
     overageThreshold: 5.00,
-    overageFee: 20.00
+    overageFee: 20.00,
+    minFee: 65.00,
+    unitOfMeasure: "tons",
+    containerRate: 130.00
   });
   const [containerRate, setContainerRate] = useState(150.00);
   const [actualTonnage, setActualTonnage] = useState(source === 'scale' ? 2.00 : 0);
@@ -546,14 +636,21 @@ export default function DisposalTicketModalV4a({
     if (currentMaterial) {
       // Set tipping fee rate (Hauler Charge)
       // Customer Charge uses the material's disposal fee base rate
-      setTicketPricing({ ...currentMaterial.pricing.disposalFee });
+      setTicketPricing({ 
+        ...currentMaterial.pricing.disposalFee,
+        minFee: currentMaterial.pricing.disposalFee.rate,
+        unitOfMeasure: (currentMaterial.unitOfMeasure || "tons") as "tons" | "items" | "gallons" | "yards"
+      });
 
       // Hauler Charge (tipping fee) is 15% below the base rate
       setTippingFeePricing({
         rate: currentMaterial.pricing.disposalFee.rate * 0.85,
         includedTonnage: currentMaterial.pricing.disposalTicket.includedTonnage,
         overageThreshold: currentMaterial.pricing.disposalTicket.overageThreshold,
-        overageFee: currentMaterial.pricing.disposalTicket.overageFee
+        overageFee: currentMaterial.pricing.disposalTicket.overageFee,
+        minFee: currentMaterial.pricing.disposalFee.rate * 0.85,
+        unitOfMeasure: (currentMaterial.unitOfMeasure || "tons") as "tons" | "items" | "gallons" | "yards",
+        containerRate: currentMaterial.pricing.disposalTicket.containerRate
       });
 
       if (currentMaterial.pricing.disposalTicket.containerRate) {
@@ -587,21 +684,32 @@ export default function DisposalTicketModalV4a({
             ...material.pricing,
             disposalTicket: {
               ...material.pricing.disposalTicket,
-              overageThreshold: 5.00
+              overageThreshold: 5.00,
+              minFee: material.pricing.disposalTicket.rate,
+              unitOfMeasure: "tons"
             },
             disposalFee: {
               ...material.pricing.disposalFee,
-              overageThreshold: 5.00
+              overageThreshold: 5.00,
+              minFee: material.pricing.disposalFee.rate,
+              unitOfMeasure: "tons"
             }
           }
         });
         // Set initial pricing for scale/mobile
-        setTicketPricing({ ...material.pricing.disposalFee });
+        setTicketPricing({ 
+          ...material.pricing.disposalFee,
+          minFee: material.pricing.disposalFee.rate,
+          unitOfMeasure: "tons"
+        });
         setTippingFeePricing({
           rate: material.pricing.disposalFee.rate * 0.85,
           includedTonnage: material.pricing.disposalTicket.includedTonnage,
           overageThreshold: material.pricing.disposalTicket.overageThreshold,
-          overageFee: material.pricing.disposalTicket.overageFee
+          overageFee: material.pricing.disposalTicket.overageFee,
+          minFee: material.pricing.disposalFee.rate * 0.85,
+          unitOfMeasure: "tons",
+          containerRate: material.pricing.disposalTicket.containerRate
         });
         if (material.pricing.disposalTicket.containerRate) {
           setContainerRate(material.pricing.disposalTicket.containerRate);
@@ -726,7 +834,9 @@ export default function DisposalTicketModalV4a({
     if (currentMaterial && editedFee) {
       currentMaterial.pricing.disposalTicket = {
         ...currentMaterial.pricing.disposalTicket,
-        ...editedFee
+        ...editedFee,
+        minFee: editedFee.rate,
+        unitOfMeasure: currentMaterial.unitOfMeasure || "tons"
       };
       setIsEditingFee(false);
     }
@@ -1056,7 +1166,7 @@ export default function DisposalTicketModalV4a({
                               <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Tare Weight</th>
                             </>
                           )}
-                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Net Weight</th>
+                          <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Net Amount</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600 border-r border-gray-100">Unit of Measure</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600">Site Rate</th>
                           <th className="text-left py-1 px-2 font-medium text-gray-600">Tipping Fee</th>
@@ -1195,18 +1305,20 @@ export default function DisposalTicketModalV4a({
                                   <input
                                     type="number"
                                     className="w-16 text-left focus:outline-none text-xs px-1 py-0.5"
-                                    value={(material.weights?.net || 0) / 2000}
+                                    value={material.unitOfMeasure === 'tons' ? 
+                                      (material.weights?.net || 0) / 2000 :
+                                      material.weights?.net || 0}
                                     step="0.01"
                                     onChange={(e) => {
-                                      const netTons = parseFloat(e.target.value);
+                                      const value = parseFloat(e.target.value);
                                       setSelectedMaterials(prev => prev.map(m => 
                                         m.id === material.id 
                                           ? {
                                               ...m,
                                               weights: {
-                                                gross: netTons * 2000 + (m.weights?.tare || 0),
+                                                gross: material.unitOfMeasure === 'tons' ? value * 2000 + (m.weights?.tare || 0) : value + (m.weights?.tare || 0),
                                                 tare: m.weights?.tare || 0,
-                                                net: netTons * 2000
+                                                net: material.unitOfMeasure === 'tons' ? value * 2000 : value
                                               }
                                             }
                                           : m
@@ -1543,61 +1655,87 @@ export default function DisposalTicketModalV4a({
                               </div>
                               <div className="flex justify-between">
                                 <span>Rate:</span>
-                                <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/ton</span>
+                                <span>${(material.pricing.disposalFee.rate * 0.7).toFixed(2)}/{material.unitOfMeasure}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Total {material.unitOfMeasure === 'items' ? 'Items' : 
                                           material.unitOfMeasure === 'gallons' ? 'Gallons' : 
                                           material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                <span>{material.unitOfMeasure === 'items' ? material.weights?.net || 0 :
-                                       material.unitOfMeasure === 'gallons' ? material.weights?.net || 0 :
-                                       material.unitOfMeasure === 'yards' ? material.weights?.net || 0 :
-                                       (material.weights?.net || 0) / 2000} {material.unitOfMeasure}</span>
+                                <span>{material.unitOfMeasure === 'tons' ? 
+                                       ((material.weights?.net || 0) / 2000).toFixed(2) :
+                                       material.weights?.net || 0} {material.unitOfMeasure}</span>
                               </div>
-                              {isAdvancedMode && (
-                                <>
-                                  <div className="flex justify-between">
-                                    <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
-                                              material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                              material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                    <span>{material.unitOfMeasure === 'items' ? material.pricing.disposalFee.includedTonnage :
-                                           material.unitOfMeasure === 'gallons' ? material.pricing.disposalFee.includedTonnage :
-                                           material.unitOfMeasure === 'yards' ? material.pricing.disposalFee.includedTonnage :
-                                           material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
-                                              material.unitOfMeasure === 'gallons' ? 'Gallons' : 
-                                              material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
-                                    <span>{material.unitOfMeasure === 'items' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                           material.unitOfMeasure === 'gallons' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                           material.unitOfMeasure === 'yards' ? Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage) :
-                                           Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
-                                  </div>
-                                  {(material.unitOfMeasure === 'tons' ? (material.weights?.net || 0) / 2000 > material.pricing.disposalFee.overageThreshold :
-                                    (material.weights?.net || 0) > material.pricing.disposalFee.overageThreshold) && (
+                              <div className="flex justify-between">
+                                <span>Included {material.unitOfMeasure === 'items' ? 'Items' : 
+                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                <span>{material.pricing.disposalFee.includedTonnage} {material.unitOfMeasure}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Chargeable {material.unitOfMeasure === 'items' ? 'Items' : 
+                                          material.unitOfMeasure === 'gallons' ? 'Gallons' : 
+                                          material.unitOfMeasure === 'yards' ? 'Yards' : 'Tonnage'}:</span>
+                                <span>{material.unitOfMeasure === 'tons' ? 
+                                       Math.max(0, (material.weights?.net || 0) / 2000 - material.pricing.disposalFee.includedTonnage).toFixed(2) :
+                                       Math.max(0, (material.weights?.net || 0) - material.pricing.disposalFee.includedTonnage)} {material.unitOfMeasure}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Minimum Charge:</span>
+                                <span>${material.pricing.disposalFee.minFee.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Overage Threshold:</span>
+                                <span>{material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure}</span>
+                              </div>
+                              {(() => {
+                                const netAmount = material.unitOfMeasure === 'tons' ? 
+                                  (material.weights?.net || 0) / 2000 : 
+                                  (material.weights?.net || 0);
+                                
+                                if (netAmount > material.pricing.disposalFee.overageThreshold) {
+                                  return (
                                     <>
                                       <div className="flex justify-between text-orange-600">
                                         <span>Overage Fee:</span>
                                         <span>+${material.pricing.disposalFee.overageFee.toFixed(2)}</span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-xs">
-                                          (Applied when {material.unitOfMeasure} exceeds {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
+                                        <span className="text-xs text-orange-600">
+                                          (Applied because {netAmount.toFixed(2)} {material.unitOfMeasure} exceeds threshold of {material.pricing.disposalFee.overageThreshold} {material.unitOfMeasure})
                                         </span>
                                       </div>
                                     </>
-                                  )}
-                                </>
-                              )}
+                                  );
+                                }
+                                return null;
+                              })()}
                               <div className="flex justify-between text-xs text-gray-800">
                                 <span>Subtotal:</span>
-                                <span className="text-left">${(material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000).toFixed(2)}</span>
+                                <span className="text-left">${(() => {
+                                  const netAmount = material.unitOfMeasure === 'tons' ? 
+                                    (material.weights?.net || 0) / 2000 : 
+                                    (material.weights?.net || 0);
+                                  const chargeableAmount = Math.max(0, netAmount - material.pricing.disposalFee.includedTonnage);
+                                  const baseCharge = chargeableAmount * (material.pricing.disposalFee.rate * 0.7);
+                                  const overageFee = netAmount > material.pricing.disposalFee.overageThreshold ? 
+                                    material.pricing.disposalFee.overageFee : 0;
+                                  return Math.max(material.pricing.disposalFee.minFee, baseCharge + overageFee).toFixed(2);
+                                })()}</span>
                               </div>
                               {isTaxable && (
                                 <div className="flex justify-between text-xs text-gray-600">
                                   <span>Tax (8.25%):</span>
-                                  <span className="text-left">+${((material.pricing.disposalFee.rate * 0.7 * (material.weights?.net || 0) / 2000) * 0.0825).toFixed(2)}</span>
+                                  <span className="text-left">+${(() => {
+                                    const netAmount = material.unitOfMeasure === 'tons' ? 
+                                      (material.weights?.net || 0) / 2000 : 
+                                      (material.weights?.net || 0);
+                                    const chargeableAmount = Math.max(0, netAmount - material.pricing.disposalFee.includedTonnage);
+                                    const baseCharge = chargeableAmount * (material.pricing.disposalFee.rate * 0.7);
+                                    const overageFee = netAmount > material.pricing.disposalFee.overageThreshold ? 
+                                      material.pricing.disposalFee.overageFee : 0;
+                                    const subtotal = Math.max(material.pricing.disposalFee.minFee, baseCharge + overageFee);
+                                    return (subtotal * 0.0825).toFixed(2);
+                                  })()}</span>
                                 </div>
                               )}
                               {index < selectedMaterials.length - 1 && (
