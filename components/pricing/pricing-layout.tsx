@@ -21,6 +21,8 @@ import { DisposalFeeFormV5a as DisposalFeeFormV05a } from "@/components/pricing/
 import { DisposalFeeFormV5b as DisposalFeeFormV05b } from "@/components/pricing/disposal-fee-form-v05b"
 import { DisposalFeeFormV5c as DisposalFeeFormV05c } from "@/components/pricing/disposal-fee-form-v05c"
 import { DisposalFeeFormV6 as DisposalFeeFormV06 } from "@/components/pricing/disposal-fee-form-v06"
+import { DisposalFeeFormV7 as DisposalFeeFormV07 } from "@/components/pricing/disposal-fee-form-v07"
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -43,6 +45,8 @@ export function PricingLayout() {
   const [showFormV5b, setShowFormV5b] = useState(false)
   const [showFormV5c, setShowFormV5c] = useState(false)
   const [showFormV6, setShowFormV6] = useState(false)
+  const [showFormV7, setShowFormV7] = useState(false)
+
   const [formData, setFormData] = useState({
     rateStructure: "Per Ton",
     overageThreshold: 0,
@@ -102,6 +106,11 @@ export function PricingLayout() {
     setShowFormV6(false)
   }
 
+  const handleSaveV7 = (fee: any) => {
+    // Handle saving the fee
+    setShowFormV7(false)
+  }
+
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
@@ -151,9 +160,9 @@ export function PricingLayout() {
               <>
                 <div className="flex items-center space-x-2 bg-gray-50 rounded-md p-1 border border-green-500">
                   <Button  variant="outline" className="bg-green-300 text-green-900"
-                    onClick={() => setShowFormV6(true)}
+                    onClick={() => setShowFormV7(true)}
                   >
-                   v06
+                   v07
                   </Button>
                 </div>
               </>
@@ -331,6 +340,26 @@ export function PricingLayout() {
                             </div>
                           </CardContent>
                         </Card>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Version 6</CardTitle>
+                            <CardDescription>
+                              Unit Selection and Fee Structure Changes               
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 gap-4">
+                            <Button  variant="outline" className="bg-white text-black"
+                                onClick={() => setShowFormV6(true)}
+                              >
+                              v06
+                            </Button>
+                          
+                        
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -445,6 +474,17 @@ export function PricingLayout() {
             <DisposalFeeFormV06
               onSave={handleSaveV6}
               onCancel={() => setShowFormV6(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFormV7} onOpenChange={setShowFormV7}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-visible p-0">
+          <div className="overflow-y-auto max-h-[90vh]">
+            <DisposalFeeFormV07
+              onSave={handleSaveV7}
+              onCancel={() => setShowFormV7(false)}
             />
           </div>
         </DialogContent>

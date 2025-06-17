@@ -14,6 +14,7 @@ export interface MaterialPricing {
   defaultRate?: string
   tiers?: { id: number; from: number; to: number | null; rate: number }[]
   chargeable: boolean
+  isDisposalSiteRate?: boolean
 }
 
 // Define the DisposalFee type
