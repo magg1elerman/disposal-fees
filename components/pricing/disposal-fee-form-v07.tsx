@@ -771,10 +771,11 @@ export function DisposalFeeFormV7({ initialFee, onSave, onCancel }: DisposalFeeF
                                 <TableHead className="w-[180px]">Unit of Measure</TableHead>
                                 <TableHead className="w-[150px]">
                                   <div className="flex items-center space-x-2">
-                                    <Checkbox
+                                    <Switch
                                       id="select-all-disposal-site-rates"
                                       checked={allDisposalSiteRates}
                                       onCheckedChange={handleSelectAllDisposalSiteRates}
+                                      className="h-4 w-8"
                                     />
                                     <Label htmlFor="select-all-disposal-site-rates" className="text-sm font-normal">
                                       Disposal Site Rate
@@ -847,17 +848,15 @@ export function DisposalFeeFormV7({ initialFee, onSave, onCancel }: DisposalFeeF
                                       </Select>
                                     </TableCell>
                                     <TableCell className="w-[150px]">
-                                      <div className="flex items-center space-x-2">
-                                        <Checkbox
+                                      <div className="flex items-center justify-center">
+                                        <Switch
                                           id={`${material.name}-disposal-site-rate`}
                                           checked={materialPricing[material.name]?.isDisposalSiteRate || false}
                                           onCheckedChange={(checked) => 
                                             handleMaterialPricingChange(material.name, "isDisposalSiteRate", checked)
                                           }
+                                          className="h-4 w-8"
                                         />
-                                        <Label htmlFor={`${material.name}-disposal-site-rate`} className="text-xs font-normal">
-                                          Disposal Site Rate
-                                        </Label>
                                       </div>
                                     </TableCell>
                                     <TableCell className="w-[220px]">
